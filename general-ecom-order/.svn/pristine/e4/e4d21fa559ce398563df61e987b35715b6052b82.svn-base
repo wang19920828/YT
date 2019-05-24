@@ -1,0 +1,102 @@
+package org.fh.general.ecom.order.model;
+
+import com.baomidou.mybatisplus.enums.IdType;
+import java.math.BigDecimal;
+import java.util.Date;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableName;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * <p>
+ * 分红项目管理表
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+@Data
+@TableName("tb_red_project")
+public class RedProject implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键ID
+     */
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+
+	/**
+	 * 企业ID
+	 */
+	@TableField("company_id")
+	private Long companyId;
+    /**
+     * 项目名称
+     */
+	@TableField("project_name")
+	private String projectName;
+    /**
+     * 项目唯一标识
+     */
+	@TableField("project_id")
+	private String projectId;
+    /**
+     * 企业名称
+     */
+	@TableField("company_name")
+	private String companyName;
+    /**
+     * 实际筹资金额
+     */
+	@TableField("amount_real")
+	private BigDecimal amountReal;
+    /**
+     * 累计已分红额
+     */
+	@TableField("amount_leiji")
+	private BigDecimal amountLeiji;
+    /**
+     * 预期本期待分红额
+     */
+	@TableField("amount_expected")
+	private BigDecimal amountExpected;
+    /**
+     * 本期分红日期
+     */
+	@TableField("current_time")
+	private Date currentTime;
+    /**
+     * 本期逾期状态：1-正常 2-逾期
+     */
+	@TableField("over_status")
+	private String overStatus;
+    /**
+     * 本期分红状态：1-待申请 2-待审核 3-驳回 4-分红
+     */
+	@TableField("share_status")
+	private String shareStatus;
+    /**
+     * 添加日期
+     */
+	@TableField("add_time")
+	private Date addTime;
+    /**
+     * 平台编号：1001-云投
+     */
+	private String branch;
+    /**
+     * 备用字段1
+     */
+	private String exp1;
+    /**
+     * 备用字段2
+     */
+	private String exp2;
+
+
+}

@@ -1,0 +1,42 @@
+#≤‚ ‘ª∑æ≥ test
+#fastdfs----------------------begin
+pool_size = 20
+fastdfs_ip = 192.168.163.31
+fastdfs_port = 22122
+fastdfs_charset = UTF-8
+connect_timeout = 50000
+network_timeout = 90000
+#downloadUrl
+fastdfs_url=http://49.4.4.57:9000/
+#port=8877
+
+
+#fastdfs----------------------end
+
+#mongo==============================begin
+mongo.host = 117.78.34.24
+mongo.port = 27017
+mongo.poolsize = 100
+mongo.blocksize = 100
+
+
+#mongo==============================end
+
+#redis------------------------------begin
+redis.pool.maxTotal = 5000
+
+redis.pool.maxIdle = 5
+
+redis.pool.maxWait = 100000
+
+redis.pool.testOnBorrow = true
+
+redis.pool.testOnReturn = true
+
+redis.auth =
+
+redis.ip =192.168.163.31
+
+redis.port =7111
+
+#redis---------------------------------1end

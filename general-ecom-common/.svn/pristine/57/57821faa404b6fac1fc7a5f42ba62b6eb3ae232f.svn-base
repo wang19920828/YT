@@ -1,0 +1,144 @@
+package org.fh.general.ecom.common.enums;
+
+import lombok.Getter;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/20
+ **/
+@Getter
+public class ProjectEnum {
+
+    public enum ProjectIsDelay {
+        //0：正常，
+        NORMAL("0", "正常"), DELAY("1", "延期");
+        private String name;
+        private String value;
+
+        public static ProjectEnum.ProjectIsDelay codeOf(String value) {
+            for(ProjectEnum.ProjectIsDelay a:ProjectEnum.ProjectIsDelay.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        ProjectIsDelay(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+
+    //项目来源0：前台用户   1：后台添加
+
+    public enum ProjectSource {
+        WEB("0", "前台添加"), MANAGE("1", "后台添加");
+        private String name;
+        private String value;
+
+        public static ProjectEnum.ProjectSource codeOf(String value) {
+            for(ProjectEnum.ProjectSource a:ProjectEnum.ProjectSource.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        ProjectSource(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+
+    public enum ProjectFileOpen {
+        OPEN("0", "公开信息"), CLOSED("1", "投资人可见");
+        private String name;
+        private String value;
+
+        public static ProjectEnum.ProjectFileOpen codeOf(String value) {
+            for(ProjectEnum.ProjectFileOpen a:ProjectEnum.ProjectFileOpen.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        ProjectFileOpen(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+
+    public enum ProjectStatus {
+        /**
+         * 项目状态\r\n
+         * 99-申请中,
+         * 0-完善中（待审核）
+         * 1-审核通过（发布到前台展示）
+         * 2-审核驳回
+         * 3 预约中（预约时间开始后修改为该状态）\
+         * 4-认购中（预约时间结束后修改为该状态）\r\n
+         * 5-冷静期（认购期结束修改为该状态）\r\n
+         * 6-分红中（冷静期结束，并开始分红）\r\n
+         * 7-项目完成（项目正常结束）\r\n
+         * 8-认购失败（没有达到计划百分比失败）\r\n
+         * 9-延期（将项目延期，可以认购）\r\n
+         * 11-项目发布撤销（项目撤销-？？）',
+         * 12-认购成功
+         */
+        CREATE("99","申请中"),
+        APPLYING("0", "完善中"),
+        AUDIT_PASS("1", "审核通过"),
+        AUDIT_REJECT("2", "审核驳回"),
+        APPOINTMENT("3", "预约中"),
+        SUBSCRIBE("4", "认购中"),
+        CALMNESS_PERIOD("5", "冷静期"),
+        IN_RED("6", "分红中"),
+        FINISH("7", "项目完成"),
+        FAIL("8", "认购失败"),
+        DELAY("9", "延期"),
+        CANCLE("11", "撤销"),
+        SUCCESS("12", "项目认购成功");
+        private String name;
+        private String value;
+
+        public static ProjectEnum.ProjectStatus codeOf(String value) {
+            for(ProjectEnum.ProjectStatus a:ProjectEnum.ProjectStatus.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        ProjectStatus(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+        public String getName() { return name;}
+
+    }
+
+}

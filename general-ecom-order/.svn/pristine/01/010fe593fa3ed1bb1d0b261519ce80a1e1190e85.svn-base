@@ -1,0 +1,65 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.dto.order.order.OrderListInputDTO;
+import org.fh.general.ecom.common.dto.order.order.OrderListOutputDTO;
+import org.fh.general.ecom.common.dto.order.orderMy.MyOrderPageInputDTO;
+import org.fh.general.ecom.common.dto.order.orderMy.MyOrderPageOutputDTO;
+import org.fh.general.ecom.common.po.order.order.OrderListOutPO;
+import org.fh.general.ecom.common.po.order.order.OrderListParamPO;
+import org.fh.general.ecom.common.po.order.order.OrderPO;
+import org.fh.general.ecom.common.po.order.orderMy.MyOrderPO;
+import org.fh.general.ecom.common.po.order.orderMy.MyOrderParamPO;
+import org.fh.general.ecom.order.client.BasicsClient;
+import org.fh.general.ecom.order.client.ProductClient;
+import org.fh.general.ecom.order.dao.OrderDao;
+import org.fh.general.ecom.order.model.Order;
+import org.fh.general.ecom.order.service.OrderMyService;
+import org.fh.general.ecom.order.service.OrderService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Slf4j
+@Service
+public class OrderMyServiceImpl extends ServiceImpl<OrderDao, Order> implements OrderMyService {
+    @Autowired
+    private ProductClient productClient;
+    @Autowired
+    private BasicsClient basicsClient;
+    @Autowired
+    private OrderService orderService;
+
+    @Override
+    public MyOrderPageOutputDTO findMyOrderPage(MyOrderPageInputDTO dto) {
+        MyOrderParamPO paramPO=new MyOrderParamPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        //1-待支付订单
+
+        //2-成功订单
+
+        //3-退款订单
+
+        //4-失效订单
+
+
+        List<MyOrderPO> list=baseMapper.findMyOrderPage(paramPO);
+        PageInfo pageInfo=new PageInfo(list);
+
+        MyOrderPageOutputDTO response=new MyOrderPageOutputDTO();
+        if(list !=null && list.size()>0){
+            response.setList(list);
+            response.setPageInfo(pageInfo);
+        }
+        return response;
+    }
+
+
+
+}

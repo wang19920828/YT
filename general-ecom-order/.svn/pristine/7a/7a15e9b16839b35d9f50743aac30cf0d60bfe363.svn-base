@@ -1,0 +1,20 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.order.dao.OrderDao;
+import org.fh.general.ecom.order.model.Order;
+import org.fh.general.ecom.order.service.OrderMyService;
+import org.fh.general.ecom.order.service.ValidateService;
+import org.springframework.stereotype.Service;
+
+
+@Slf4j
+@Service
+public class ValidateServiceImpl extends ServiceImpl<OrderDao, Order> implements ValidateService {
+
+
+
+
+}

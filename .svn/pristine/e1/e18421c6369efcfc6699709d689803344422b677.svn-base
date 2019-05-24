@@ -1,0 +1,20 @@
+package org.fh.general.ecom.basics.dao;
+
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+import org.fh.general.ecom.basics.model.AdminOperationLog;
+import org.fh.general.ecom.common.po.basics.adminOperationLog.AdminOperationLogPO;
+
+import java.util.List;
+
+/**
+ * <p>
+  * 操作员日志 Mapper 接口
+ * </p>
+ *
+ * @author admin
+ * @since 2018-06-27
+ */
+public interface AdminOperationLogDao extends BaseMapper<AdminOperationLog> {
+
+    public List<AdminOperationLog> findPage(AdminOperationLogPO po);
+}

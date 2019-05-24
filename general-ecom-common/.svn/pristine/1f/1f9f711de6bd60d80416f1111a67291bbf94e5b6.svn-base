@@ -1,0 +1,48 @@
+package org.fh.general.ecom.common.enumeration.order;
+
+public class WithdrawalEnum {
+
+
+    /**
+     * 审核状态：1-待审核 2-通过 3-驳回
+     */
+    public enum auditStatus {
+        AUDIT_WAIT("1", "待审核"),  AUDIT_NO("2", "通过"),AUDIT_OK("3", "驳回");
+
+        private String name;
+        private String value;
+
+        public static auditStatus codeOf(String value) {
+            for(auditStatus a:auditStatus.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        auditStatus(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+
+
+}

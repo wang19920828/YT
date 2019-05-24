@@ -1,0 +1,17 @@
+package org.fh.general.ecom.common.dto.basics.user.electronicsAccount;
+
+import lombok.Data;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/28 09:21
+ * @Description:
+ */
+@Data
+public class ElectronicsInitAccountInputDTO {
+
+   private Long userId;
+   private String branch;
+   private String branchName;
+   private String channel;
+}

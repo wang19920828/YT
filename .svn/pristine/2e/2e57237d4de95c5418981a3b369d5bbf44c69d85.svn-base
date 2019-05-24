@@ -1,0 +1,51 @@
+package org.fh.general.ecom.basics.controller;
+
+
+import org.fh.general.ecom.basics.service.DictionaryService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.basics.dictionary.DictionaryListInDTO;
+import org.fh.general.ecom.common.dto.basics.dictionary.DictionaryListOutDTO;
+import org.fh.general.ecom.common.po.basics.dictionary.DicListOutPO;
+import org.fh.general.ecom.common.vo.basics.dictionary.DictionaryListVo;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 数据字典表 前端控制器
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-08-14
+ */
+@RestController
+public class DictionaryController {
+
+    @Autowired
+    private DictionaryService dictionaryService;
+
+    /**
+     * 数据字典列表项
+     *
+     * @param paramDto
+     * @return
+     */
+    @RequestMapping("BAS80001")
+    public List<DictionaryListVo> findDicListByType(DictionaryListInDTO paramDto) {
+        BaseVO baseVo = new BaseVO();
+        List<DictionaryListVo> voList = new ArrayList<DictionaryListVo>();
+        DictionaryListOutDTO response = this.dictionaryService.findDicListByType(paramDto);
+        response.getList().forEach((DicListOutPO temp) -> {
+            DictionaryListVo voEn = new DictionaryListVo();
+            BeanUtils.copyProperties(temp, voEn);
+            voList.add(voEn);
+        });
+        return voList;
+    }
+
+}

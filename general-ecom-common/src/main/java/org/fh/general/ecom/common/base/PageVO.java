@@ -1,0 +1,43 @@
+package org.fh.general.ecom.common.base;
+
+import com.github.pagehelper.PageInfo;
+
+import lombok.Data;
+import org.fh.general.ecom.common.comm.SpecailPage;
+
+
+@Data
+public class PageVO implements Entity {
+
+    /** 总条数 */
+    private long total = 0;
+
+    /** 总页数 */
+    private int pages = 0;
+
+    /** 每页条数 */
+    private int pageSize = 0;
+
+    /** 当前页数 */
+    private int pageNum = 0;
+    public PageVO(){}
+    public PageVO(PageInfo info){
+        this.total = info.getTotal();
+        this.pages = info.getPages();
+        this.pageSize = info.getPageSize();
+        this.pageNum = info.getPageNum();
+    }
+    public PageVO(SpecailPage info){
+        this.total = info.getTotal();
+        this.pages = info.getPages();
+        this.pageSize = info.getPageSize();
+        this.pageNum = info.getPageNum();
+    }
+
+    public PageVO(long total, int pages, int pageSize, int pageNum) {
+        this.total = total;
+        this.pages = pages;
+        this.pageSize = pageSize;
+        this.pageNum = pageNum;
+    }
+}

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.DistrictDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.District">
+		<id column="districtId" property="districtId" />
+		<result column="district" property="district" />
+		<result column="sortCode" property="sortCode" />
+		<result column="parentId" property="parentId" />
+		<result column="pinCode" property="pinCode" />
+		<result column="areaCode" property="areaCode" />
+		<result column="priority" property="priority" />
+		<result column="childSK" property="childSK" />
+		<result column="areaType" property="areaType" />
+		<result column="creatorId" property="creatorId" />
+		<result column="createTime" property="createTime" />
+	</resultMap>
+
+</mapper>

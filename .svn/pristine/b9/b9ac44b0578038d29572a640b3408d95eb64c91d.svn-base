@@ -1,0 +1,92 @@
+package org.fh.general.ecom.basics.service;
+
+
+import org.fh.general.ecom.basics.model.AdminFunction;
+import org.fh.general.ecom.common.dto.basics.function.FunctionAddDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionFindPageInputDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionListOutPutDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionUpdateDTO;
+import org.fh.general.ecom.common.vo.basics.function.AdminFunctionVO;
+
+import java.util.List;
+
+public interface FunctionService {
+
+    /**
+     * 查询分页
+     *
+     * @return
+     */
+    public FunctionListOutPutDTO findPage(FunctionFindPageInputDTO dto);
+
+    /**
+     * 增加
+     * <p>
+     * param entity
+     *
+     * @return
+     */
+    public String addEntity(FunctionAddDTO dto);
+
+    /**
+     * 修改
+     *
+     * @return
+     */
+    public String updateEntity(FunctionUpdateDTO dto);
+
+    /**
+     * 删除
+     *
+     * @return
+     */
+    public String deleteEntity(String functionIds);
+
+    /**
+     * 启用/禁用
+     *
+     * @param ids
+     * @param isDisabled
+     * @return
+     */
+    public void updateDisabled(String ids, String isDisabled);
+
+
+    /**
+     * 查询全部菜单按角色标记
+     *
+     * @param roleId
+     * @return
+     * @throws Exception
+     */
+    public List<AdminFunctionVO> findFuncListByRoleId(Long roleId);
+
+    /**
+     * 根据父级ID查询列表
+     *
+     * @param parentId
+     * @return
+     */
+    public List<AdminFunction> findListByParentId(Long parentId) throws Exception;
+
+    public AdminFunction findEntity(Long funModuleId);
+
+    /**
+     * 查询角色权限
+     *
+     * @param roleId
+     * @return
+     * @throws Exception
+     */
+    public List<AdminFunction> findRoleFuncList(Long roleId) throws Exception;
+
+    /**
+     * 被授权角色拥有权限
+     * param roleId
+     */
+    public List<String> findLevel(Long roleId, int sortLen) throws Exception;
+
+    public List<AdminFunctionVO> findAllList() throws Exception;
+
+
+}

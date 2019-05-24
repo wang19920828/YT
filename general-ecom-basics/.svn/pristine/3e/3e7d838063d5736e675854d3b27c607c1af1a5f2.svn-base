@@ -1,0 +1,162 @@
+package org.fh.general.ecom.basics.controller;
+
+
+import org.fh.general.ecom.basics.service.GuideArticleService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.help.GuideArticle.GuideArticleInputDTO;
+import org.fh.general.ecom.common.dto.basics.help.GuideArticle.GuideArticleListInputDTO;
+import org.fh.general.ecom.common.dto.basics.help.GuideArticle.GuideArticleListOutputDTO;
+import org.fh.general.ecom.common.dto.basics.help.GuideArticle.GuideArticleOutputDTO;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.help.GuideArticleListOutPO;
+import org.fh.general.ecom.common.utils.NumberChanges;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.vo.basics.help.GuideArticleListVO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+
+/**
+ * <p>
+ *  前端控制器
+ * </p>
+ *
+ * @author wyy
+ * @since 2018-09-21
+ */
+@RestController
+public class GuideArticleController {
+    @Autowired
+    private GuideArticleService guideArticleService;
+    /**
+     * 根据id查
+     */
+    @RequestMapping("GA000001")
+    public BaseVO selectByPrimaryKey (Long id){
+        BaseVO baseVO = new BaseVO();
+
+        if(null==id||id.equals("")){
+            baseVO.mustParam();
+            return baseVO;
+        }
+        GuideArticleOutputDTO out=guideArticleService.selectByPrimaryKey(id);
+        if(out!=null){
+            BeanUtils.copyProperties(out,baseVO);
+            baseVO.success(out);
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 添加
+     * @param dto
+     */
+    @RequestMapping("GA000002")
+    public BaseVO insertUserGuide (GuideArticleInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        dto.setPublished(ComEnum.published.NOTYET.getValue());//写入发布状态
+        dto.setDel(ComEnum.IsDelete.NORMAL.getValue());//写入删除状态
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");//转换格式
+        dto.setCreateDate(sdf.format(new Date()));
+        String code=guideArticleService.insertUserGuide(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(OutEnum.FAIL.getMessage());
+            baseVO.setBusAlert(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+    /**
+     * 修改
+     */
+    @RequestMapping("GA000003")
+    public BaseVO updateUserGuide (GuideArticleInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");//转换格式
+        dto.setUpdateDate(sdf.format(new Date()));
+        String code=guideArticleService.updateGuideArticle(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(OutEnum.FAIL.getMessage());
+            baseVO.setBusAlert(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+
+    /**
+     * 根据id删除
+     */
+    @RequestMapping("GA000004")
+    public BaseVO deleteByPrimaryKey (Long id){
+        BaseVO baseVO=new BaseVO();
+        String out=guideArticleService.deleteByPrimaryKey(id);
+        if(baseVO!=null){
+            baseVO.success();
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+
+    /**
+     *修改发布状态
+     */
+    @RequestMapping("GA000005")
+    public BaseVO updatePublish (Long id){
+        BaseVO baseVO=new BaseVO();
+        String out=guideArticleService.updatePublish(id);
+        if(baseVO!=null){
+            baseVO.success();
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("GA000006")
+    public PagingVO findPage(GuideArticleListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            GuideArticleListOutputDTO dtoEntity= this.guideArticleService.findPage(dto);
+            List<GuideArticleListOutPO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;            }
+            List<GuideArticleListVO> listvo=new ArrayList<GuideArticleListVO>();
+            list.forEach((GuideArticleListOutPO temp) -> {
+                GuideArticleListVO voEn=new GuideArticleListVO();
+                BeanUtils.copyProperties(temp,voEn);
+                String date=voEn.getPublishDate();
+                String[] dt=date.split("-");
+                String mt=NumberChanges.NumberChanges(dt[1]);
+                voEn.setMonth(mt);
+                listvo.add(voEn);
+            });
+
+            pagingVO.success(listvo,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+}

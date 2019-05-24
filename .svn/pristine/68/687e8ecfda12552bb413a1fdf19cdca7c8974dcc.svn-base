@@ -1,0 +1,48 @@
+package org.fh.general.ecom.basics.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONObject;
+import org.fh.general.ecom.basics.service.AdminOperationLogService;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogInputDTO;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogOutputDTO;
+import org.fh.general.ecom.common.vo.basics.adminoperationlog.AdminOperationLogVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * <p>
+ * 操作员日志 前端控制器
+ * </p>
+ *
+ * @author admin
+ * @since 2018-06-27
+ */
+@RestController
+@Slf4j
+public class AdminOperationLogController {
+
+    @Autowired
+    private AdminOperationLogService adminOperationLogService;
+
+    /**
+     * 管理员操作日志列表
+     * */
+    @RequestMapping("/BASI8001")
+    public PagingVO findPage(AdminOperationLogInputDTO dto){
+        log.info("AdminOperationLogController.findPage.param:"+ JSONObject.fromObject(dto));
+        PagingVO pagingVO=new PagingVO();
+        AdminOperationLogOutputDTO response=adminOperationLogService.findPage(dto);
+        List<AdminOperationLogVO> listvo=response.getList().stream().map(e->new AdminOperationLogVO(
+                e.getId(),e.getAdminNo() ,e.getLoginName() ,
+                e.getExecuteTime(),e.getAdminRealName() ,e.getDepartName() ,
+                e.getRoleType(), e.getOperationDesc(),e.getOperationResult() ,
+                e.getTransInfo(),e.getIpAddr() )).collect(Collectors.toList());
+        pagingVO.success(listvo,response.getPageInfo() );
+        return pagingVO;
+    }
+}

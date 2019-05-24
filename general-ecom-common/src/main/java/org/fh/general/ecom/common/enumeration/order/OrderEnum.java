@@ -1,0 +1,214 @@
+package org.fh.general.ecom.common.enumeration.order;
+
+import lombok.Getter;
+
+public class OrderEnum {
+
+
+
+    //状态
+    public enum IsDelete {
+        NORMAL("0", "正常"), DEL("1", "删除");
+
+        private String name;
+        private String value;
+
+        public static IsDelete codeOf(String value) {
+            for(IsDelete a:IsDelete.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        IsDelete(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    //订单状态:1-正常 2-预约未申购 3-认购失败 4-冷静期退出  5-已失效  6-认购成功
+    public enum OrderStataus {
+        ORDER_STATUS_NORMAL("1", "正常"),
+        ORDER_STATUS_YUYUE("2", "预约未申购"),
+        ORDER_STATUS_BUYFAIL("3", "认购失败"),
+        ORDER_STATUS_COOLOUT("4", "静期退出"),
+        ORDER_STATUS_CANCEL("5", "已失效"),
+        ORDER_STATUS_BUYSUCCESS("6", "认购成功");
+
+        private String name;
+        private String value;
+
+        public static OrderStataus codeOf(String value) {
+            for(OrderStataus a:OrderStataus.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        OrderStataus(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    //pay_status 支付状态：0-未支付 1-已支付 2-申请退款 3-已退款
+
+    public enum PayStatus {
+        PAY_STATUS_NO("0", "未支付"),
+        PAY_STATUS_OK("1", "已支付"),
+        PAY_STATUS_REFUND_WAIT("2", "退款申请中"),
+        PAY_STATUS_REFUND_OK("3", "已退款");
+
+        private String name;
+        private String value;
+
+        public static PayStatus codeOf(String value) {
+            for(PayStatus a:PayStatus.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        PayStatus(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    //0-预约 1-预约认购 2-公开认购
+    public enum OrderType {
+        APPOINTMENTAMOUNT("0", "预约订单"), APPOINTMENTAMOUNT_BUY("1", "预约认购"),OPEN_BUY("2", "公开认购");
+
+        private String name;
+        private String value;
+
+        public static OrderType codeOf(String value) {
+            for(OrderType a: OrderType.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        OrderType(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    //支付方式：1-微信支付、2-QQ钱包支付、3-支付宝支付、4-电子钱包支付
+    public enum PayType {
+        PAY_WEIXIN("1", "微信支付"),
+        PAY_QQ("2", "QQ钱包支付"),
+        PAY_ZHIFUBO("3", "支付宝支付"),
+        PAY_DEPT("4", "电子钱包支付");
+
+        private String name;
+        private String value;
+
+        public static PayType codeOf(String value) {
+            for(PayType a: PayType.values()){
+                if(a.getValue().equals(value)){
+                    return a;
+                }
+            }
+            return null;
+        }
+
+        PayType(String value, String name) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+
+
+
+}

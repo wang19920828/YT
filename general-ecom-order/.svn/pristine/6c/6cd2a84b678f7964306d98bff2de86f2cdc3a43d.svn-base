@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.OrderProductDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.OrderProduct">
+		<id column="id" property="id" />
+		<result column="product_id" property="productId" />
+		<result column="order_sn" property="orderSn" />
+		<result column="user_id" property="userId" />
+		<result column="product_name" property="productName" />
+		<result column="product_detail" property="productDetail" />
+		<result column="product_plan" property="productPlan" />
+		<result column="plan_id" property="planId" />
+		<result column="one_money" property="oneMoney" />
+		<result column="less_money" property="lessMoney" />
+		<result column="real_money" property="realMoney" />
+		<result column="num" property="num" />
+		<result column="one_total" property="oneTotal" />
+		<result column="less_total" property="lessTotal" />
+		<result column="real_total" property="realTotal" />
+		<result column="share_all" property="shareAll" />
+		<result column="pro_img" property="proImg" />
+		<result column="pro_type" property="proType" />
+		<result column="scores" property="scores" />
+		<result column="product_note" property="productNote" />
+		<result column="unit" property="unit" />
+		<result column="remark" property="remark" />
+		<result column="is_delete" property="isDelete" />
+		<result column="branch" property="branch" />
+		<result column="order_type" property="orderType" />
+	</resultMap>
+
+
+	<select id="getOPCount" parameterType="org.fh.general.ecom.common.po.order.orderProduct.OpcountPO" resultType="org.fh.general.ecom.common.po.order.redProject.RaisePlanPO">
+		SELECT
+		count(num) as realNum,
+		SUM(less_total) as realRaiseAmount,
+		(SELECT COUNT(DISTINCT(user_id)) FROM tb_invest_product where plan_id=#{planId} ) as peopleNum
+		FROM
+		tb_invest_product
+		WHERE
+		plan_id = #{planId}
+	</select>
+
+
+	<select id="findProgrammeCountById" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+		SELECT
+			IFNULL(sum(a.num),0) AS num,
+			a.product_id,
+			a.plan_id
+		FROM
+			tb_invest_product a LEFT join tb_invest_order b ON a.order_sn = b.order_sn
+		WHERE
+			a.plan_id = #{planId}
+		AND b.pay_status = '1'
+		<if test="list!=null ">
+			and  a.order_type in
+			<foreach collection="list"   index="index"  item="item" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+		</if>
+
+	</select>
+
+</mapper>

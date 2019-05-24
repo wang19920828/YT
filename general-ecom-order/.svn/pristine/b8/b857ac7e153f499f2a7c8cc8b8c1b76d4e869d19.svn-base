@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.GoldTicketDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.GoldTicket">
+		<id column="id" property="id" />
+		<result column="ticket_sn" property="ticketSn" />
+		<result column="ticket_name" property="ticketName" />
+		<result column="amount" property="amount" />
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="user_phone" property="userPhone" />
+		<result column="delay_num" property="delayNum" />
+		<result column="add_time" property="addTime" />
+		<result column="off_time" property="offTime" />
+		<result column="use_state" property="useState" />
+		<result column="order_sn" property="orderSn" />
+		<result column="branch" property="branch" />
+	</resultMap>
+
+	<resultMap id="DTOResultMap" type="org.fh.general.ecom.common.po.order.goldTicket.GoldTicketListOutPO">
+		<id column="id" property="id" />
+		<result column="ticket_sn" property="ticketSn" />
+		<result column="amount" property="amount" />
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="user_phone" property="userPhone" />
+		<result column="delay_num" property="delayNum" />
+		<result column="add_time" property="addTime" />
+		<result column="off_time" property="offTime" />
+		<result column="use_state" property="useState" />
+		<result column="order_sn" property="orderSn" />
+		<result column="order_sn" property="orderSn" />
+		<result column="branch" property="branch" />
+	</resultMap>
+
+	<select id="findList" parameterType="org.fh.general.ecom.common.po.order.goldTicket.GoldTicketListParamPO" resultMap="DTOResultMap">
+		select
+		*
+		from tb_gold_ticket
+		<where>
+			<if test="ticketSn!=null and ticketSn!=''">
+				AND ticket_sn = #{ticketSn}
+			</if>
+			<if test="userNameOrPhone!=null and userNameOrPhone!=''">
+				AND (user_name = #{userNameOrPhone} OR user_phone=#{userNameOrPhone})
+			</if>
+			<if test="useState!=null and useState!=''">
+				AND use_state = #{useState}
+			</if>
+			<if test="offTimeStart!=null and offTimeStart!=''">
+				AND off_time <![CDATA[>= #{offTimeStart} ]]>
+			</if>
+			<if test="offTimeEnd!=null and offTimeEnd!=''">
+				AND off_time <![CDATA[<= #{offTimeEnd} ]]>
+			</if>
+			<if test="userId!=null and userId!=''">
+				AND user_id = #{userId}
+			</if>
+			<if test="myOffTimeStart!=null and myOffTimeStart!=''">
+				AND add_time <![CDATA[<= #{myOffTimeStart} ]]>
+				AND off_time <![CDATA[>= #{myOffTimeStart} ]]>
+			</if>
+		</where>
+		order by id desc
+	</select>
+
+
+
+
+
+</mapper>

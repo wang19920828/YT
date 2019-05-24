@@ -1,0 +1,99 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.FundJournalService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.user.fundJournal.FundJournalInsertInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.fundJournal.FundJournalListInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.fundJournal.FundJournalListOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.fundJournal.FundJournalOutputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * <p>
+ * 电子账目流水 前端控制器
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+@RestController
+public class FundJournalController {
+    @Autowired
+    private FundJournalService fundJournalService;
+    /**
+     * 增
+     */
+    @RequestMapping("FJ000001")
+    public BaseVO  insertJournal(FundJournalInsertInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        String code = fundJournalService.insertJournal(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+
+    /**
+     * 删（不可用）
+     */
+    @RequestMapping("FJ000002")
+    public BaseVO deleteJournal(Long id){
+        BaseVO baseVO = new BaseVO();
+        String code = fundJournalService.deleteJournal(id);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+
+    /**
+     * 查根据Id查
+     */
+    @RequestMapping("FJ000003")
+    public BaseVO  selectById(Long id){
+        BaseVO baseVO = new BaseVO();
+        FundJournalOutputDTO out = fundJournalService.selectById(id);
+        if(out==null){
+            baseVO.noData();
+            return  baseVO;
+        }
+        baseVO.success(out);
+        return baseVO;
+    }
+
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("FJ000004")
+    public PagingVO findPage(FundJournalListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            FundJournalListOutputDTO dtoEntity= this.fundJournalService.findPage(dto);
+            List<FundJournalOutputDTO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            pagingVO.success(list,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+}

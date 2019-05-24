@@ -1,0 +1,25 @@
+package org.fh.general.ecom.common.po.order.refundInfo;
+
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class RefundInfoListOutPO {
+
+
+    private Long id;
+    private Date applyTime;
+    private BigDecimal applyAmount;
+    private String orderSn;
+    private String investName;
+    private String investAccount;
+    private String type;
+    private String status;
+    private Date refundTime;
+    private String branch;
+
+}

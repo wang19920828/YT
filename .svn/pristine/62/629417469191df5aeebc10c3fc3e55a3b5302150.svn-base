@@ -1,0 +1,5 @@
+package org.fh.general.ecom.basics.service;
+
+public interface PhoneSmsService {
+	//public int  sendmsg(String channel, String mobile, String content);
+}

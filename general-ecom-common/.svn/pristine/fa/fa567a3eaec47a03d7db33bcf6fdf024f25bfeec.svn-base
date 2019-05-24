@@ -1,0 +1,42 @@
+package org.fh.general.ecom.common.dto.order.coupons;
+
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+import org.fh.general.ecom.common.valid.RegexType;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class CouponsAddInputDTO {
+
+    @Check(empty = false, description = "优惠券名称")
+    private String couponName;
+    @Check(empty = false,description = "优惠券类型:1-项目代金券 2-商品满减券 3-商品抵现券")
+    private String type;
+    @Check(empty = false,description = "抵用金额")
+    private BigDecimal diMoney;
+    private BigDecimal lowMoney;
+    //@Check(empty = false ,description = "券领用期-开始")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date receiveStart;
+    //@Check(empty = false ,description = "券领用期-结束")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date receiveEnd;
+    //@Check(empty = false ,description = "领用后有效期（单位：天）")
+    private Long days;
+    //@Check(empty = false ,description = "已领用数量")
+    private Long receiveNum;
+    //@Check(empty = false ,description = "总数量")
+    private Long preSendNum;
+    private Long limitNum;
+    private String rule;
+
+    //@Check(empty = false ,description = "图片")
+    private String image;
+    //@Check(empty = false ,description = "企业编号")
+    private String companyNo;
+    private String platform;
+}

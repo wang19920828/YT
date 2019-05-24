@@ -1,0 +1,169 @@
+package org.fh.general.ecom.basics.model;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * <p>
+ * 用户表
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-13
+ */
+@Data
+@TableName("tb_user")
+public class User implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 用户ID
+     */
+	@TableId(value="user_id", type= IdType.AUTO)
+	private Long userId;
+
+    /**
+     * 用户昵称
+     */
+	@TableField("nick_name")
+	private String nickName;
+    /**
+     * 个人头像
+     */
+	@TableField("user_img")
+	private String userImg;
+    /**
+     * 登录名
+     */
+	@TableField("login_name")
+	private String loginName;
+    /**
+     * 登录密码
+     */
+	@TableField("login_pwd")
+	private String loginPwd;
+    /**
+     * 微信用户识别码
+     */
+	private String unionid;
+    /**
+     * 微信登录的UNIONID
+     */
+	@TableField("real_unionid")
+	private String realUnionid;
+    /**
+     * 微博用户识别码
+     */
+	private String weibouid;
+    /**
+     * 登陆次数
+     */
+	@TableField("login_num")
+	private Long loginNum;
+    /**
+     * 注册时间
+     */
+	@TableField("register_time")
+	private Date registerTime;
+    /**
+     * 等级积分
+     */
+	private Long credits;
+    /**
+     * PC端QQ登陆识别号
+     */
+	private String pcqquid;
+    /**
+     * 手机端QQ登陆识别号
+     */
+	private String qquid;
+    /**
+     * 上次登陆时间
+     */
+	@TableField("login_time")
+	private Date loginTime;
+    /**
+     * 登陆IP
+     */
+	@TableField("login_ip")
+	private String loginIp;
+    /**
+     * 状态：1-正常 2-注销 3-删除
+     */
+	private String status;
+    /**
+     * 手机端唯一标识
+     */
+	private String uuid;
+    /**
+     * 渠道:1-线下,2-微信(公众号),3-Android（app）,4-IOS（app）,5-小程序,6-Web,7-Wap
+     */
+	private String channel;
+    /**
+     * 等级ID
+     */
+	@TableField("grade_id")
+	private Long gradeId;
+    /**
+     * 认证状态0未认证，1，认证中 ，2已认证
+     */
+	@TableField("is_through")
+	private String isThrough;
+	@TableField("invite_code")
+	private String inviteCode;
+    /**
+     * 平台：1001-D5厨房 1002-美食工场 1003-爱炉火锅 1004-真真小吃
+     */
+	private String branch;
+    /**
+     * 平台名称
+     */
+	@TableField("branch_name")
+	private String branchName;
+    /**
+     * 账户
+     */
+	private String account;
+	/**
+	 * 手机号
+	 */
+	private String phone;
+	/**
+	 * 邮箱
+	 */
+	private String email;
+    /**
+     * 声纹开启状态；0：未开启，1：开启
+     */
+	@TableField("voiceprint_status")
+	private Integer voiceprintStatus;
+    /**
+     * 指纹开启状态：0未开启，1开启
+     */
+	@TableField("fingerprint_status")
+	private Integer fingerprintStatus;
+    /**
+     * 脸纹开启状态；0：未开启；1：开启
+     */
+	@TableField("faceprint_status")
+	private Integer faceprintStatus;
+    /**
+     * 优享会员：0-否，1-是
+     */
+	@TableField("privilege_member")
+	private Integer privilegeMember;
+    /**
+     * 修改时间
+     */
+	@TableField("update_time")
+	private Date updateTime;
+
+
+}

@@ -1,0 +1,106 @@
+package org.fh.general.ecom.product.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.common.base.PagingExtensionVO;
+import org.fh.general.ecom.common.dto.product.order.OutputOperUserListDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputOrderDetailDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.InputProjectOperAddDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.InputProjectOperLogListDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.OutputProjectLogDetailDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.OutputProjectOperLogListDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.product.client.OrderClient;
+import org.fh.general.ecom.product.dao.ProjectOperLogDao;
+import org.fh.general.ecom.product.model.ProjectOperLog;
+import org.fh.general.ecom.product.service.ProjectOperLogService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-20
+ */
+@Service
+public class ProjectOperLogServiceImpl extends ServiceImpl<ProjectOperLogDao, ProjectOperLog> implements ProjectOperLogService {
+
+    @Autowired
+    private OrderClient orderClient;
+    @Override
+    public OutputProjectOperLogListDTO findPage(InputProjectOperLogListDTO dto) {
+        OutputProjectOperLogListDTO outputProjectOperLogListDTO = new OutputProjectOperLogListDTO();
+        EntityWrapper wrapper=new EntityWrapper();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageSize() );
+        if(StringUtils.isNotEmpty(dto.getProjectId())){
+            wrapper.eq("project_id",dto.getProjectId());
+        }
+
+        List<ProjectOperLog> list=baseMapper.selectList(wrapper);
+        PageInfo pageInfo=new PageInfo(list);
+        List<OutputProjectLogDetailDTO>  listpo=new ArrayList<OutputProjectLogDetailDTO>();
+        list.forEach((ProjectOperLog temp) -> {
+            OutputProjectLogDetailDTO dto1=new OutputProjectLogDetailDTO();
+            BeanUtils.copyProperties(temp,dto1);
+            if(dto1.getProjectStatus().equals(ProjectEnum.ProjectStatus.APPOINTMENT.getValue())){
+                OutputOrderDetailDTO detailDTO = orderClient.findAppointmentAmountByProjectId(dto1.getProjectId()+"");
+                if(detailDTO!=null) {
+                    dto1.setAppointmentAmount(detailDTO.getAmount());
+                    temp.setAppointmentAmount(detailDTO.getAmount());
+                    baseMapper.updateById(temp);
+                }
+
+            }else if (dto1.getProjectStatus().equals(ProjectEnum.ProjectStatus.SUBSCRIBE.getValue())){
+                OutputOrderDetailDTO detailDTO = orderClient.findBySubscribeForAmountProjectId(dto1.getProjectId()+"");
+                if(detailDTO!=null) {
+                    dto1.setSubscribeForAmount(detailDTO.getAmount());
+                    temp.setSubscribeForAmount(detailDTO.getAmount());
+                    baseMapper.updateById(temp);
+                }
+            }
+            listpo.add(dto1);
+        });
+        outputProjectOperLogListDTO.setList(listpo);
+        outputProjectOperLogListDTO.setPageInfo(pageInfo);
+        return outputProjectOperLogListDTO;
+    }
+
+    @Override
+    public String insertEntity(InputProjectOperAddDTO dto) {
+        ProjectOperLog  projectOperLog=new ProjectOperLog();
+        BeanUtils.copyProperties(dto,projectOperLog);
+        projectOperLog.setOperTime(new Date());
+        int success =  baseMapper.insert(projectOperLog);
+        if(success>0){
+            return OutEnum.SUCCESS.getCode();
+        }
+        return OutEnum.FAIL.getCode();
+    }
+
+    @Override
+    public PagingExtensionVO findUserListPage(InputProjectOperLogListDTO dto) {
+        EntityWrapper wrapper = new EntityWrapper();
+        PagingExtensionVO pageingVo = orderClient.findUserListByProjectId(dto);
+        return pageingVo;
+    }
+
+    @Override
+    public OutputOperUserListDTO findCountUser(InputProjectOperLogListDTO dto) {
+        OutputOperUserListDTO  response = orderClient.findCountUser(dto.getProjectId()+"");
+        return response;
+    }
+
+
+}

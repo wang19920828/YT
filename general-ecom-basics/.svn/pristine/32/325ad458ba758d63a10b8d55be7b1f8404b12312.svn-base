@@ -1,0 +1,104 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.basics.dao.TransJournalDao;
+import org.fh.general.ecom.basics.model.TransJournal;
+import org.fh.general.ecom.basics.service.TransJournalService;
+import org.fh.general.ecom.basics.service.UserService;
+import org.fh.general.ecom.common.dto.basics.user.UserPhoneOutputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.Map;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-10-11
+ */
+@Service
+@Slf4j
+public class TransJournalServiceImpl extends ServiceImpl<TransJournalDao, TransJournal> implements TransJournalService {
+    /**
+     * 支付状态-支付中
+     */
+    private final static String PAY_STATUS_IN = "0101";
+
+    /**
+     * 支付状态-支付成功
+     */
+    private final static String PAY_STATUS_SUCCESS = "0202";
+
+    /**
+     * 支付状态-支付失败
+     */
+    private final static String PAY_STATUS_FAIL = "0303";
+
+    @Autowired
+    private UserService userService;
+
+    @Override
+    public TransJournal findJournal(String journalNo) throws Exception {
+        TransJournal tj=new TransJournal();
+        tj.setJournalNo(journalNo);
+        return baseMapper.selectOne(tj);
+    }
+    @Override
+    public String saveTransJournal(TransJournal journal) throws Exception {
+        if(journal.getAddTime()==null){
+            journal.setAddTime(new Date().getTime());
+        }
+        if(StringUtils.isNotEmpty(journal.getUserId())){
+            UserPhoneOutputDTO phoneOne = userService.findPhoneOne(journal.getUserId());
+            journal.setAccountNo(phoneOne.getAccount());
+            journal.setCashAccount(phoneOne.getCashAmount());
+        }
+        this.baseMapper.insert(journal);
+        return OutEnum.SUCCESS.getCode();
+    }
+    /**
+     * 添加订单支付流水
+     */
+    @Override
+    public String addTransJournal(TransJournal journal) throws Exception {
+        if(StringUtils.isNotBlank(journal.getOrderSn())){
+            TransJournal tj=new TransJournal();
+            tj.setOrderSn(journal.getOrderSn());
+            TransJournal transJournal = baseMapper.selectOne(tj);
+            journal.setTransStuts(PAY_STATUS_IN);
+            if(null != transJournal){
+                //支付中或支付失败的流水进行更新
+                if(PAY_STATUS_IN.equals(transJournal.getTransStuts())||PAY_STATUS_FAIL.equals(transJournal.getTransStuts())){
+                    journal.setId(transJournal.getId());
+                    log.info("-------------JournalNo:"+journal.getJournalNo());
+                    baseMapper.updateById(journal);
+                    return OutEnum.SUCCESS.getCode();
+                }else{
+                    return "此订单已经支付成功，请勿重复支付";
+                }
+            }else{
+                this.baseMapper.insert(journal);
+                return OutEnum.SUCCESS.getCode();
+            }
+        }else{
+            this.baseMapper.insert(journal);
+            return OutEnum.SUCCESS.getCode();
+        }
+    }
+    @Override
+    public void mdifyJournal(TransJournal journal) {
+        baseMapper.updateById(journal);
+    }
+    @Override
+    public TransJournal findByParams(Map<String, Object> queryParams) {
+        return baseMapper.findByParams(queryParams);
+    }
+
+}

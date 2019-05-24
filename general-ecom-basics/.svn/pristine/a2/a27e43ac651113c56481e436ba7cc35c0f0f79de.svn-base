@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.FundJournalDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.FundJournal">
+		<id column="id" property="id" />
+		<result column="channel_no" property="channelNo" />
+		<result column="journal_no" property="journalNo" />
+		<result column="other_sn" property="otherSn" />
+		<result column="trans_journal_no" property="transJournalNo" />
+		<result column="dzqb_amt" property="dzqbAmt" />
+		<result column="bdk_amt" property="bdkAmt" />
+		<result column="ele_acct" property="eleAcct" />
+		<result column="sz_type" property="szType" />
+		<result column="state" property="state" />
+		<result column="trans_amt" property="transAmt" />
+		<result column="remark" property="remark" />
+		<result column="summ" property="summ" />
+		<result column="trans_time" property="transTime" />
+		<result column="admin_id" property="adminId" />
+		<result column="admin_name" property="adminName" />
+		<result column="third_bill_code" property="thirdBillCode" />
+		<result column="account_type" property="accountType" />
+		<result column="foregift_amount" property="foregiftAmount" />
+		<result column="financing_amount" property="financingAmount" />
+		<result column="pay_type" property="payType" />
+		<result column="branch" property="branch" />
+		<result column="phone" property="phone" />
+		<result column="source" property="source" />
+		<result column="red_bag_amount" property="redBagAmount" />
+		<result column="branchName" property="branchName" />
+		<result column="channel" property="channel" />
+	</resultMap>
+
+</mapper>

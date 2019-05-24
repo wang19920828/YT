@@ -1,0 +1,611 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.client.OrderClient;
+import org.fh.general.ecom.basics.dao.ElectronicsAccountDao;
+import org.fh.general.ecom.basics.model.ElectronicsAccount;
+import org.fh.general.ecom.basics.model.TransJournal;
+import org.fh.general.ecom.basics.model.User;
+import org.fh.general.ecom.basics.service.*;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.*;
+import org.fh.general.ecom.common.dto.basics.user.userMessage.UserMessageInsertInputDTO;
+import org.fh.general.ecom.common.dto.order.order.OrderEntityOutDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * <p>
+ * 电子账户基本信息表 服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+@Service
+public class ElectronicsAccountServiceImpl extends ServiceImpl<ElectronicsAccountDao, ElectronicsAccount> implements ElectronicsAccountService {
+
+    @Autowired
+    private PhoneVacodeService phoneVacodeService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private JournalSnService journalSnService;
+    @Autowired
+    private TransJournalService transJournalService;
+    @Autowired
+    private OrderClient orderClient;
+    @Autowired
+    private UserMessageService userMessageService;
+
+    @Override
+    public String initAccount(ElectronicsInitAccountInputDTO dto) {
+
+        //TODO判断验证码是否正确
+        OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+        if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+            return outCodeEntity.getMessage();
+        }
+        ElectronicsAccount account = findByUserId(dto.getUserId());
+        if (null != account) {
+            return "电子账户已经存在";
+        }
+        account = new ElectronicsAccount();
+
+        account.setBranchName(dto.getBranchName());
+        if(StringUtils.isEmpty(dto.getBranch())){
+            return "平台编号为空！";
+        }
+        account.setBranch(dto.getBranch());
+        String accountType = "6200";
+        account.setAccountType(accountType);
+        account.setChannel(dto.getChannel());
+        account.setUserId(dto.getUserId());
+        account.setPayPassword(dto.getPayPassword());
+        String accountNo = createAccountNo(accountType, dto.getBranch());
+        //设置支付码
+        //String paymentCode = String.valueOf((Long.valueOf(accountNo) + System.currentTimeMillis()));
+        //account.setPaymentCode(paymentCode);
+        ////设置支付密码过期时间
+        //account.setExpirationTime(DateUtils.dateMinute(1));
+        account.setAccountNo(accountNo);
+        account.setFinancingUsableAmount(BigDecimal.ZERO);
+        account.setRedBagAmount(BigDecimal.ZERO);
+        account.setCreateTime(System.currentTimeMillis());
+        account.setLastTime(System.currentTimeMillis());
+        //account.setPayPassword(PasswordUtils.doubleMd5(account.getPayPassword()));
+        //修改用户信息
+        User user = new User();
+        user.setUserId(dto.getUserId());
+        user.setAccount(accountNo);
+        if(StringUtils.isNotEmpty(dto.getPayPassword())){
+            user.setIsPayPwd("1");
+        }
+        userService.updateById(user);
+        baseMapper.insert(account);
+        return OutEnum.SUCCESS.getCode();
+    }
+    @Override
+    public OutCodeEntity createAccountPwd(ElectronicsAccountPwdInputDTO dto){
+        OutCodeEntity result = new OutCodeEntity();
+
+        ElectronicsAccount acct = findByUserId(dto.getUserId());
+        if (null == acct) {
+            result.setCode("555555");
+            result.setMessage("电子账户不存在");
+            return result;
+        }
+        if (StringUtils.isNotEmpty(acct.getPayPassword())) {
+            result.setCode("555555");
+            result.setMessage("支付密码已存在");
+            return result;
+        }
+      //  String accountNo = acct.getAccountNo();
+        //设置支付码
+       // String paymentCode = String.valueOf((Long.valueOf(accountNo) + System.currentTimeMillis()));
+        //acct.setPaymentCode(paymentCode);
+        //设置支付密码过期时间
+        //  acct.setExpirationTime(DateUtils.dateMinute(2));
+       // acct.setAccountNo(accountNo);
+       // acct.setPayPassword(PasswordUtils.doubleMd5(tmp.getPayPassword()));
+        acct.setPayPassword(dto.getPayPassword());
+        acct.setLastTime(System.currentTimeMillis());
+        //修改用户信息
+        User user = new User();
+        user.setUserId(dto.getUserId());
+        user.setIsPayPwd("1");
+        userService.updateById(user);
+        baseMapper.updateById(acct);
+       // electronicsAccountDao.updateByPrimaryKey(acct);
+        result.setCode(OutEnum.SUCCESS.getCode());
+        result.setObj(acct);
+        return result;
+    }
+    /**
+     * 电子账户信息
+     */
+    public ElectronicsAccount findByUserId(Long userId) {
+        ElectronicsAccount elect=new ElectronicsAccount();
+        elect.setUserId(userId);
+        ElectronicsAccount electronicsAccount = baseMapper.selectOne(elect);
+        //fillAccountData(electronicsAccount);
+        return electronicsAccount;
+    }
+    @Override
+    public ElectronicsAccountOutputDTO findAccountByUserId(Long userId) {
+        ElectronicsAccountOutputDTO outputDTO= new ElectronicsAccountOutputDTO();
+        ElectronicsAccount elect=new ElectronicsAccount();
+        elect.setUserId(userId);
+        ElectronicsAccount electronicsAccount = baseMapper.selectOne(elect);
+        if(null!=electronicsAccount){
+            BeanUtils.copyProperties(electronicsAccount,outputDTO);
+            return outputDTO;
+        }
+        return null;
+    }
+
+    /**
+     * 修改支付密码
+     */
+    @Override
+    public String updatePayPwd (ElectronicsAccountUpdatePwdInputDTO dto) {
+
+        ElectronicsAccount account = findByUserId(dto.getUserId());
+        //TODO判断验证码是否正确
+        OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+        if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+            return outCodeEntity.getMessage();
+        }
+        if (null == account) {
+            return"用户未开立电子账户！";
+        }
+        if (!account.getPayPassword().equals(dto.getOldPayPwd())) {
+            return "原支付密码输入错误!";
+        }
+        account.setPayPassword(dto.getPayPassword());
+//        if (null == account.getExpirationTime() || account.getExpirationTime() < System.currentTimeMillis()) {
+//            //设置支付码
+//            String paymentCode = String.valueOf((Long.valueOf(account.getAccountNo()) + System.currentTimeMillis()));
+//            account.setPaymentCode(paymentCode);
+//            //设置支付密码过期时间
+//            account.setExpirationTime(DateUtils.dateMinute(2));
+//        }
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        return OutEnum.SUCCESS.getCode();
+
+    }
+
+    /**
+     * 分红
+     */
+    @Override
+    public String rechargeRedPay (ElectronicsAccountRechargePayInputDTO dto){
+
+        String journalSn = journalSnService.payJournalSn();// 交易流水号
+        OrderEntityOutDTO order = this.orderClient.findEntityByOrderSnOfPay(dto.getOrderSn());
+        if (order == null) {
+            return "订单不存在!";
+        }
+        ElectronicsAccount account = findByUserId(order.getUserId());//账户
+        if(account==null){
+            return "用户电子账户不存在!";
+        }
+        if("1".equals(account.getAccountStatus())){
+            return "用户电子账户冻结!";
+        }
+
+        if(StringUtils.isEmpty(dto.getTransAmt())){
+            return "交易金额不能为空";
+        }
+        int i = dto.getTransAmt().compareTo(new BigDecimal("0"));
+        if(i<=0){
+            return "交易金额不能小于等于0!";
+        }
+       //账户加钱
+        account.setCashAmount(account.getCashAmount().add(dto.getTransAmt()));//总钱
+        account.setCanExtractAmount(account.getCanExtractAmount().add(dto.getTransAmt()));//可以提现额
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        // 记录交易流水
+        addPayJournal(journalSn, order, "5", "0", dto.getTransAmt());
+        //账户消息通知
+        addUserMessage(order.getBranch(),order.getUserId(),"您的账户分红已到账，点击查看明细。","余额变更通知","1");
+        return OutEnum.SUCCESS.getCode();
+    }
+    /**
+     *  提现
+     */
+    @Override
+    public String rechargeMinusPay (ElectronicsAccountRechargeMinusPayInputDTO dto){
+        String journalSn = journalSnService.payJournalSn();// 交易流水号
+        ElectronicsAccount electronicsAccount = findByUserId(dto.getUserId());
+        if(electronicsAccount==null){
+            return "用户电子账户不存在!";
+        }
+        if(StringUtils.isEmpty(dto.getTransAmt())){
+            return "交易金额不能为空";
+        }
+        if(StringUtils.isEmpty(dto.getBranch())){
+            return "平台号不能为空";
+        }
+        if(!"0".equals(electronicsAccount.getAccountStatus())){
+            return "账户状态冻结";
+        }
+        int i = dto.getTransAmt().compareTo(new BigDecimal("0"));
+        if(i<=0){
+            return "交易金额不能小于等于0";
+        }
+        int j = electronicsAccount.getCashAmount().compareTo(dto.getTransAmt());
+        if(j<0){
+            return "账户余额不足";
+        }
+        int y=electronicsAccount.getFreezeAmount().compareTo(dto.getTransAmt());
+        if(y<0){
+            return "提现金额与账户记录金额不符！";
+        }
+        //减钱
+        electronicsAccount.setCashAmount(electronicsAccount.getCashAmount().subtract(dto.getTransAmt()));//总钱
+        electronicsAccount.setFreezeAmount(electronicsAccount.getFreezeAmount().subtract(dto.getTransAmt()));//冻结金额
+        electronicsAccount.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(electronicsAccount);
+        // 记录交易流水
+        addPayJournal(journalSn,"3", "0", dto.getTransAmt(),dto.getBranch(),dto.getUserId() );
+        //账户消息通知
+        addUserMessage(dto.getBranch(),dto.getUserId(),"您的账户提现成功，点击查看明细。","余额变更通知","1");
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String accountFreeze (ElectronicsAccountFreezeOutputDTO dto){
+       if(StringUtils.isEmpty(dto.getAccountStatus())){
+           return "账户状态为空！";
+       }
+       if(StringUtils.isEmpty(dto.getAccountId())){
+           return "电子账户ID为空！";
+       }
+        ElectronicsAccount electronicsAccount = baseMapper.selectById(dto.getAccountId());
+       if(null==electronicsAccount){
+           return "电子账户ID不存在！";
+       }
+       if(!"0".equals(electronicsAccount.getAccountStatus())){
+           return "电子账户被冻结！";
+       }
+        electronicsAccount.setAccountStatus(dto.getAccountStatus());
+        electronicsAccount.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(electronicsAccount);
+        return OutEnum.SUCCESS.getCode();
+    }
+    @Override
+    public ElectronicsAccountListOutputDTO findPage(ElectronicsAccountListIntputDTO dto){
+        ElectronicsAccountListOutputDTO response=new ElectronicsAccountListOutputDTO();
+        EntityWrapper<ElectronicsAccount> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }
+        if(StringUtils.isNotEmpty(dto.getAccountId())){
+            wrapper.eq("account_id",dto.getAccountId());
+        }
+        if(StringUtils.isNotEmpty(dto.getAccountNo())){
+            wrapper.eq("account_no",dto.getAccountNo());
+        }
+        if(StringUtils.isNotEmpty(dto.getUserId())){
+            wrapper.eq("user_id",dto.getUserId());
+        }
+        if(StringUtils.isNotEmpty(dto.getAccountStatus())){
+            wrapper.eq("account_status",dto.getAccountStatus());
+        }
+
+        if(StringUtils.isNotEmpty(dto.getCreateTimeStart()) && StringUtils.isNotEmpty(dto.getCreateTimeEnd())){
+            wrapper.between("create_time",dto.getCreateTimeStart(),dto.getCreateTimeEnd());
+        }
+        if(StringUtils.isNotEmpty(dto.getLastTimeStart()) && StringUtils.isNotEmpty(dto.getLastTimeEnd())){
+            wrapper.between("last_time",dto.getLastTimeStart(),dto.getLastTimeEnd());
+        }
+        System.out.println("================where条件:"+wrapper.getSqlSegment());
+        List<ElectronicsAccount> list=baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo=new PageInfo(list);
+        List<ElectronicsAccountOutputDTO>  listpo=new ArrayList<ElectronicsAccountOutputDTO>();
+        list.forEach((ElectronicsAccount temp) -> {
+            ElectronicsAccountOutputDTO po=new ElectronicsAccountOutputDTO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+    /**
+     * 忘记支付密码
+     */
+    @Override
+    public String updateForgetPayPwd (ElectronicsAccountForgetPwdInputDTO dto) {
+        //根据userId查到用户手机号
+        User user = userService.selectById(dto.getUserId());
+        if(null==user){
+            return "用户信息错误!";
+        }
+        if(StringUtils.isEmpty(user.getPhone())){
+            return "用户手机号为空！";
+        }
+        //账户
+        ElectronicsAccount account = findByUserId(dto.getUserId());
+        if (null == account) {
+            return"用户未开立电子账户！";
+        }
+        //TODO判断验证码是否正确
+        OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(user.getPhone(), dto.getVaCode(), null, dto.getBranch());
+        if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+            return outCodeEntity.getMessage();
+        }
+        account.setPayPassword(dto.getPayPassword());
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        return OutEnum.SUCCESS.getCode();
+
+    }
+
+
+    /**
+     * 添加易流水
+     *
+     * @param journalSn
+     * @param order
+     * @param transType
+     * @param payType
+     * @throws Exception
+     */
+    private void addPayJournal(String journalSn, OrderEntityOutDTO order, String transType, String payType,BigDecimal transAmt) {
+        try {
+            TransJournal transJournal = new TransJournal();
+            transJournal.setJournalNo(journalSn);
+            transJournal.setOrderId(order.getOrderId());
+            transJournal.setOrderSn(order.getOrderSn());
+            transJournal.setPayType(payType);
+            transJournal.setTransType(transType);
+            transJournal.setTransStuts("0202");// 完成
+            transJournal.setState("1");// 正常
+            transJournal.setTransAmt(transAmt);
+            transJournal.setRefundAmt(BigDecimal.ZERO);
+            transJournal.setScoreAmt(BigDecimal.ZERO);
+            transJournal.setYhqAmt(BigDecimal.ZERO);
+            transJournal.setChannelNo(order.getBranch());
+            transJournal.setOrderJournal(order.getOrderSn());
+            transJournal.setBranch(order.getBranch());
+            transJournal.setUserId(order.getUserId());
+            this.transJournalService.saveTransJournal(transJournal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void addPayJournal(String journalSn, String transType, String payType,BigDecimal transAmt,String branch, Long userId) {
+        try {
+            TransJournal transJournal = new TransJournal();
+            transJournal.setJournalNo(journalSn);
+            //transJournal.setOrderId(order.getOrderId());
+            //transJournal.setOrderSn(order.getOrderSn());
+            transJournal.setPayType(payType);
+            transJournal.setTransType(transType);
+            transJournal.setTransStuts("0202");// 完成
+            transJournal.setState("1");// 正常
+            transJournal.setTransAmt(transAmt);
+            transJournal.setRefundAmt(BigDecimal.ZERO);
+            transJournal.setScoreAmt(BigDecimal.ZERO);
+            transJournal.setYhqAmt(BigDecimal.ZERO);
+            transJournal.setChannelNo(branch);
+           // transJournal.setOrderJournal(order.getOrderSn());
+            transJournal.setBranch(branch);
+            transJournal.setUserId(userId);
+            this.transJournalService.saveTransJournal(transJournal);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 退款
+     */
+    @Override
+    public String refundPay (ElectronicsAccountRechargePayInputDTO dto){
+        String journalSn = journalSnService.payJournalSn();// 交易流水号
+        OrderEntityOutDTO order = this.orderClient.findEntityByOrderSnOfPay(dto.getOrderSn());
+        if (order == null) {
+            return "订单不存在!";
+        }
+        ElectronicsAccount account = findByUserId(order.getUserId());//账户
+        if(account==null){
+            return "用户电子账户不存在!";
+        }
+        if("1".equals(account.getAccountStatus())){
+            return "用户电子账户冻结!";
+        }
+
+        if(StringUtils.isEmpty(dto.getTransAmt())){
+            return "交易金额不能为空";
+        }
+        int i = dto.getTransAmt().compareTo(new BigDecimal("0"));
+        if(i<=0){
+            return "交易金额不能小于等于0!";
+        }
+        int i1 = order.getAllPrice().compareTo(dto.getTransAmt());
+        if(i1!=0){
+            return "交易金额与订单金额不相等！";
+        }
+        //账户加钱
+        account.setCashAmount(account.getCashAmount().add(dto.getTransAmt()));//总钱
+        account.setCanExtractAmount(account.getCanExtractAmount().add(dto.getTransAmt()));//可以提现额
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        // 记录交易流水
+        addPayJournal(journalSn, order, "4", "0", dto.getTransAmt());
+        //账户消息通知
+        addUserMessage(order.getBranch(),order.getUserId(),"您的账户退款到账成功，点击查看明细。","余额变更通知","1");
+        return OutEnum.SUCCESS.getCode();
+    }
+    /**
+     * 消费
+     */
+    @Override
+    public String rechargeXFsPay (ElectronicsAccountTXPayInputDTO dto){
+        String journalSn = journalSnService.payJournalSn();// 交易流水号
+        OrderEntityOutDTO order = this.orderClient.findEntityByOrderSnOfPay(dto.getOrderSn());
+        if (order == null) {
+            return "订单不存在!";
+        }
+        ElectronicsAccount account = findByUserId(order.getUserId());//账户
+        if(dto.getPayPassword().equals(account.getPayPassword())){
+            return "支付密码不正确!";
+        }
+        if(account==null){
+            return "用户电子账户不存在!";
+        }
+        if("1".equals(account.getAccountStatus())){
+            return "用户电子账户冻结!";
+        }
+
+        if(StringUtils.isEmpty(order.getAllPrice())){
+            return "订单金额不能为空";
+        }
+        int i = order.getAllPrice().compareTo(new BigDecimal("0"));
+        if(i<=0){
+            return "交易金额不能小于等于0!";
+        }
+        int j= order.getAllPrice().compareTo(account.getCanExtractAmount());
+        if(j>0){
+            return "订单金额大于可提现金额！";
+        }
+
+        //账户减钱
+        account.setCashAmount(account.getCashAmount().subtract(order.getAllPrice()));//总钱
+        account.setCanExtractAmount(account.getCanExtractAmount().subtract(order.getAllPrice()));//可以提现额
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        // 记录交易流水
+        addPayJournal(journalSn, order, "1", "0", order.getAllPrice());
+        //账户消息通知
+        addUserMessage(order.getBranch(),order.getUserId(),"您的账户消费扣款成功，点击查看明细。","余额变更通知","1");
+        return OutEnum.SUCCESS.getCode();
+    }
+    /**
+     * 充值
+     */
+    @Override
+    public String topUpPay (ElectronicsAccountTopUPPayInputDTO dto){
+        ElectronicsAccount account = findByUserId(dto.getUserId());//账户
+        if(account==null){
+            return "用户电子账户不存在!";
+        }
+        if(StringUtils.isEmpty(dto.getTransAmt())){
+            return "交易金额不能为空";
+        }
+        int i = dto.getTransAmt().compareTo(new BigDecimal("0"));
+        if(i<=0){
+            return "交易金额不能小于等于0!";
+        }
+        //账户加钱
+        account.setCashAmount(account.getCashAmount().add(dto.getTransAmt()));//总钱
+        account.setCanExtractAmount(account.getCanExtractAmount().add(dto.getTransAmt()));//可以提现额
+        account.setLastTime(System.currentTimeMillis());
+        baseMapper.updateById(account);
+        //账户消息通知
+        addUserMessage(dto.getBranch(),dto.getUserId(),"您的账户充值成功，点击查看明细。","余额变更通知","1");
+        return OutEnum.SUCCESS.getCode();
+    }
+    /**
+     * 账户消息通知
+      */
+    private void addUserMessage(String branch,Long userId, String message, String title,String corr){
+        UserMessageInsertInputDTO mm=new UserMessageInsertInputDTO();
+        mm.setUserIds(userId.toString());
+        mm.setBranch(branch);
+        mm.setTitle(title);
+        mm.setMessage(message);
+        mm.setCorr(corr);
+        mm.setType("3");
+        //账户消息通知
+        userMessageService.insertUserMessage(mm);
+    }
+
+
+
+
+
+
+
+
+    public String createAccountNo(String accountType, String branch) {
+        StringBuffer buff = new StringBuffer(accountType);
+        String no = generateNumber();
+        buff.append(no);
+        String checkNum = getCheckSum(branch, no);
+        buff.append(checkNum);
+        return buff.toString();
+    }
+    public String getCheckSum(String branch, String genNO) {
+        String cardNo = branch + genNO;
+        int[] cardNoArr = new int[cardNo.length()];
+        for (int i = 1; i < cardNoArr.length; i++) {
+            cardNoArr[i] = Integer.parseInt(String.valueOf(cardNo.charAt(i))) * 10;
+        }
+        int sum = 0;
+        for (int i = 0; i < cardNoArr.length; i++) {
+            sum += cardNoArr[i];
+        }
+        return String.valueOf((sum));
+    }
+
+    /**
+     * 生成8位账户号
+     *
+     * @return
+     */
+    public String generateNumber() {
+        String no = "";
+        // 初始化备选数组
+        int[] defaultNums = new int[10];
+        for (int i = 0; i < defaultNums.length; i++) {
+            defaultNums[i] = i;
+        }
+        Random random = new Random();
+        int[] nums = new int[8];
+        // 默认数组中可以选择的部分长度
+        int canBeUsed = 10;
+        // 填充目标数组
+        for (int j = 0; j < nums.length; j++) {
+            // 将随机选取的数字存入目标数组
+            int index = random.nextInt(canBeUsed);
+            nums[j] = defaultNums[index];
+            // 将已用过的数字扔到备选数组最后，并减小可选区域
+            swap(index, canBeUsed - 1, defaultNums);
+            canBeUsed--;
+        }
+        if (nums.length > 0) {
+            for (int i = 0; i < nums.length; i++) {
+                no += nums[i];
+            }
+        }
+        return no;
+
+    }
+    public void swap(int i, int j, int[] nums) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+}

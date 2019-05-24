@@ -1,0 +1,173 @@
+package org.fh.general.ecom.basics.service.impl;
+
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.DictionaryDao;
+import org.fh.general.ecom.basics.model.Dictionary;
+import org.fh.general.ecom.basics.service.DictionaryService;
+import org.fh.general.ecom.common.dto.basics.dictionary.*;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.dictionary.DicListOutPO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+/**
+ * <p>
+ * 数据字典表 服务实现类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-08-14
+ */
+@Service
+public class DictionaryServiceImpl extends ServiceImpl<DictionaryDao, Dictionary> implements DictionaryService {
+
+    @Override
+    public DictionaryListOutDTO findDicListByType(DictionaryListInDTO paramDto){
+        EntityWrapper<Dictionary> wrapper = new EntityWrapper<Dictionary>();
+        wrapper.eq("type",paramDto.getType());
+        wrapper.eq("branch",paramDto.getBranch());
+        if(StringUtils.isNotEmpty(paramDto.getIsShow())) {
+            wrapper.eq("is_show", paramDto.getIsShow());
+        }
+        wrapper.orderBy("sort",true);
+        List<Dictionary> list=baseMapper.selectList(wrapper);
+        //改成从缓存里查 TODO
+
+        List<DicListOutPO> listPo= new ArrayList<DicListOutPO>();
+        list.forEach((Dictionary  temp)->{
+            DicListOutPO poEn=new DicListOutPO();
+            BeanUtils.copyProperties(temp,poEn);
+            listPo.add(poEn);
+        });
+        DictionaryListOutDTO  toEn=new DictionaryListOutDTO();
+        toEn.setList(listPo);
+        return toEn;
+    }
+
+    @Override
+    public String addDictionary(InputDictionaryAddDTO dto){
+        EntityWrapper<Dictionary> wrapper = new EntityWrapper<Dictionary>();
+        wrapper.where("del_flag={0}",ComEnum.IsDelete.NORMAL.getValue())
+                .andNew("label={0} or value={1}",dto.getLabel(),dto.getValue())
+                .andNew("type={0}",dto.getType())
+                .andNew("branch={0}",dto.getBranch()==null? ComEnum.Branch.YUN_TOU.getValue():dto.getBranch());
+        int i =  baseMapper.selectCount(wrapper);
+        if(i>0){
+            return "该字典已经存在";
+        }
+
+        Dictionary entity = new Dictionary();
+        BeanUtils.copyProperties(dto,entity);
+        entity.setCreateDate(new Date());
+        entity.setUpdateBy(dto.getCreateBy());
+        entity.setUpdateDate(new Date());
+        entity.setDelFlag(ComEnum.IsDelete.NORMAL.getValue());
+        int success = this.baseMapper.insert(entity);
+        if(success>0){
+            return  "";
+        }
+        return OutEnum.FAIL.getMessage();
+
+    }
+
+
+    @Override
+    public String updateDictionary(InputDictionaryUpdateDTO dto){
+        Dictionary entity = this.baseMapper.selectById(dto.getId());
+        if(entity==null){
+            return OutEnum.WARN.getMessage();
+        }
+
+        EntityWrapper<Dictionary> wrapper = new EntityWrapper<Dictionary>();
+        wrapper.where("del_flag={0}",ComEnum.IsDelete.NORMAL.getValue())
+                .andNew("label={0} or value={1}",dto.getLabel(),dto.getValue())
+                .andNew("branch={0}",entity.getBranch()==null? ComEnum.Branch.YUN_TOU.getValue():entity.getBranch())
+                 .andNew("type={0}",dto.getType()).andNew("id!={0}",dto.getId());
+        int i =  baseMapper.selectCount(wrapper);
+        if(i>0){
+            return "该字典已经存在";
+        }
+        Dictionary updateEntity = new Dictionary();
+        BeanUtils.copyProperties(dto,updateEntity);
+        updateEntity.setCreateBy(entity.getCreateBy());
+        updateEntity.setCreateDate(entity.getCreateDate());
+        updateEntity.setBranch(entity.getBranch());
+        updateEntity.setDelFlag(entity.getDelFlag());
+        updateEntity.setUpdateBy(Long.valueOf(dto.getUpdateBy()));
+        updateEntity.setUpdateDate(new Date());
+        int success =this.baseMapper.updateById(updateEntity);
+        if(success>0){
+            return  "";
+        }
+        return  OutEnum.FAIL.getMessage();
+    }
+    @Override
+    public String delDictionary(InputDictionaryDelDTO dto){
+        if(StringUtils.isEmpty(dto.getIds())){
+            return OutEnum.MUSTPARAMS.getMessage();
+        }
+
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("delFlag",ComEnum.IsDelete.DEL.getValue());
+        map.put("list",StringUtils.strToList(dto.getIds()));
+        this.baseMapper.delBatchDictionarys(map);
+
+        return"";
+    }
+
+    @Override
+   public OutputDictionaryDetailDTO findDetail(InputDictionaryDetailDTO dto){
+        Dictionary dictionary = this.baseMapper.selectById(dto.getId());
+        if(dictionary==null){
+            return null;
+        }
+        OutputDictionaryDetailDTO outputDictionaryDetailDTO=new OutputDictionaryDetailDTO();
+        BeanUtils.copyProperties(dictionary,outputDictionaryDetailDTO);
+        return outputDictionaryDetailDTO;
+    }
+
+    @Override
+    public OutputDictionaryListDTO findPage(InputDictionaryListDTO dto) {
+        OutputDictionaryListDTO outputDictionaryListDTO = new OutputDictionaryListDTO();
+        EntityWrapper wrapper=new EntityWrapper();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }
+
+        List<Dictionary> list=baseMapper.selectList(wrapper);
+        PageInfo pageInfo=new PageInfo(list);
+        List<OutputDictionaryDetailDTO>  listpo=new ArrayList<OutputDictionaryDetailDTO>();
+        list.forEach((Dictionary temp) -> {
+            OutputDictionaryDetailDTO dto1=new OutputDictionaryDetailDTO();
+            BeanUtils.copyProperties(temp,dto1);
+            listpo.add(dto1);
+        });
+        outputDictionaryListDTO.setList(listpo);
+        outputDictionaryListDTO.setPageInfo(pageInfo);
+        return outputDictionaryListDTO;
+    }
+
+    @Override
+    public OutputDictionaryDetailDTO findLabelByValueAndType(InputDictionaryQueryDTO paramDto) {
+       OutputDictionaryDetailDTO response = new OutputDictionaryDetailDTO();
+       Dictionary dictionary = new Dictionary();
+       dictionary.setType(paramDto.getType());
+       dictionary.setValue(paramDto.getValue());
+       dictionary = this.baseMapper.selectOne(dictionary);
+       if(dictionary!=null){
+           BeanUtils.copyProperties(dictionary,response);
+       }
+        return null;
+    }
+
+}
+

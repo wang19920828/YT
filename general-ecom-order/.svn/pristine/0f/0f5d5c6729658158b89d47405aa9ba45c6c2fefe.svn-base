@@ -1,0 +1,54 @@
+package org.fh.general.ecom.order.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.common.dto.order.order.*;
+import org.fh.general.ecom.common.dto.product.order.OrderListCountOutputDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputOrderDetailDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputProgrammeCountDTO;
+import org.fh.general.ecom.common.po.order.order.OrderPO;
+import org.fh.general.ecom.common.po.product.order.InputProgrammePO;
+import org.fh.general.ecom.common.po.product.order.OutputUserCountPO;
+import org.fh.general.ecom.order.model.Order;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+public interface OrderService extends IService<Order> {
+
+
+    String delOrder(Long id);
+
+    String updateOrder(OrderUpdateInputDTO dto);
+
+    OrderBgDetailOutputDTO detailBgOrder(String orderSn);
+
+    OrderEntityOutDTO findEntityByOrderSn(String orderSn);
+
+    OrderListOutputDTO findPage(OrderListInputDTO dto);
+
+    String downloadExcel(OrderListInputDTO dto) throws Exception;
+
+    OrderBgDetailOutputDTO findEntityByParams(FindEntityByParamsDTO paramDto);
+
+    String cancelOrder(CanacelOrderInputDTO dto);
+
+    List<OrderPO> findList(FindListInputDTO dto);
+
+    String getDictionaryOneValue(String key, String branch);
+    JustIfFullOutputDTO justIfFull(Long projectId, BigDecimal projectTotalAmount);
+    BigDecimal getTwoPartAllPrice(String endOrderSn);
+
+    //basics使用 start
+    String updatePayStatus(String orderSn,String payStatus);
+    //basics使用 end
+
+    //产品使用 start
+    OutputOrderDetailDTO findAppointmentAmountByProjectId(String projectId);
+    OutputOrderDetailDTO findBySubscribeForAmountProjectId(String projectId);
+    OrderListCountOutputDTO findUserListPage(OrderListInputDTO dto);
+    OutputUserCountPO findCountUser(String projectId);
+    OutputProgrammeCountDTO findProgrammeCountById(InputProgrammePO dto);
+    //end
+    Boolean findUserIsNotProduct (Long userId);
+
+}

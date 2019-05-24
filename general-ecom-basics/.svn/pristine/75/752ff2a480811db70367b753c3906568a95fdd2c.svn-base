@@ -1,0 +1,88 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.FundJournalDao;
+import org.fh.general.ecom.basics.model.FundJournal;
+import org.fh.general.ecom.basics.service.FundJournalService;
+import org.fh.general.ecom.common.dto.basics.user.fundJournal.*;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 账目流水 服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+@Service
+public class FundJournalServiceImpl extends ServiceImpl<FundJournalDao, FundJournal> implements FundJournalService {
+
+    @Override
+    public String insert( FundJournalInsertInputDTO dto) {
+        FundJournal fj=new FundJournal();
+        BeanUtils.copyProperties(dto,fj );
+        baseMapper.insert(fj);
+       return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public FundJournalOutputDTO getFundJournal(FundJournalfindInputDTO dto) {
+        FundJournal fj=new FundJournal();
+        BeanUtils.copyProperties(dto,fj );
+        FundJournal fundJournal = baseMapper.selectOne(fj);
+        FundJournalOutputDTO out=new FundJournalOutputDTO();
+        BeanUtils.copyProperties(fundJournal,out );
+        return out;
+    }
+    @Override
+    public FundJournalListOutputDTO findPage(FundJournalListInputDTO dto){
+        FundJournalListOutputDTO response=new FundJournalListOutputDTO();
+        EntityWrapper<FundJournal> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+//        if(StringUtils.isNotEmpty(dto.getBranch())){
+//            wrapper.eq("branch",dto.getBranch());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getStatus())){
+//            wrapper.eq("status",dto.getStatus());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getDel())){
+//            wrapper.eq("del",dto.getDel());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getType())){
+//            wrapper.eq("type",dto.getType());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getUserId())){
+//            wrapper.eq("user_id",dto.getUserId());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getTitle())){
+//            wrapper.like("title",dto.getTitle());
+//        }
+//        if(StringUtils.isNotEmpty(dto.getTimeStart()) && StringUtils.isNotEmpty(dto.getTimeEnd())){
+//            wrapper.between("create_time",dto.getTimeStart(),dto.getTimeEnd());
+//        }
+        System.out.println("================where条件:"+wrapper.getSqlSegment());
+        List<FundJournal> list=baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo=new PageInfo(list);
+        List<FundJournalOutputDTO>  listpo=new ArrayList<FundJournalOutputDTO>();
+        list.forEach((FundJournal temp) -> {
+            FundJournalOutputDTO po=new FundJournalOutputDTO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+}

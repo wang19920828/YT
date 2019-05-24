@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.ElectronicsAccountDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.ElectronicsAccount">
+		<id column="account_id" property="accountId" />
+		<result column="account_no" property="accountNo" />
+		<result column="account_type" property="accountType" />
+		<result column="account_property" property="accountProperty" />
+		<result column="user_id" property="userId" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="channel" property="channel" />
+		<result column="cust_id" property="custId" />
+		<result column="cust_name" property="custName" />
+		<result column="cash_amount" property="cashAmount" />
+		<result column="freeze_amount" property="freezeAmount" />
+		<result column="can_extract_amount" property="canExtractAmount" />
+		<result column="account_status" property="accountStatus" />
+		<result column="create_time" property="createTime" />
+		<result column="last_time" property="lastTime" />
+		<result column="pay_password" property="payPassword" />
+		<result column="payment_code" property="paymentCode" />
+		<result column="expiration_time" property="expirationTime" />
+		<result column="foregift_amount" property="foregiftAmount" />
+		<result column="foregift_time" property="foregiftTime" />
+		<result column="financing_amount" property="financingAmount" />
+		<result column="financing_start_time" property="financingStartTime" />
+		<result column="financing_end_time" property="financingEndTime" />
+		<result column="financing_usable_amount" property="financingUsableAmount" />
+		<result column="financing_origin_amount" property="financingOriginAmount" />
+		<result column="red_bag_amount" property="redBagAmount" />
+		<result column="foregift_ios_amount" property="foregiftIosAmount" />
+		<result column="foregift_ios_time" property="foregiftIosTime" />
+		<result column="financing_ios_amount" property="financingIosAmount" />
+		<result column="financing_ios_start_time" property="financingIosStartTime" />
+		<result column="financing_ios_end_time" property="financingIosEndTime" />
+		<result column="financing_ios_usable_amount" property="financingIosUsableAmount" />
+		<result column="financing_ios_origin_amount" property="financingIosOriginAmount" />
+	</resultMap>
+
+</mapper>

@@ -1,0 +1,39 @@
+package org.fh.general.ecom.common.dto.order.order;
+
+
+import lombok.Data;
+import org.fh.general.ecom.common.po.order.orderLog.OrderLogPO;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+public class DetailSaleOrderOutputDTO {
+
+    //基本信息
+    private String orderSn;
+    private String userAccount;
+    private String payName;
+    private String channel;
+    private String isSend;
+    private String expressName;
+    private String sendNo;
+    private String acceptName;
+    private String tel;
+    private String oldcode;
+    private String address;
+
+    //费用信息
+    private BigDecimal checkPrice;
+    private BigDecimal sendPrice;
+    private BigDecimal shareAll;
+    private BigDecimal integralMoney;
+    private BigDecimal shareDianpu;
+    private BigDecimal sharePingtai;
+
+
+    //操作信息
+    List<OrderLogPO>  logList;
+
+
+}

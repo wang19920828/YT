@@ -1,0 +1,72 @@
+package org.fh.general.ecom.product.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.common.dto.product.project.InputProjectADDManageDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddMainDTO;
+import org.fh.general.ecom.common.dto.product.project.OutputProjectTeamManageListDTO;
+import org.fh.general.ecom.common.po.product.project.ProjectTeamManageListOutputPO;
+import org.fh.general.ecom.product.dao.ProjectTeamManageDao;
+import org.fh.general.ecom.product.model.ProjectTeamManage;
+import org.fh.general.ecom.product.service.ProjectTeamManageService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * <p>
+ * 项目管理团队信息 服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-17
+ */
+@Service
+public class ProjectTeamManageServiceImpl extends ServiceImpl<ProjectTeamManageDao, ProjectTeamManage> implements ProjectTeamManageService {
+
+
+    @Override
+    public void insertBatchList(InputProjectAddMainDTO dto, Long projectId) {
+        List<InputProjectADDManageDTO>  manageDTOList = dto.getManageDTOList();
+        if(manageDTOList!=null && manageDTOList.size()>0) {
+            List<ProjectTeamManage> manageList = new ArrayList<ProjectTeamManage>();
+            manageDTOList.forEach((InputProjectADDManageDTO temp) -> {
+                ProjectTeamManage manage = new ProjectTeamManage();
+                BeanUtils.copyProperties(temp, manage);
+                manage.setCreateDate(new Date());
+                manage.setUpdateBy(dto.getCreateBy());
+                manage.setUpdateDate(new Date());
+                manage.setProjectId(projectId);
+                manage.setCreateBy(dto.getCreateBy());
+                if(manage.getId()!=null){
+                    baseMapper.updateById(manage);
+                }else {
+                    manageList.add(manage);
+                }
+            });
+            super.insertBatch(manageList);
+        }
+    }
+
+    @Override
+    public OutputProjectTeamManageListDTO findList(Long projectId) {
+        OutputProjectTeamManageListDTO outputProjectTeamManageListDTO = new OutputProjectTeamManageListDTO();
+        EntityWrapper wrapper=new EntityWrapper();
+        wrapper.eq("project_id",projectId);
+        List<ProjectTeamManage> list = this.baseMapper.selectList(wrapper);
+        if(list!=null &&  list.size()>0) {
+            List<ProjectTeamManageListOutputPO> listpo = new ArrayList<ProjectTeamManageListOutputPO>();
+            list.forEach((ProjectTeamManage temp) -> {
+                ProjectTeamManageListOutputPO po = new ProjectTeamManageListOutputPO();
+                BeanUtils.copyProperties(temp, po);
+                listpo.add(po);
+            });
+            outputProjectTeamManageListDTO.setProjectTeamManageListOutputPOList(listpo);
+            return outputProjectTeamManageListDTO;
+        }
+        return null;
+    }
+}

@@ -1,0 +1,149 @@
+package org.fh.general.ecom.product.model;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * <p>
+ * 咨询项目表
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-17
+ */
+@Data
+@TableName("tb_consulting_project")
+public class ConsultingProject implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+    /**
+     * 项目类型
+     */
+	@TableField("project_type")
+	private String projectType;
+    /**
+     * 联系人姓名
+     */
+	private String contacts;
+    /**
+     * 联系电话
+     */
+	@TableField("contacts_tel")
+	private String contactsTel;
+    /**
+     * 微信号
+     */
+	private String wechat;
+    /**
+     * 项目名称
+     */
+	@TableField("project_name")
+	private String projectName;
+    /**
+     * 所在区域
+     */
+	@TableField("area_address")
+	private String areaAddress;
+    /**
+     * 详细地址
+     */
+	@TableField("detail_address")
+	private String detailAddress;
+    /**
+     * 项目进度
+     */
+	@TableField("project_schedule")
+	private String projectSchedule;
+    /**
+     * 物业权属
+     */
+	@TableField("property_weight")
+	private String propertyWeight;
+    /**
+     * 建筑面积
+     */
+	@TableField("build_area")
+	private BigDecimal buildArea;
+    /**
+     * 房间数、门店数
+     */
+	@TableField("rooms_shop_number")
+	private Long roomsShopNumber;
+    /**
+     * 单价
+     */
+	@TableField("unit_price")
+	private BigDecimal unitPrice;
+    /**
+     * 众筹金额
+     */
+	@TableField("total_amount")
+	private BigDecimal totalAmount;
+    /**
+     * 总投金额
+     */
+	@TableField("invest_amount")
+	private BigDecimal investAmount;
+    /**
+     * 备注
+     */
+	private String remarks;
+    /**
+     * 项目id
+     */
+	@TableField("project_id")
+	private String projectId;
+    /**
+     * 客户经理
+     */
+	@TableField("customer_id")
+	private String customerId;
+    /**
+     * 状态0：正常  1：删除   2：已经生成项目
+     */
+	private String status;
+    /**
+     * 创建人
+     */
+	@TableField("create_by")
+	private String createBy;
+
+	@TableField("create_date")
+	private Date createDate;
+    /**
+     * 修改人
+     */
+	@TableField("update_by")
+	private String updateBy;
+    /**
+     * 修改时间
+     */
+	@TableField("update_date")
+	private Date updateDate;
+    /**
+     * 平台编号
+     */
+	private String branch;
+    /**
+     * 平台名称
+     */
+	@TableField("branch_name")
+	private String branchName;
+
+	/**
+	 * 渠道
+	 */
+	private String channel;
+
+
+}

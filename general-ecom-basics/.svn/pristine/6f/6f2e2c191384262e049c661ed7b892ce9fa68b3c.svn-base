@@ -1,0 +1,16 @@
+package org.fh.general.ecom.basics.dao;
+
+import org.fh.general.ecom.basics.model.FileNorms;
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+
+/**
+ * <p>
+  *  Mapper 接口
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-28
+ */
+public interface FileNormsDao extends BaseMapper<FileNorms> {
+
+}

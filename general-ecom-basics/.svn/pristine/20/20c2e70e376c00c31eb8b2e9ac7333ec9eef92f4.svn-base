@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.sms.BlackListDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.sms.BlackList" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="uuid" property="uuid" jdbcType="VARCHAR" />
+    <result column="num" property="num" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, phone, ip, uuid, num, status, create_time
+  </sql>
+
+  <select id="findBlackByParam" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT * FROM tb_basic_blacklist
+  	<where>
+  	 	<if test="ip != null and ip != '' " > AND ip = #{ip}</if>
+  		<if test="uuid != null and uuid != '' " > AND uuid = #{uuid}</if>
+  		<if test="phone != null and phone != '' " > AND phone = #{phone}</if>
+  		<if test="startTime != null and startTime != '' " > AND create_time <![CDATA[>= #{startTime} ]]></if>
+  		<if test="endTime != null and endTime != '' " > AND create_time <![CDATA[<= #{endTime} ]]></if>
+  		 AND status = '0'
+  	</where>
+  	 ORDER BY create_time DESC LIMIT 1
+  </select>
+  
+  <select id="findList" parameterType="java.util.Map" resultMap="BaseResultMap">
+		SELECT * from tb_basic_blacklist
+		<where>
+	  	 	<if test="ip != null and ip != '' " > AND ip = #{ip}</if>
+	  		<if test="uuid != null and uuid != '' " > AND uuid like CONCAT('%',#{uuid},'%')</if>
+	  		<if test="phone != null and phone != '' " > AND phone like CONCAT('%',#{phone},'%')</if>
+	  		<if test="startTime != null and startTime != '' " > AND create_time <![CDATA[>= #{startTime} ]]></if>
+	  		<if test="endTime != null and endTime != '' " > AND create_time <![CDATA[<= #{endTime} ]]></if>
+	  	</where>
+		ORDER BY create_time DESC
+		<if test="start != null and  end !=null ">  
+			 LIMIT #{start}, #{end}
+		</if>
+	</select>
+	
+	<select id="getCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM tb_adver
+		<where>
+	  	 	<if test="ip != null and ip != '' " > AND ip = #{ip}</if>
+	  		<if test="uuid != null and uuid != '' " > AND uuid like CONCAT('%',#{uuid},'%')</if>
+	  		<if test="phone != null and phone != '' " > AND phone like CONCAT('%',#{phone},'%')</if>
+	  		<if test="startTime != null and startTime != '' " > AND create_time <![CDATA[>= #{startTime} ]]></if>
+	  		<if test="endTime != null and endTime != '' " > AND create_time <![CDATA[<= #{endTime} ]]></if>
+	  	</where>
+	</select>
+	
+	<update id="updateStatus" parameterType="java.util.Map">
+		update tb_basic_blacklist set status = #{status} where id = #{id}
+	</update>
+</mapper>

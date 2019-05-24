@@ -1,0 +1,73 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.util.Date;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/13 10:53
+ * @Description:
+ */
+@Data
+public class UserLoginOutPutDTO {
+   //编码
+    private String code;
+    /**
+     * 用户ID
+     */
+    private Long userId;
+
+    /**
+     * 用户昵称
+     */
+    private String nickName;
+    /**
+     * 个人头像
+     */
+    private String userImg;
+    /**
+     * 登录名
+     */
+    private String loginName;
+
+    /**
+     * 注册时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    private Date registerTime;
+    /**
+     * 等级积分
+     */
+    private Long credits;
+
+    /**
+     * 状态：1-正常 2-注销 3-删除
+     */
+    private String status;
+
+    /**
+     * 平台：1001-D5厨房 1002-美食工场 1003-爱炉火锅 1004-真真小吃
+     */
+    private String branch;
+    /**
+     * 平台名称
+     */
+
+    private String branchName;
+    /**
+     * 账户
+     */
+    private String account;
+    /**
+     * 手机号
+     */
+    private String phone;
+    /**
+     * 邮箱
+     */
+    private String email;
+
+
+}

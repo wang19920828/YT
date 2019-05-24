@@ -1,0 +1,42 @@
+server:
+  port: 8705
+spring:
+  application:
+    name: basics
+  datasource:
+    url:  jdbc:mysql://117.78.52.227:8306/db_hotel_manage?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&&useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: '123456'
+#    url:  jdbc:mysql://172.16.10.29:8306/db_general_ecom_basics?useUnicode=true&characterEncoding=utf-8&useSSL=false
+#    driver-class-name: com.mysql.jdbc.Driver
+#    username: root
+#    password: 'mysql_20180702'
+  data:
+    mongodb:
+      uri: mongodb://117.78.34.24:27017/generalEcom_dev
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+mybatis-plus:
+  # 配置扫描xml
+  mapper-locations:
+    - classpath:mapper/*.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  type-aliases-package: org.fh.general.ecom.basics.model
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+
+zuul:
+  host:
+    socket-timeout-millis: 50000
+    connect-timeout-millis: 50000
+
+ribbon:
+    ConnectTimeout: 50000
+    ReadTimeout: 50000

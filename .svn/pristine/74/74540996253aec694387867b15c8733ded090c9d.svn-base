@@ -1,0 +1,60 @@
+package org.fh.general.ecom.basics.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.basics.model.CmsEmail;
+import org.fh.general.ecom.basics.service.CmsEmailService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.utils.ObjectUtil;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+@RestController
+@Slf4j
+public class EmailController {
+
+	@Autowired
+	private CmsEmailService cmsEmailService;
+	@RequestMapping("BASI1012")
+	public BaseVO findEmailByChannel(String channel){
+		BaseVO base=new BaseVO();
+		try{
+			if(StringUtils.isBlank(channel)){
+				base.noData();
+				return base;
+			}
+			CmsEmail email=cmsEmailService.selectByChannel(channel);
+			base.success(email);
+		}catch(Exception e){
+			base.exception();
+			e.printStackTrace();
+		}
+		return base;
+	}
+	@RequestMapping("BASI1013")
+	public BaseVO addEditEmail(Map<String,String> param){
+		BaseVO base=new BaseVO();
+		try{
+			CmsEmail email=new CmsEmail();
+			email=(CmsEmail) ObjectUtil.setValToObj(email, param);
+			Long date=System.currentTimeMillis();
+			email.setUpdateTime(date);
+			if(StringUtils.isBlank(param.get("id"))){
+				email.setCreateTime(date);
+				cmsEmailService.insertSelective(email);
+			}else{
+				cmsEmailService.updateByPrimaryKeySelective(email);
+			}
+			base.success(email);
+		}catch(Exception e){
+			base.exception();
+			e.printStackTrace();
+		}
+		
+		return base;
+	}
+
+}

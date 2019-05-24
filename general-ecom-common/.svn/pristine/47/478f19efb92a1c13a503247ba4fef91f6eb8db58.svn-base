@@ -1,0 +1,25 @@
+package org.fh.general.ecom.common.vo.product.web;
+
+import lombok.Data;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/25
+ **/
+@Data
+public class ProjectWebListVO {
+
+    private Long id;//项目id
+    private String projectName;//项目名称
+    private String areaAddress;
+    private String pcImageUrl;
+    private String appImageUrl;
+    private String projectSummary;
+    private String projectType;
+
+    private String schedule; //预约进度
+    private String remainingTime;//剩余时间
+
+
+    private String projectStatus;
+}

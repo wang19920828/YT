@@ -1,0 +1,11 @@
+org\fh\general\ecom\product\dao\ShopDao.class
+org\fh\general\ecom\product\service\ProductService.class
+org\fh\general\ecom\product\model\Shop.class
+org\fh\general\ecom\product\GeneralEcomProductApplication.class
+org\fh\general\ecom\product\controller\ShopController.class
+org\fh\general\ecom\product\service\impl\ProductServiceImpl.class
+org\fh\general\ecom\product\model\Product.class
+org\fh\general\ecom\product\service\ShopService.class
+org\fh\general\ecom\product\dao\ProductDao.class
+org\fh\general\ecom\product\controller\ProductController.class
+org\fh\general\ecom\product\service\impl\ShopServiceImpl.class

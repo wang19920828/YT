@@ -1,0 +1,31 @@
+package org.fh.general.ecom.common.dto.product.mongo;
+
+import lombok.Data;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/25
+ **/
+@Data
+public class InputMongoDBProjectDTO {
+
+    private Integer currentPageNum;
+    private Integer pageSize;
+    private String  projectStatus;
+    private String  projectName;
+    private String  projectType;
+    private String  rightsType;
+    private String branch;
+    private String channel;
+    private String  areaAddress;
+
+
+    private String sortType;
+    private String sortDesc;
+    private String  projectTypes;
+    private String  rightsTypes;
+    private String  areaAddresses;
+
+    private String notId;
+
+}

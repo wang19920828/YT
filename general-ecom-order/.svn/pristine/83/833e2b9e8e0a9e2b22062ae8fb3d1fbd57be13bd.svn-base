@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.MemberInvestDao">
+
+	<select id="findMemberInvestList" parameterType="org.fh.general.ecom.common.po.order.memberInvest.MemberInvestListParamPO" resultType="org.fh.general.ecom.common.po.order.memberInvest.MemberInvestListOutPO">
+		SELECT
+			A.product_id as productId,
+			A.project_name as projectName,
+			A.user_id as userId,
+			A.user_name as userName,
+			A.user_phone as userPhone,
+			B.project_status as projectStatus,
+			sum(case when A.order_type=0 then (A.all_price) else 0 end) as	amountAppointment,
+			sum(case when A.order_type in(1,2) then (A.all_price) else 0 end) as	amountInvest
+		FROM
+			tb_invest_order A	JOIN db_product_info.tb_project B ON A.product_id = B.id
+		<where>
+			A.order_type !=0
+			<if test="userNameOrPhone!=null and userNameOrPhone!=''">
+				AND (A.user_phone = #{userNameOrPhone} OR  A.user_name like CONCAT('%',#{userNameOrPhone},'%'))
+			</if>
+
+			<if test="projectName!=null and projectName!=''">
+				AND B.project_name like CONCAT('%',#{projectName},'%')
+			</if>
+			<if test="projectStatus!=null and projectStatus!=''">
+				and B.project_status = #{projectStatus}
+			</if>
+		</where>
+		GROUP BY
+		A.user_id,A.product_id
+		ORDER BY A.product_id desc
+	</select>
+
+
+
+
+	<select id="findMemberPlanList" parameterType="org.fh.general.ecom.common.po.order.memberInvest.MemberPlanListParamPO" resultType="org.fh.general.ecom.common.po.order.memberInvest.MemberPlanListOutPO">
+		SELECT
+			A.order_sn as orderSn,
+			A.order_type as orderType,
+			B.product_plan as planName,
+			B.num as num,
+			A.all_price as allPrice,
+			C.red_term as cycle,
+			D.min_red_rate as minRedRate
+		FROM
+		tb_invest_order A
+		JOIN tb_invest_product B ON A.order_sn = B.order_sn
+		LEFT JOIN db_product_info.tb_project_financing C ON C.project_id = B.product_id
+		LEFT JOIN db_product_info.tb_project_programme D ON D.id = B.plan_id
+		<where>
+			<if test="userId!=null and userId!=''">
+				AND	A.user_id= #{userId}
+			</if>
+			<if test="productId!=null and productId!=''">
+				AND A.product_id= #{productId}
+			</if>
+		</where>
+		order by A.order_id desc
+	</select>
+
+
+	<select id="memberDetail" parameterType="java.lang.String" resultType="org.fh.general.ecom.common.po.order.memberInvest.MemberDetailOutPO">
+		SELECT
+			user_id,
+			user_phone as userPhone,
+			user_name as userName,
+			project_name as projectName
+		FROM
+			tb_invest_order
+		WHERE
+			user_id =  #{userId}
+		LIMIT 1
+	</select>
+
+</mapper>

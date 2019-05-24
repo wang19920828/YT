@@ -1,0 +1,22 @@
+package org.fh.general.ecom.basics.service;
+
+import org.fh.general.ecom.basics.model.CmsEmail;
+
+public interface CmsEmailService {
+	
+    int deleteByPrimaryKey(Long id);
+
+    int insert(CmsEmail record);
+
+    int insertSelective(CmsEmail record);
+
+    CmsEmail selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(CmsEmail record);
+
+    int updateByPrimaryKey(CmsEmail record);
+    
+    CmsEmail selectByChannel(String channel);
+
+
+}

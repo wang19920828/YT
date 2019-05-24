@@ -1,0 +1,33 @@
+package org.fh.general.ecom.product.scheduled;
+
+import org.fh.general.ecom.product.service.ProjectService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/27
+ **/
+@Component
+@Service
+public class SchedulingConfig {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Autowired
+    private ProjectService  projectService;
+
+     //@Scheduled(fixedRate = 1000) // 每钟执行一次
+     @Scheduled(cron = "0 0 1 * * *") // 每天凌晨1点执行
+    public void  taskRun() {
+        logger.info("修改项目状态定时任务开始>>>>>>>>>>>>>>>>>>>>>>>>");
+        projectService.taskRun();
+        logger.info("修改项目状态定时任务结束>>>>>>>>>>>>>>>>>>>>>>>>");
+    }
+
+
+}

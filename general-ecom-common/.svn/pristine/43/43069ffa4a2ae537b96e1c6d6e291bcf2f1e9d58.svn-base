@@ -1,0 +1,126 @@
+package org.fh.general.ecom.common.vo.order.memberInvest;
+
+
+import com.github.pagehelper.PageInfo;
+import lombok.Data;
+import org.fh.general.ecom.common.base.Entity;
+import org.fh.general.ecom.common.base.MessageVO;
+import org.fh.general.ecom.common.base.PageVO;
+import org.fh.general.ecom.common.comm.SpecailPage;
+import org.fh.general.ecom.common.enums.OutEnum;
+
+import java.util.List;
+
+@Data
+public class DetailMemberPagingVO <T> implements Entity {
+
+    //  会员信息
+    private String userName;
+    private  String phone;
+    private String projectName;
+    private String projectStatus;
+
+    //项目详情
+    List<MemberPlanListVO> planList;
+
+    //投资分红记录
+    //private List<MemberInvestLogVO> logList;
+    //PageInfo pageInfo;
+
+
+    private MessageVO msg;
+    private T data;
+    private PageVO page = new PageVO();
+
+
+
+
+
+    public DetailMemberPagingVO(){}
+
+    public DetailMemberPagingVO(PageInfo info){
+        this.page = new PageVO(info);
+    }
+    public DetailMemberPagingVO(SpecailPage info){
+        this.page = new PageVO(info);
+    }
+
+    /**
+     * 业务处理成功
+     */
+    public void success() {
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+    }
+    /**
+     * 业务处理成功（带返回数据data,指定Message）
+     *
+     * @param msg
+     */
+    public void success(String msg) {
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),msg);
+    }
+    /**
+     * 业务处理成功（带返回数据data）
+     *
+     * @param data
+     */
+    public void success(T data,PageInfo info) {
+        if (info!=null){
+            this.page =new PageVO(info);
+        }
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+        this.data = data;
+    }
+    public void success(T data,SpecailPage info) {
+        if (info!=null){
+            this.page =new PageVO(info);
+        }
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+        this.data = data;
+    }
+
+    public void success(T data,PageInfo info,String msg) {
+        this.page =new PageVO(info);
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),msg);
+        this.data = data;
+    }
+    /**
+     * 查无业务数据
+     */
+    public void noData(){
+        this.msg = new MessageVO(
+                OutEnum.WARN.getCode(),
+                OutEnum.WARN.getMessage());
+    }
+
+    /**
+     * 查无业务数据(指定Message）
+     * @param msg
+     */
+    public void noData(String msg){
+        this.msg = new MessageVO(
+                OutEnum.WARN.getCode(),msg);
+    }
+
+    /**
+     * 接口发生异常
+     */
+    public void exception(){
+        this.msg = new MessageVO(
+                OutEnum.FAIL.getCode(),
+                OutEnum.FAIL.getMessage());
+
+    }
+
+
+
+
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.EmailSendInfoDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.EmailSendInfo">
+		<id column="email_send_id" property="emailSendId" />
+		<result column="receive_name" property="receiveName" />
+		<result column="ftp_email_adr" property="ftpEmailAdr" />
+		<result column="state" property="state" />
+		<result column="type" property="type" />
+		<result column="receive_email" property="receiveEmail" />
+		<result column="veri_mach_ip" property="veriMachIp" />
+		<result column="send_time" property="sendTime" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="opt_user_id" property="optUserId" />
+		<result column="opt_user_name" property="optUserName" />
+	</resultMap>
+
+</mapper>

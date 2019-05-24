@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProjectFinancingDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.ProjectFinancing">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="holding_company" property="holdingCompany" />
+		<result column="project_valuation" property="projectValuation" />
+		<result column="total_amount" property="totalAmount" />
+		<result column="is_over_raised" property="isOverRaised" />
+		<result column="max_amount" property="maxAmount" />
+		<result column="success_rate" property="successRate" />
+		<result column="red_term" property="redTerm" />
+		<result column="Investment_amount" property="InvestmentAmount" />
+		<result column="limit_amount" property="limitAmount" />
+		<result column="investment_term" property="investmentTerm" />
+		<result column="withdrawal_days" property="withdrawalDays" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="purchase_start_time" property="purchaseStartTime" />
+		<result column="purchase_end_time" property="purchaseEndTime" />
+		<result column="is_delay" property="isDelay" />
+		<result column="delay_date" property="delayDate" />
+		<result column="create_by" property="createBy" />
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+
+	</resultMap>
+
+
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="OutPOMap" type="org.fh.general.ecom.common.po.product.project.ProjectFinancingOutputPO">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+	</resultMap>
+
+	<select id ="selectByParams"  parameterType="java.util.HashMap"  resultMap="OutPOMap">
+		select
+		id,project_id
+		from tb_project_financing
+		<where>
+			<if test="isDelay!=null  and  isDelay!=''">
+				and is_delay = #{isDelay}
+			</if>
+			<if test="currentTime!=null ">
+				and purchase_end_time  <![CDATA[ >  #{currentTime} ]]>
+			</if>
+			<if test="cancleStartTime!=null ">
+				and start_time  <![CDATA[ >  #{cancleStartTime} ]]>
+			</if>
+			<if test="list!=null ">
+				and  project_id in
+				<foreach collection="list"   index="index"  item="item" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
+
+	<select id ="findFinancingList"  parameterType="org.fh.general.ecom.common.po.product.project.FinancingListInputPO"  resultMap="BaseResultMap">
+		SELECT
+			A.*
+		FROM
+			tb_project_financing A
+		JOIN tb_project B ON A.project_id = B.id
+		<where>
+			<if test="projectStatus!=null  and  projectStatus!=''">
+				AND B.project_status != #{projectStatus}
+			</if>
+			<if test="purchaseEndTime!=null  and  purchaseEndTime!=''">
+				AND A.purchase_end_time <![CDATA[<= #{purchaseEndTime} ]]>
+			</if>
+			<if test="delayDate!=null  and  delayDate!=''">
+				AND A.delay_date <![CDATA[<= #{delayDate} ]]>
+			</if>
+		</where>
+	</select>
+
+
+
+	<update id ="updateByList"  parameterType="java.util.HashMap"  >
+		UPDATE   tb_project_financing
+		set is_delay=#{isDelay},delay_date=#{delayDate}
+
+		<where>
+			<if test="list!=null  ">
+				and  project_id in
+				<foreach collection="list"   index="index"  item="item" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</update>
+
+</mapper>

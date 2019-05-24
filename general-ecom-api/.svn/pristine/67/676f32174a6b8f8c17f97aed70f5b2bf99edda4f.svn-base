@@ -1,0 +1,3 @@
+org\fh\general\ecom\api\filter\MyFilter.class
+org\fh\general\ecom\api\filter\ConfigurationFilter.class
+org\fh\general\ecom\api\GeneralEcomApiApplication.class

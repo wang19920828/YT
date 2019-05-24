@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProjectProgrammeDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.ProjectProgramme">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="programme_name" property="programmeName" />
+		<result column="unit_price" property="unitPrice" />
+		<result column="number" property="number" />
+		<result column="limit_number" property="limitNumber" />
+		<result column="min_red_rate" property="minRedRate" />
+		<result column="expected_return_rate" property="expectedReturnRate" />
+		<result column="describe" property="describe" />
+		<result column="coupon_id" property="couponId" />
+		<result column="create_by" property="createBy" />
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+
+	</resultMap>
+
+	<select id="findTotalAmount" parameterType="java.lang.String"  resultType="java.lang.String">
+			select SUM(unit_price*number)
+			from  tb_project_programme
+			where project_id=#{projectId}
+
+	</select>
+
+
+
+	<resultMap id="OutPOBaseResultMap" type="org.fh.general.ecom.common.po.product.project.ProjectProgrammeListOutputPO">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="programme_name" property="programmeName" />
+		<result column="unit_price" property="unitPrice" />
+		<result column="number" property="number" />
+		<result column="limit_number" property="limitNumber" />
+		<result column="min_red_rate" property="minRedRate" />
+		<result column="expected_return_rate" property="expectedReturnRate" />
+		<result column="describe" property="describe" />
+		<result column="coupon_id" property="couponId" />
+		<result column="project_name" property="projectName" />
+		<result column="project_status" property="projectStatus" />
+	</resultMap>
+
+	<select id="findList" parameterType="org.fh.general.ecom.common.po.product.project.ProjectProgrammeListOutputPO"  resultMap="OutPOBaseResultMap">
+		select   a.* ,b.project_name,b.project_status
+		from  tb_project_programme a
+		left join tb_project b on a.project_id= b.id
+		where a.project_id=#{projectId}
+
+	</select>
+
+
+</mapper>

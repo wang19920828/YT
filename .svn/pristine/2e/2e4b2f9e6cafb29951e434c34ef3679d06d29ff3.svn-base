@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.GuideArticleDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.GuideArticle">
+		<result column="id" property="id" />
+		<result column="guide_id" property="guideId" />
+		<result column="type" property="type" />
+		<result column="information" property="information" />
+	</resultMap>
+
+</mapper>

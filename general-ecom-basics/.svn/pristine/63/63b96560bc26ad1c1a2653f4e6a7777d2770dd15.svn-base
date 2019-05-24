@@ -1,0 +1,567 @@
+package org.fh.general.ecom.basics.controller;
+
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONObject;
+import org.fh.general.ecom.basics.model.User;
+import org.fh.general.ecom.basics.service.PhoneVacodeService;
+import org.fh.general.ecom.basics.service.UserService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.user.*;
+import org.fh.general.ecom.common.dto.product.user.OutputUserDetailDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 用户表 前端控制器
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-13
+ */
+@RestController
+@Slf4j
+public class UserController {
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private PhoneVacodeService phoneVacodeService;
+    /**
+     * 用户登录接口
+     * @return
+     */
+    @RequestMapping("USER1000")
+    public BaseVO login(UserLoginDTO dto) {
+        log.info("UserController.login.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        UserLoginOutPutDTO out=userService.loginUser(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(out.getCode())){
+            baseVO.warn(out.getCode());
+            return  baseVO;
+        }
+        baseVO.success(out);
+        return baseVO;
+    }
+
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("USER1001")
+    public PagingVO findPage(UserListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            UserListOutputDTO dtoEntity= this.userService.findPage(dto);
+            List<UserOutputDTO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            List<UserListVO> listvo=new ArrayList<UserListVO>();
+            list.forEach((UserOutputDTO temp) -> {
+                UserListVO voEn=new UserListVO();
+                BeanUtils.copyProperties(temp,voEn);
+                listvo.add(voEn);
+            });
+
+            pagingVO.success(listvo,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+    /**
+     * 添加（注册）
+     * */
+    @RequestMapping("USER1002")
+    public BaseVO addEntity(UserAddInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            //验证手机是否已存在
+            boolean bo=userService.checkPhoneIsExist(dto);
+            if(bo){
+                baseVO.warn("手机号已注册！");
+                return  baseVO;
+            }
+            //短信验证*******************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getLoginName(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            UserLoginOutPutDTO out=this.userService.addEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(out.getCode())){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     * 设置登陆密码
+     */
+    @RequestMapping("USER1003")
+    public BaseVO addLoginPwd(UserSetPwdInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=userService.addLoginPwd(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 修改登陆密码
+     */
+    @RequestMapping("USER1004")
+    public BaseVO updateLoginPwd(UserUpdatePwdInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            //验证老密码
+            UserOutputDTO one = this.userService.findOne(dto.getUserId());
+            if (!dto.getOldLoginPwd().equals(one.getLoginPwd())){
+                baseVO.warn("密码输入有误！");
+                return baseVO;
+            }
+            //短信验证*******************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(one.getPhone(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            //修改密码
+            String code=userService.updateLoginPwd(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 根据UserId查询用户信息
+     */
+    @RequestMapping("USER1005")
+    public BaseVO findOne(Long userId) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            UserOutputDTO out = this.userService.findOne(userId);
+            if(out==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            baseVO.success(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     * 修改用户信息
+     */
+    @RequestMapping("USER1006")
+    public BaseVO updateUser(UserUpdateInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.userService.updateUser(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 修改用户手机号
+     */
+    @RequestMapping("USER1007")
+    public BaseVO updatePhone(UserUpdatePhoneInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            //验证密码
+            UserOutputDTO one = this.userService.findOne(dto.getUserId());
+           /* if (!one.getLoginPwd().equals(dto.getLoginPwd())){
+                baseVO.warn("密码输入有误！");
+                return baseVO;
+            }
+            //验证老手机号
+            if (!dto.getOldPhone().equals(one.getPhone())){
+                baseVO.warn("老手机号输入有误！");
+                return baseVO;
+            }*/
+            //短信验证************************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getNewPhone(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            //修改用户手机号(以及登录名)
+            String code=userService.updatePhone(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 找回密码
+     */
+    @RequestMapping("USER1008")
+    public BaseVO findPwd(UserFindPwdInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            //查询用户
+            User user=new User();
+            user.setStatus("1");
+            user.setPhone(dto.getPhone());
+            user.setLoginName(dto.getPhone());
+            user.setBranch(dto.getBranch());
+            User one = userService.selectUserOne(user);
+            if(one==null){
+                baseVO.warn("用户不存在！");
+                return baseVO;
+            }
+            //短信验证************************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            //设置登陆密码
+            UserSetPwdInputDTO us=new UserSetPwdInputDTO();
+            us.setUserId(one.getUserId());
+            us.setLoginPwd(dto.getLoginPwd());
+            String code=userService.addLoginPwd(us);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 绑定手机号码
+     */
+    @RequestMapping("USER1009")
+    public BaseVO addPhone(UseaddPhoneInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            //短信验证************************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            //根据手机号平台查询用户
+            User user=new User ();
+            user.setLoginName(dto.getPhone());
+            user.setBranch(dto.getBranch());
+            user.setStatus("1");
+            User use = userService.selectUserOne(user);
+            UserOutputDTO one =new UserOutputDTO();
+            if(null!=use){ //手机已绑定
+                BeanUtils.copyProperties(use,one);
+                //app-微信授权登录——》绑定手机号
+                if(StringUtils.isNotEmpty(one.getUnionid()) && StringUtils.isNotEmpty(dto.getUnionid())){
+                    baseVO.warn("该手机号已被注册！");
+                    return baseVO;
+                }
+                //app-qq授权登录——》绑定手机号
+                if(StringUtils.isNotEmpty(one.getQquid()) && StringUtils.isNotEmpty(dto.getQquid())){
+                    baseVO.warn("该手机号已被注册！");
+                    return baseVO;
+                }
+                //app-微博授权登录——》绑定手机号
+                if(StringUtils.isEmpty(one.getWeibouid()) && StringUtils.isNotEmpty(dto.getWeibouid())){
+                    baseVO.warn("该手机号已被注册！");
+                    return baseVO;
+                }
+            }
+            //根据userId查询用户
+            UserOutputDTO out = this.userService.findOne(dto.getUserId());
+            if(out==null){
+                baseVO.warn("未查到该用户！");
+                return baseVO;
+            }
+            if(use==null){
+                //1）无手机号-没有绑定手机号，保留新注册的用户
+                if(StringUtils.isNotEmpty(dto.getUnionid())){
+                    out.setUnionid(dto.getUnionid());
+                    out.setRealUnionid(dto.getUnionid());
+                }else if(StringUtils.isNotEmpty(dto.getQquid())){
+                    out.setQquid(dto.getQquid());
+                }else if(StringUtils.isNotEmpty(dto.getWeibouid())){
+                    out.setWeibouid(dto.getWeibouid());
+                }
+                out.setLoginName(dto.getPhone());
+                out.setPhone(dto.getPhone());
+                //绑定用户手机号
+                String code = userService.updateUserPhone(out);
+                if(!OutEnum.SUCCESS.getCode().equals(code)){
+                    baseVO.error(OutEnum.FAIL.getMessage());
+                    return  baseVO;
+                }
+                baseVO.success();
+                return  baseVO;
+            }
+            // 2）有手机号-保留有手机号的用户和userBase// 绑定手机号以有手机号的为基准（先逻辑删除，再合并）
+            if (StringUtils.isEmpty(one.getUnionid())) {
+                one.setUnionid(out.getUnionid());
+            }
+            if(StringUtils.isEmpty(one.getRealUnionid()) &&  StringUtils.isNotEmpty(dto.getUnionid())){
+                one.setRealUnionid(dto.getUnionid());
+                one.setUnionid(dto.getUnionid());
+            }
+            if (StringUtils.isEmpty(one.getPcqquid())) {
+                one.setPcqquid(out.getPcqquid());
+            }
+            if (StringUtils.isEmpty(one.getQquid())) {
+                one.setQquid(out.getQquid());
+            }
+            if (StringUtils.isEmpty(one.getWeibouid())) {
+                one.setWeibouid(out.getWeibouid());
+            }
+            //更新信息
+            String code=this.userService.updateUserPhone(one);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            //删除用户信息
+            if(!one.getUserId().equals(out.getUserId())){
+                String code1= this.userService.deleteEntityById(out.getUserId());
+                if(!OutEnum.SUCCESS.getCode().equals(code1)){
+                    baseVO.error(OutEnum.FAIL.getMessage());
+                    return  baseVO;
+                }
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 微信关注
+     */
+    @RequestMapping("USER1010")
+    public BaseVO attentWeiXin(UserAttentWeiXinInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            UserOutputDTO out= userService.attentWeiXin(dto);
+            baseVO.success(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 三方登录接口
+     */
+    @RequestMapping("USER1011")
+    public BaseVO thirdLogin(UserThirdLoginInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            UserOutputDTO out= userService.thirdLogin(dto);
+            baseVO.success(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 注销用户
+     */
+    @RequestMapping("USER1012")
+    public BaseVO logoutUser(Long userId) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.userService.logoutUser(userId);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+    @RequestMapping("RUSER1001")
+    public OutputUserDetailDTO findUserByUserId(@RequestBody Long userId) {
+        OutputUserDetailDTO response=new OutputUserDetailDTO();
+        try {
+            UserOutputDTO out = this.userService.findOne(userId);
+            if(out==null){
+                return null;
+            }
+            BeanUtils.copyProperties(out,response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  response;
+    }
+
+    /**
+     * 手机号登陆/注册
+     */
+    @RequestMapping("USER1014")
+    public BaseVO  findUserAllInfo(UserPhoneLoginInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            //短信验证************************
+            OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+                baseVO.error(outCodeEntity.getMessage());
+                return baseVO;
+            }
+            //查询用户
+            User user=new User();
+            user.setStatus("1");
+            user.setPhone(dto.getPhone());
+            user.setLoginName(dto.getPhone());
+            user.setBranch(dto.getBranch());
+            User one = userService.selectUserOne(user);
+            UserLoginOutPutDTO out=new UserLoginOutPutDTO();
+            if(one==null){//添加用户、返回
+                UserAddInputDTO add= new UserAddInputDTO();
+                add.setLoginName(dto.getPhone());
+                add.setBranch(dto.getBranch());
+                out=this.userService.addEntity(add);
+                if(!OutEnum.SUCCESS.getCode().equals(out.getCode())){
+                    baseVO.error(OutEnum.FAIL.getMessage());
+                    return baseVO;
+                }
+            }else{
+                //返回用户
+                BeanUtils.copyProperties(one,out);
+            }
+            baseVO.success(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 实名认证提交
+     */
+    @RequestMapping("USER1015")
+    public BaseVO updateUserReal(UserUpdateRealInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.userService.updateUserReal(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+    /**
+     * 实名认证审核
+     */
+    @RequestMapping("USER1016")
+    public BaseVO updateUserIsName(UserUpdateIsNameInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.userService.updateUserIsName(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+/**
+ *  个人中心信息
+ */
+    @RequestMapping("USER1017")
+    public BaseVO findPhoneOne(Long userId) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            UserPhoneOutputDTO out = this.userService.findPhoneOne(userId);
+            if(out==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            baseVO.success(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     * 根据UserId查询用户信息
+     */
+    @RequestMapping("USER1018")
+    public UserOutputDTO findCustomerByUserId(@RequestBody Long userId) {
+        UserOutputDTO out=null;
+        try {
+         out = this.userService.findOne(userId);
+        if(out==null){
+            return null;
+        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  out;
+    }
+
+    /**
+     * 实名认证判断
+     * @param userId
+     */
+    @RequestMapping("USER1019")
+    public Boolean findIsNameByUserId(@RequestBody Long userId) {
+        Boolean bo= userService.findIsNameByUserId(userId);
+        return  bo;
+    }
+
+}

@@ -1,0 +1,192 @@
+package org.fh.general.ecom.basics.controller;
+
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONObject;
+import org.fh.general.ecom.basics.service.UserAddressService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.user.*;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * 用户地址
+ *
+ * @author wzy
+ * @since 2018-09-14
+ */
+@RestController
+@Slf4j
+public class UserAddressController {
+    @Autowired
+    private UserAddressService userAddressService;
+
+    /**
+     * 用户地址集合查询
+     * @return
+     */
+    @RequestMapping("UD000001")
+    public BaseVO userAddressList(UserAddressListDto dto) {
+        log.info("UserAddressController.userAddressList.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        UserAddressListOutPutDTO out=userAddressService.userAddressList(dto);
+        if(0==out.getUserAddressOutList().size()){
+            baseVO.noData();
+        }else{
+            baseVO.success(out);
+        }
+        return baseVO;
+    }
+
+    /**
+     *删除用户地址
+     */
+    @RequestMapping("UD000002")
+    public BaseVO deleteUserAddressById (UserAddressDTO dto){
+        log.info("UserAddressController.deleteUserAddressById.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        Boolean bool=userAddressService.deleteByPrimaryKey(dto);
+        if(bool){
+            baseVO.success();
+        }else{
+            baseVO.setBusAlert("删除地址失败！");
+        }
+        return baseVO;
+    }
+
+    /**
+     * 根据id查地址
+     * @param dto
+     */
+    @RequestMapping("UD000003")
+    public BaseVO selectByPrimaryKey (UserAddressDTO dto){
+        log.info("UserAddressController.selectByPrimaryKey.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        UserAddressOutPutDTO out=userAddressService.selectByPrimaryKey(dto);
+        if(out!=null){
+            baseVO.success(out);
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+
+   /**
+     * 根据userId查默认地址
+     * @param dto
+     */
+    @RequestMapping("UD000004")
+    public BaseVO selectUserAddressByHost (UserAddressListDto dto){
+        log.info("UserAddressController.selectUserAddressByHost.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        UserAddressOutPutDTO out=userAddressService.selectUserAddressByHost(dto);
+        if(out!=null){
+            baseVO.success(out);
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+    /**
+     * 添加地址
+     * @param dto
+     */
+    @RequestMapping("UD000005")
+    public BaseVO insertAddress (UserAddressInsertDTO dto){
+       // log.info("UserAddressController.insertAddress.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        Boolean bool=userAddressService.insertAddress(dto);
+        if(bool){
+            baseVO.success();
+        }else{
+            baseVO.setBusAlert("添加地址失败！");
+        }
+        return baseVO;
+    }
+
+    /**
+     * 修改地址
+     * @param dto
+     */
+    @RequestMapping("UD000006")
+    public BaseVO updateByPrimaryKeySelective (UserAddressOutPutDTO dto){
+        log.info("UserAddressController.updateByPrimaryKeySelective.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        Boolean bool=userAddressService.updateByPrimaryKeySelective(dto);
+        if(bool){
+            baseVO.success();
+        }else{
+            baseVO.setBusAlert("修改地址失败！");
+        }
+        return baseVO;
+    }
+    /**
+     * 设置默认地址
+     */
+    @RequestMapping("UD000007")
+    public BaseVO setIsHost (UserAddressSetDTO dto){
+        log.info("UserAddressController.setIsHost.param:" + JSONObject.fromObject(dto));
+        BaseVO baseVO = new BaseVO();
+        Boolean bool=userAddressService.setIsHost(dto);
+        if(bool){
+            baseVO.success();
+        }else{
+            baseVO.setBusAlert("修改地址失败！");
+        }
+        return baseVO;
+    }
+    /**
+     * 查询地址分页
+     */
+    @RequestMapping("UD000008")
+    public PagingVO findPage(UserAddressListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+            pagingVO.mustParam();
+            return pagingVO;
+        }
+        UserAddressListOutPutDTO dtoEntity= this.userAddressService.findPage(dto);
+        List<UserAddressOutPutDTO> list= dtoEntity.getUserAddressOutList();
+        if(list==null || list.size()==0){
+            pagingVO.noData();
+            return pagingVO;
+        }
+        pagingVO.success(list,dtoEntity.getPageInfo());
+        return  pagingVO;
+    }
+
+    /**
+     * 下单查询我的收货地址
+     * @param userId
+     * @return
+     */
+    @RequestMapping("RUD000009")
+    public MyUserAddressPO findUserDefaultAddress(@RequestBody Long userId) {
+        UserAddressListDto userDto=new UserAddressListDto();
+        userDto.setUserId(userId);
+        UserAddressOutPutDTO  userEntity=this.userAddressService.selectUserAddressByHost(userDto);
+        if(userEntity!=null){
+            MyUserAddressPO  addressPO=new MyUserAddressPO();
+            BeanUtils.copyProperties(userEntity,addressPO);
+            addressPO.setSex(userEntity.getSex()=="0"?"女":"男");
+            return addressPO;
+        }
+        return null;//无默认地址
+    }
+
+
+    //对外调用
+    @RequestMapping("RUD000010")
+    public UserAddressOutPutDTO findAddressById(@RequestBody Long addressId) {
+        UserAddressDTO dto=new UserAddressDTO();
+        dto.setId(addressId);
+        UserAddressOutPutDTO out=userAddressService.selectByPrimaryKey(dto);
+        return out;
+    }
+}

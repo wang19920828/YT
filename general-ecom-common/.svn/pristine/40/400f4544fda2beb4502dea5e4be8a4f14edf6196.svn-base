@@ -1,0 +1,21 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/17 09:24
+ * @Description:
+ */
+@Data
+public class CustomerListInputDTO {
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+    /**
+     * 认证
+     */
+    private String isName;
+}

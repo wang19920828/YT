@@ -1,0 +1,64 @@
+package org.fh.general.ecom.common.dto.product.project;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+import org.fh.general.ecom.common.valid.RegexType;
+
+import java.math.BigDecimal;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/18
+ **/
+@Data
+public class InputProjectAddProgrammeDTO {
+
+    private Long id ;
+
+    @Check(empty = true,description = "项目id")
+    private Long projectId;
+    /**
+     * 方案名称
+     */
+    @Check(empty = false,description = "方案名称")
+    private String programmeName;
+    /**
+     * 投资单价
+     */
+    @Check(empty = false,regexType = RegexType.DECIMAL,description = "投资单价")
+    private BigDecimal unitPrice;
+    /**
+     * 可预约份数(总)
+     */
+    @Check(empty = false,regexType = RegexType.NUMBER,description = "可预约份数(总)")
+    private Long number;
+    /**
+     * 预约限购数（每人）
+     */
+    @Check(empty = false,regexType = RegexType.NUMBER,description = "预约限购数（每人）")
+    private Long limitNumber;
+    /**
+     * 最低分红收益率
+     */
+    @Check(empty = false,regexType = RegexType.DECIMAL,description = "最低分红收益率")
+    private BigDecimal minRedRate;
+    /**
+     * 方案描述
+     */
+    @Check(empty = false,description = "方案描述")
+    private String describe;
+    /**
+     * 赠送优惠券id，多个之间逗号隔开
+     */
+    @Check(empty = false,description = "赠送优惠券id")
+    private String couponId;
+    /**
+     * 创建人
+     */
+    @Check(empty = false,description = "创建人")
+    private String createBy;
+
+    @Check(empty = false,description = "投资预期收益率")
+    private BigDecimal expectedReturnRate;
+
+}

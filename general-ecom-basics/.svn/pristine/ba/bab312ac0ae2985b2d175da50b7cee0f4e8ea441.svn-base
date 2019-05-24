@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.WechatAcctInfoDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.WechatAcctInfo">
+		<id column="wechat_id" property="wechatId" />
+		<result column="channel_no" property="channelNo" />
+		<result column="app_id" property="appId" />
+		<result column="wechat_key" property="wechatKey" />
+		<result column="mch_id" property="mchId" />
+		<result column="notify_url" property="notifyUrl" />
+		<result column="token" property="token" />
+		<result column="secret_key" property="secretKey" />
+		<result column="certificate_name" property="certificateName" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    wechat_id, channel_no, app_id, wechat_key, mch_id, notify_url, token, secret_key,
+    certificate_name
+  </sql>
+	<select id="findByChannelNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_pay_wechat_acct_info
+		where channel_no = #{channelNo,jdbcType=VARCHAR}
+	</select>
+</mapper>

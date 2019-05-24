@@ -1,0 +1,76 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.PayRefundService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.basics.user.payRefund.PayRefundInsertInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * <p>
+ *  前端控制器
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-10-15
+ */
+@RestController
+@RequestMapping("/payRefund")
+public class PayRefundController {
+    @Autowired
+    private PayRefundService payRefundService;
+   /**
+     * 添加提现申请记录
+     * @param dto
+     */
+   @RequestMapping("PR000001")
+    public BaseVO insertTxPayRefund (PayRefundInsertInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+       try {
+           String out = payRefundService.insertTxPayRefund(dto);
+           if (!OutEnum.SUCCESS.getCode().equals(out)) {
+               baseVO.warn(out);
+               return baseVO;
+           }
+           baseVO.success();
+       }catch (Exception e) {
+         e.printStackTrace();
+       }
+        return baseVO;
+    }
+  /**
+     * 添加退款申请记录
+     * @param dto
+     *//*
+    @RequestMapping("PR000002")
+    public BaseVO insertTkPayRefund (PayRefundInsertInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        Boolean bool=userAddressService.insertAddress(dto);
+        if(bool){
+            baseVO.success();
+        }else{
+            baseVO.setBusAlert("添加地址失败！");
+        }
+        return baseVO;
+    }*/
+    /**
+     * 刪除
+     * @param dto
+     */
+    /**
+     * 修改
+     * @param dto
+     */
+    /**
+     * 分页
+     * @param dto
+     */
+    /**
+     * 添加地址
+     * @param dto
+     */
+
+	
+}

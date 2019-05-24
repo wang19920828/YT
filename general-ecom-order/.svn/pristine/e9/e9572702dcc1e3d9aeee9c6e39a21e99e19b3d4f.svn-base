@@ -1,0 +1,192 @@
+package org.fh.general.ecom.order.service.impl;
+
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.order.order.CanacelOrderInputDTO;
+import org.fh.general.ecom.common.dto.order.order.FindListInputDTO;
+import org.fh.general.ecom.common.dto.order.order.JustIfFullOutputDTO;
+import org.fh.general.ecom.common.dto.order.redProject.BatchInsertRedProjectInputDTO;
+import org.fh.general.ecom.common.dto.product.project.FinancingListInputDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectUpdateStatusDTO;
+import org.fh.general.ecom.common.enumeration.order.OrderEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.po.order.order.OrderListOutPO;
+import org.fh.general.ecom.common.po.order.order.OrderListParamPO;
+import org.fh.general.ecom.common.po.order.order.OrderPO;
+import org.fh.general.ecom.common.po.product.project.ProjectFinancingOutputPO;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.fh.general.ecom.order.client.ProductClient;
+import org.fh.general.ecom.order.dao.OrderDao;
+import org.fh.general.ecom.order.model.Coupons;
+import org.fh.general.ecom.order.model.Order;
+import org.fh.general.ecom.order.service.OrderService;
+import org.fh.general.ecom.order.service.RedProjectService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
+@Service
+@Component
+public class TimedTask {
+
+    @Autowired
+    private ProductClient productClient;
+    @Autowired
+    private OrderDao  orderDao;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private RedProjectService redProjectService;
+
+
+    /**
+     * 从“项目冷静期”开始介入，当冷静期结束，判断是否满足最终“认购成功”募资，并进行分红计划
+     * @Scheduled(fixedRate=5000) //定义每5秒咨询一次任务
+     * @Scheduled(cron = "0 0 22 * * ?") //每天22点触发
+     */
+    //@Scheduled(cron = "0 * */1 * * ?") //每小时
+    @Scheduled(cron = "0 0 22 * * ?")
+    public BaseVO executeAfterCool(){
+        log.info("【定时任务判断是否有募资满额的项目,执行开始=========】");
+        BaseVO baseVo=new BaseVO();
+        try {
+            //步骤一：查询所有项目。(项目是“冷静期”，且“申购结束时间”和“延期截止时间”都已结束的项目来判断是否募资满额)
+            String branch="1001";
+            String value=this.orderService.getDictionaryOneValue("cool_time",branch);
+            // 冷静期（以“申购结束时间”往后推24小时）
+            FinancingListInputDTO financingParam=new FinancingListInputDTO ();
+            financingParam.setProjectStatus(ProjectEnum.ProjectStatus.CALMNESS_PERIOD.getValue());
+            Date  coolDate=DateUtils.laterDay(new Date(),value==null?1:Integer.valueOf(value)); //认购结束24小时以后
+            String coolDateStr=DateUtils.formatDate(coolDate,DateUtils.DATE_FROMAT1);
+            financingParam.setPurchaseEndTime(DateUtils.formatDate(coolDate,DateUtils.DATE_FROMAT1));
+            financingParam.setDelayDate(DateUtils.formatDate(coolDate,DateUtils.DATE_FROMAT1));
+            List<ProjectFinancingOutputPO> financeingList=this.productClient.findFinancingList(financingParam);
+            if(financeingList==null ||financeingList.size()==0){
+                String msg="【截止("+coolDateStr+")没有在“冷静期”且“申购结束时间”和“延期截止时间”都已结束的项目】";
+                log.info(msg);
+                baseVo.error(msg);
+                return baseVo;
+            }else{
+                log.info("【截止("+coolDateStr+")，结束募资在冷静期的项目有("+financeingList.size()+"条)】");
+            }
+
+            //步骤二：判断是否满足最初设定幕资金额（“申购结束时间”过后，判断是否满了。满-》认购成功；反之-失败项目认购失败）
+            financeingList.forEach((ProjectFinancingOutputPO financing)->{
+                try {
+                    this.updateBuyProjectStatus(financing,branch);
+                } catch (Exception e) {
+                    baseVo.exception();
+                    e.printStackTrace();
+                }
+            });
+            baseVo.success();
+        } catch (Exception e) {
+            baseVo.exception();
+            e.printStackTrace();
+        } finally {
+            log.info("【定时任务判断是否有募资满额的项目,执行结束========="+baseVo.getMsg()+"】");
+        }
+        return baseVo;
+    }
+
+
+
+
+    //判断募资是否成功，且更新项目+订单状态
+    @Transactional
+    public String updateBuyProjectStatus(ProjectFinancingOutputPO financing,String branch)throws Exception{
+        BigDecimal totalAmount=financing.getTotalAmount();
+        //更新项目状态
+        InputProjectUpdateStatusDTO projectParam=new InputProjectUpdateStatusDTO();
+        projectParam.setIds(financing.getProjectId()+"");
+        projectParam.setUpdateBy("定时任务");
+        projectParam.setEndTime(DateUtils.formatDate(new Date(),DateUtils.DATE_FROMAT2));
+
+        JustIfFullOutputDTO fullDto=this.orderService.justIfFull(financing.getProjectId(),totalAmount);
+        if(fullDto.getFullFlag()){
+            //募资成功
+            log.info("【项目("+financing.getProjectId()+")募资成功！】");
+            projectParam.setProjectStatus(ProjectEnum.ProjectStatus.SUCCESS.getValue());
+            //projectParam.setSuccessDate(new Date());
+            this.updateBuyOrderStatus(financing.getProjectId()+"","success");
+            //生成分红项目数据
+            BatchInsertRedProjectInputDTO  redParam=new BatchInsertRedProjectInputDTO();
+            redParam.setProjectId(financing.getProjectId()+"");
+            redParam.setRealRaiseAmount(fullDto.getRealRaiseAmount());
+            redParam.setBranch(branch);
+            String bachCode=this.redProjectService.batchInsertRedProject(redParam);
+            if(!OutEnum.SUCCESS.getCode().equals(bachCode)){
+                return bachCode;
+            }
+        }else{
+            //募资失败
+            log.info("【项目("+financing.getProjectId()+")募资失败！】");
+            projectParam.setProjectStatus(ProjectEnum.ProjectStatus.FAIL.getValue());
+            String upCode=this.updateBuyOrderStatus(financing.getProjectId()+"","fail");
+            if(!OutEnum.SUCCESS.getCode().equals(upCode)){
+                return upCode;
+            }
+        }
+        this.productClient.updateProjectStatus(projectParam);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+
+    //更新订单认购状态
+    public String updateBuyOrderStatus(String projectId,String flag) {
+        FindListInputDTO orderParam=new FindListInputDTO();
+        orderParam.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_NORMAL.getValue());
+        orderParam.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_OK.getValue());
+        orderParam.setProductId(projectId);
+        List<OrderPO>  orderList=this.orderService.findList(orderParam);
+        if(orderList==null || orderList.size()==0){
+            String msg="【很抱歉，项目id为["+projectId+"]的项目无人下单购买。或者无一条（正常）状态的订单。】";
+            log.info(msg);
+            return msg;
+        }
+        if("success".equals(flag)){
+            orderList.forEach((OrderPO temp)->{
+                Order t=new Order();
+                BeanUtils.copyProperties(temp,t);
+                t.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_BUYSUCCESS.getValue());
+                this.orderDao.updateById(t);
+            });
+        }else{
+            orderList.forEach((OrderPO temp)->{
+                CanacelOrderInputDTO cancelParam=new CanacelOrderInputDTO();
+                cancelParam.setOrderSn(temp.getOrderSn());
+                //订单状态改为“认购失败”；“预约订单”金额转赠代金券；“预约认购”和“公开认购”订单直接走退款申请
+                if(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue().equals(temp.getOrderType())){
+                    //预约未申购
+                    cancelParam.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_YUYUE.getValue());
+                }else{
+                    //认购失败
+                    cancelParam.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_BUYFAIL.getValue());
+                }
+                this.orderService.cancelOrder(cancelParam);
+            });
+        }
+        return OutEnum.SUCCESS.getCode();
+    }
+
+
+
+
+
+
+}

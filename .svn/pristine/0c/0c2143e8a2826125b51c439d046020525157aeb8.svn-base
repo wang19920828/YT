@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminRoleDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdminRole" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+    <result column="role_type" property="roleType" jdbcType="VARCHAR" />
+    <result column="default_role" property="defaultRole" jdbcType="VARCHAR" />
+    <result column="default_role_code" property="defaultRoleCode" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="is_disabled" property="isDisabled" jdbcType="VARCHAR" />
+    <result column="creator_id" property="creatorId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+    <result column="channel" property="channel" jdbcType="VARCHAR" />
+    <result column="is_del" property="isDel" jdbcType="VARCHAR" />
+    <result column="branch" property="branch" jdbcType="VARCHAR" />
+    <result column="branch_name" property="branchName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="BaseResultMap2" type="org.fh.general.ecom.common.vo.basics.adminrole.AdminRoleVO" >
+      <id column="id" property="id" jdbcType="BIGINT" />
+      <result column="role_name" property="roleName" jdbcType="VARCHAR" />
+      <result column="role_type" property="roleType" jdbcType="VARCHAR" />
+      <result column="default_role" property="defaultRole" jdbcType="VARCHAR" />
+      <result column="default_role_code" property="defaultRoleCode" jdbcType="VARCHAR" />
+      <result column="remark" property="remark" jdbcType="VARCHAR" />
+      <result column="is_disabled" property="isDisabled" jdbcType="VARCHAR" />
+      <result column="creator_id" property="creatorId" jdbcType="BIGINT" />
+      <result column="create_time" property="createTime" jdbcType="BIGINT" />
+      <result column="channel" property="channel" jdbcType="VARCHAR" />
+      <result column="is_del" property="isDel" jdbcType="VARCHAR" />
+      <result column="branch" property="branch" jdbcType="VARCHAR" />
+      <result column="branch_name" property="branchName" jdbcType="VARCHAR" />
+    </resultMap>
+  <sql id="Base_Column_List" >
+    id, role_name, role_type, default_role, default_role_code, remark, is_disabled, creator_id, 
+    create_time, channel, is_del, branch, branch_name
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_admin_role
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_admin_role
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="org.fh.general.ecom.basics.model.AdminRole" >
+    insert into tb_admin_role (id, role_name, role_type, 
+      default_role, default_role_code, remark, 
+      is_disabled, creator_id, create_time, 
+      channel, is_del, branch, 
+      branch_name)
+    values (#{id,jdbcType=BIGINT}, #{roleName,jdbcType=VARCHAR}, #{roleType,jdbcType=VARCHAR}, 
+      #{defaultRole,jdbcType=VARCHAR}, #{defaultRoleCode,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{isDisabled,jdbcType=VARCHAR}, #{creatorId,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
+      #{channel,jdbcType=VARCHAR}, #{isDel,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, 
+      #{branchName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.AdminRole" >
+    insert into tb_admin_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="roleName != null" >
+        role_name,
+      </if>
+      <if test="roleType != null" >
+        role_type,
+      </if>
+      <if test="defaultRole != null" >
+        default_role,
+      </if>
+      <if test="defaultRoleCode != null" >
+        default_role_code,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="isDisabled != null" >
+        is_disabled,
+      </if>
+      <if test="creatorId != null" >
+        creator_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="channel != null" >
+        channel,
+      </if>
+      <if test="isDel != null" >
+        is_del,
+      </if>
+      <if test="branch != null" >
+        branch,
+      </if>
+      <if test="branchName != null" >
+        branch_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="roleName != null" >
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null" >
+        #{roleType,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultRole != null" >
+        #{defaultRole,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultRoleCode != null" >
+        #{defaultRoleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisabled != null" >
+        #{isDisabled,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorId != null" >
+        #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="channel != null" >
+        #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null" >
+        #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null" >
+        #{branchName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.AdminRole" >
+    update tb_admin_role
+    <set >
+      <if test="roleName != null" >
+        role_name = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null" >
+        role_type = #{roleType,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultRole != null" >
+        default_role = #{defaultRole,jdbcType=VARCHAR},
+      </if>
+      <if test="defaultRoleCode != null" >
+        default_role_code = #{defaultRoleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDisabled != null" >
+        is_disabled = #{isDisabled,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorId != null" >
+        creator_id = #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="channel != null" >
+        channel = #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        is_del = #{isDel,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null" >
+        branch = #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null" >
+        branch_name = #{branchName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.AdminRole" >
+    update tb_admin_role
+    set role_name = #{roleName,jdbcType=VARCHAR},
+      role_type = #{roleType,jdbcType=VARCHAR},
+      default_role = #{defaultRole,jdbcType=VARCHAR},
+      default_role_code = #{defaultRoleCode,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_disabled = #{isDisabled,jdbcType=VARCHAR},
+      creator_id = #{creatorId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT},
+      channel = #{channel,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=VARCHAR},
+      branch = #{branch,jdbcType=VARCHAR},
+      branch_name = #{branchName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+  <select id="selectSameEntity" resultMap="BaseResultMap"
+ 		parameterType="org.fh.general.ecom.basics.model.AdminRole">
+ 		SELECT
+ 			<include refid = "Base_Column_List" />
+ 		FROM
+ 			tb_admin_role
+ 		<where>is_del=0
+ 			<if test="roleName != null">
+ 				AND role_name = #{roleName,jdbcType=VARCHAR}
+ 			</if>
+ 			<if test="id != null">
+ 				AND id != #{id,jdbcType=BIGINT}
+ 			</if>
+ 			LIMIT 1
+ 		</where>
+ 	</select>
+
+  <select id="findPage" resultMap="BaseResultMap2"
+ 		parameterType="org.fh.general.ecom.common.dto.basics.adminRole.AdminRoleFindInputDTO">
+ 		SELECT
+ 			<include refid = "Base_Column_List" />
+ 		FROM
+ 			tb_admin_role
+ 		where is_del=0
+ 	</select>
+
+  <update id="updateIsdisable" parameterType="java.util.Map">
+             update tb_admin_role
+             <set>
+               <if test="isDel != null" >
+                    is_del = #{isDel,jdbcType=VARCHAR},
+               </if>
+               <if test="isDisabled != null" >
+                 is_disabled = #{isDisabled,jdbcType=VARCHAR},
+               </if>
+             </set>
+    <where>
+        <if test="ids!=null and ids!=''">
+              and id in 
+              <foreach collection="ids" index="index" item="item" open="(" separator="," close=")">
+                                #{item}
+              </foreach> 
+        </if>
+      
+    </where>
+
+  </update>
+
+
+
+  <select id="selectList" parameterType="java.util.Map" resultMap="BaseResultMap">
+  		SELECT
+  			<include refid = "Base_Column_List" />
+  		FROM
+  			tb_admin_role
+  		<where>
+  			<if test="roleName != null">
+  				AND role_name LIKE CONCAT('%',#{roleName},'%')
+  			</if>
+  			<if test="roleType != null">
+  				AND role_type = #{roleType,jdbcType=VARCHAR}
+  			</if>
+  			<if test="channel != null">
+  				AND channel = #{channel,jdbcType=VARCHAR}
+  			</if>
+  			<if test="isDel != null">
+  				AND is_del = #{isDel,jdbcType=VARCHAR}
+  			</if>
+  			<if test="isDisabled != null">
+  				AND is_disabled = #{isDisabled,jdbcType=VARCHAR}
+  			</if>
+  			<if test="remark != null">
+  				AND remark LIKE CONCAT('%',#{remark},'%')
+  			</if>
+  			<if test="creatorId != null">
+  				AND creator_id = #{creatorId,jdbcType=BIGINT}
+  			</if>
+  			<if test="createTimeStart != null">
+  				AND create_time <![CDATA[>= #{createTimeStart} ]]>
+  			</if>
+  			<if test="createTimeEnd != null">
+  				AND create_time <![CDATA[<= #{createTimeEnd} ]]>
+  			</if>
+  		</where>
+  		ORDER BY id DESC
+  		<if test="start != null and  end !=null ">
+  			LIMIT #{start}, #{end}
+  		</if>
+  	</select>
+</mapper>

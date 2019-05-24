@@ -1,0 +1,24 @@
+package org.fh.general.ecom.basics.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.basics.model.ElectronicsAccount;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountPwdInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountUpdatePwdInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsInitAccountInputDTO;
+
+/**
+ * <p>
+ * 电子账户基本信息表 服务类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+public interface ElectronicsAccountService extends IService<ElectronicsAccount> {
+   String initAccount (ElectronicsInitAccountInputDTO dto);
+   OutCodeEntity createAccountPwd(ElectronicsAccountPwdInputDTO dto);
+   String updatePayPwd (ElectronicsAccountUpdatePwdInputDTO dto);
+   ElectronicsAccountOutputDTO findAccountByUserId (Long userId);
+}

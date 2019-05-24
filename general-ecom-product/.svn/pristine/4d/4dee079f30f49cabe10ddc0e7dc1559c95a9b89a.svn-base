@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProductDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.Product">
+		<id column="product_id" property="productId" />
+		<result column="product_name" property="productName" />
+		<result column="product_number" property="productNumber" />
+		<result column="inter_code" property="interCode" />
+		<result column="pro_type_code" property="proTypeCode" />
+		<result column="pro_spec_id" property="proSpecId" />
+		<result column="product_note" property="productNote" />
+		<result column="takeout" property="takeout" />
+		<result column="pro_quick_sort" property="proQuickSort" />
+		<result column="supplier_id" property="supplierId" />
+		<result column="pro_img" property="proImg" />
+		<result column="total_sale" property="totalSale" />
+		<result column="cost_score" property="costScore" />
+		<result column="grade_score" property="gradeScore" />
+		<result column="seo_title" property="seoTitle" />
+		<result column="seo_key" property="seoKey" />
+		<result column="seo_description" property="seoDescription" />
+		<result column="moblie_description" property="moblieDescription" />
+		<result column="description" property="description" />
+		<result column="moblie_price" property="mobliePrice" />
+		<result column="moblie_agio" property="moblieAgio" />
+		<result column="moblie_agio_price" property="moblieAgioPrice" />
+		<result column="moblie_agio_start" property="moblieAgioStart" />
+		<result column="moblie_agio_end" property="moblieAgioEnd" />
+		<result column="price" property="price" />
+		<result column="agio" property="agio" />
+		<result column="agio_price" property="agioPrice" />
+		<result column="agio_start" property="agioStart" />
+		<result column="agio_end" property="agioEnd" />
+		<result column="recommend" property="recommend" />
+		<result column="activity_type" property="activityType" />
+		<result column="pro_label_id" property="proLabelId" />
+		<result column="pro_size_describe" property="proSizeDescribe" />
+		<result column="pro_group_id" property="proGroupId" />
+		<result column="status" property="status" />
+		<result column="creator" property="creator" />
+		<result column="create_time" property="createTime" />
+		<result column="publisher" property="publisher" />
+		<result column="publish_time" property="publishTime" />
+		<result column="is_food" property="isFood" />
+		<result column="is_schedule" property="isSchedule" />
+		<result column="supply_times" property="supplyTimes" />
+		<result column="average_cost_price" property="averageCostPrice" />
+		<result column="pack" property="pack" />
+		<result column="is_combo_product" property="isComboProduct" />
+		<result column="combo_price" property="comboPrice" />
+		<result column="channel" property="channel" />
+		<result column="brand_id" property="brandId" />
+		<result column="brand" property="brand" />
+		<result column="unit" property="unit" />
+		<result column="specifications" property="specifications" />
+		<result column="inventory_reduction" property="inventoryReduction" />
+		<result column="is_all_shop_sale" property="isAllShopSale" />
+		<result column="update_time" property="updateTime" />
+		<result column="expiration_date" property="expirationDate" />
+		<result column="is_sale_product" property="isSaleProduct" />
+		<result column="product_sourcing" property="productSourcing" />
+		<result column="zjf" property="zjf" />
+		<result column="sort" property="sort" />
+		<result column="is_supplier_pro" property="isSupplierPro" />
+		<result column="product_summary" property="productSummary" />
+		<result column="is_discount" property="isDiscount" />
+		<result column="is_weigh" property="isWeigh" />
+	</resultMap>
+
+</mapper>

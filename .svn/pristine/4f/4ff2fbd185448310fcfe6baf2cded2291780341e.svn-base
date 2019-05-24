@@ -1,0 +1,43 @@
+/*
+
+package org.fh.general.ecom.basics.service;
+
+import java.util.Map;
+
+
+public interface EmailService {
+	
+	
+	*/
+/**
+	 * 内部邮件使用
+	 * *//*
+
+	public void sendMail(String subject, String content);
+
+	*/
+/**
+	 * 外部邮件使用
+	 * *//*
+
+	public void sendMail(String channel, String subject, String content);
+	*/
+/**
+	 * 指定特别人发送内容
+	 * *//*
+
+	public void sendEMail(String channel, String sendTo, String subject, String content, Map<String, String> fileMap);
+	
+	*/
+/**
+	 * 发送异常信息
+	 * @param e
+	 *//*
+
+	public void sendException(String subject, Exception e);
+
+
+	
+	
+}
+*/

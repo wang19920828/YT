@@ -1,0 +1,58 @@
+
+package org.fh.general.ecom.order.client;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.product.project.FinancingListInputDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectUpdateStatusDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.InputProjectOperAddDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.UpdateOperaLogInputDTO;
+import org.fh.general.ecom.common.po.product.project.ProjectFinancingOutputPO;
+import org.fh.general.ecom.common.vo.product.organization.OrganizationDetailVO;
+import org.fh.general.ecom.common.vo.product.project.PlanEntityVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.cloud.openfeign.FeignClient;
+
+import java.util.List;
+
+/**
+ * order工程调用product的服务
+ */
+@FeignClient(name = "product")
+public interface ProductClient {
+
+
+    //项目机构
+    @RequestMapping("RPG00007")
+    OrganizationDetailVO findDetailByCompanyNo(@RequestBody String companyNo);
+
+    //项目对象
+    @RequestMapping("RP000011")
+    ProjectOneDetailVO findDetailByProjectId(@RequestBody String projectId);
+
+    //更新项目状态
+    @RequestMapping("RP000010")
+    BaseVO updateProjectStatus(@RequestBody InputProjectUpdateStatusDTO dto);
+
+    //方案列表
+    @RequestMapping("RPRO0001")
+    List<PlanEntityVO> findProjectProgrammeList(@RequestBody Long projectId);
+
+    //方案对象
+    @RequestMapping("PRO0003")
+    PlanEntityVO findProgrammeEntityById(@RequestBody Long id);
+
+    //查询项目列表
+    @RequestMapping("FIN0011")
+    List<ProjectFinancingOutputPO>  findFinancingList(@RequestBody FinancingListInputDTO dto);
+
+    //分红时存项目操作日志
+    @RequestMapping("RP000013")
+    BaseVO insertProjectOperLog(@RequestBody InputProjectOperAddDTO dto);
+
+    //更新操作日期认购成功or失败状态
+    @RequestMapping("RRP000014")
+    BaseVO updateOperaLogRenGouStatus(@RequestBody UpdateOperaLogInputDTO dto);
+}
+

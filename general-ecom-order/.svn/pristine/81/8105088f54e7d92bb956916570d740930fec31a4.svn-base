@@ -1,0 +1,32 @@
+package org.fh.general.ecom.order.service;
+
+import org.fh.general.ecom.common.dto.order.withdrawal.AuditSureInputDTO;
+import org.fh.general.ecom.common.dto.order.withdrawal.WithdrawalAddInputDTO;
+import org.fh.general.ecom.common.dto.order.withdrawal.WithdrawalDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.withdrawal.WithdrawalListInputDTO;
+import org.fh.general.ecom.common.dto.order.withdrawal.WithdrawalListOutputDTO;
+import org.fh.general.ecom.order.model.Withdrawal;
+import com.baomidou.mybatisplus.service.IService;
+
+/**
+ * <p>
+ * 提现申请表 服务类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+public interface WithdrawalService extends IService<Withdrawal> {
+
+
+
+
+    WithdrawalListOutputDTO findPage(WithdrawalListInputDTO dto)throws Exception;
+
+
+    String addEntity(WithdrawalAddInputDTO dto)throws Exception;
+
+    WithdrawalDetailOutputDTO findEntityById(Long id)throws Exception;
+
+    String auditSure(AuditSureInputDTO dto)throws Exception;
+}

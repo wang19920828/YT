@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.UserDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.User">
+		<id column="user_id" property="userId" />
+		<result column="nick_name" property="nickName" />
+		<result column="user_img" property="userImg" />
+		<result column="login_name" property="loginName" />
+		<result column="login_pwd" property="loginPwd" />
+		<result column="unionid" property="unionid" />
+		<result column="real_unionid" property="realUnionid" />
+		<result column="weibouid" property="weibouid" />
+		<result column="login_num" property="loginNum" />
+		<result column="register_time" property="registerTime" />
+		<result column="credits" property="credits" />
+		<result column="pcqquid" property="pcqquid" />
+		<result column="qquid" property="qquid" />
+		<result column="login_time" property="loginTime" />
+		<result column="login_ip" property="loginIp" />
+		<result column="phone" property="phone" />
+		<result column="email" property="email" />
+		<result column="status" property="status" />
+		<result column="uuid" property="uuid" />
+		<result column="channel" property="channel" />
+		<result column="grade_id" property="gradeId" />
+		<result column="is_through" property="isThrough" />
+		<result column="invite_code" property="inviteCode" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="account" property="account" />
+		<result column="voiceprint_status" property="voiceprintStatus" />
+		<result column="fingerprint_status" property="fingerprintStatus" />
+		<result column="faceprint_status" property="faceprintStatus" />
+		<result column="privilege_member" property="privilegeMember" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+	user_id,nick_name,user_img,login_name,login_pwd,unionid,real_unionid,weibouid,login_num,register_time,
+	credits,pcqquid,qquid,login_time,login_ip,phone,email,status,uuid,channel,grade_id,is_through,invite_code,
+	branch,branch_name,account,voiceprint_status,fingerprint_status,faceprint_status,privilege_member,update_time
+	</sql>
+	<select id="findByLoginName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from tb_user
+		where login_name = #{loginName,jdbcType=VARCHAR} and status='1' and branch=#{branch}
+	</select>
+
+
+</mapper>

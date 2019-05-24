@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminFunctionDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdminFunction">
+		<id column="fun_module_id" property="funModuleId" />
+		<result column="sort_code" property="sortCode" />
+		<result column="name" property="name" />
+		<result column="func_url" property="funcUrl" />
+		<result column="parent_id" property="parentId" />
+		<result column="code" property="code" />
+		<result column="is_disabled" property="isDisabled" />
+		<result column="creator_id" property="creatorId" />
+		<result column="create_time" property="createTime" />
+		<result column="sort" property="sort" />
+		<result column="is_del" property="isDel" />
+		<result column="channel" property="channel" />
+		<result column="selected"  property="selected" />
+	</resultMap>
+
+	<!--<sql id="Base_Column_List" >
+		fun_module_id, sort_code, name, func_url, parent_id, code, is_disabled,
+		creator_id, create_time, sort, is_del, channel
+	</sql>-->
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		SELECT
+			   fun_module_id, sort_code, name, func_url, parent_id, code, is_disabled,
+			   creator_id, create_time, sort, is_del, channel
+		FROM
+			 tb_admin_function
+		WHERE
+				fun_module_id = #{funMduleId,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectNextCodeByParentId" resultType="java.lang.String" parameterType="java.util.Map">
+		SELECT
+			   LPAD(max(sort_code + 1), #{length}, '0')
+		FROM
+			 tb_admin_function
+		WHERE
+				parent_id = #{parentId,jdbcType=BIGINT}
+	</select>
+
+	<update id="updateBySortCode" parameterType="java.util.Map">
+		UPDATE tb_admin_function
+		<set>
+			<if test="isDel != null">
+				is_del = #{isDel,jdbcType=VARCHAR},
+			</if>
+			<if test="isDisabled != null">
+				is_disabled = #{isDisabled,jdbcType=VARCHAR},
+			</if>
+		</set>
+		WHERE
+		sort_code LIKE CONCAT(#{sortCode},'%')
+	</update>
+
+	<select id="selectSameEntity" resultMap="BaseResultMap" parameterType="org.fh.general.ecom.basics.model.AdminFunction">
+		SELECT
+		fun_module_id, sort_code, name, func_url, parent_id, code, is_disabled,
+		creator_id, create_time, sort, is_del, channel
+		FROM
+		tb_admin_function
+		<where>
+			is_del = '0'
+			<if test="name != null">
+				AND name = #{name,jdbcType=VARCHAR}
+			</if>
+			<if test="parentId != null">
+				AND parent_id = #{parentId,jdbcType=BIGINT}
+			</if>
+			<if test="funModuleId != null">
+				AND fun_module_id != #{funModuleId,jdbcType=BIGINT}
+			</if>
+			LIMIT 1
+		</where>
+	</select>
+
+	<select id="selectAllListByRole" parameterType="java.util.Map"
+			resultMap="BaseResultMap">
+		SELECT
+		( CASE WHEN t.fun_module_id IS NULL THEN 0 ELSE 1 END ) AS selected,
+		af.fun_module_id,
+		af.parent_id,
+		af.sort,
+		af.sort_code,
+		af.name,
+		af.code,
+		af.func_url,
+		af.is_disabled,
+		af.is_del,
+		af.creator_id,
+		af.create_time,
+		af.channel
+		FROM
+		tb_admin_function af
+		LEFT JOIN (
+		SELECT
+		f.fun_module_id
+		FROM
+		tb_admin_role_fun  rf
+		LEFT JOIN tb_admin_function f
+		ON rf.fun_module_code LIKE CONCAT(f.sort_code, '%' )
+		<where>
+			f.is_del = '0' AND f.is_disabled = '0'
+			<if test="parentId != null">
+				AND f.parent_id = #{parentId,jdbcType=BIGINT}
+			</if>
+			<if test="roleId != null">
+				AND rf.role_id = #{roleId,jdbcType=BIGINT}
+			</if>
+		</where>
+		GROUP BY f.fun_module_idis_del
+		) t ON af.fun_module_id = t.fun_module_id
+		<where>
+			af.is_del = '0' AND af.is_disabled = '0'
+			<if test="parentId != null">
+				AND af.parent_id = #{parentId,jdbcType=BIGINT}
+			</if>
+		</where>
+		ORDER BY af.sort
+	</select>
+
+	<select id="selectRoleFuncList" parameterType="java.util.Map"
+			resultMap="BaseResultMap">
+		SELECT DISTINCT
+		f.fun_module_id,
+		f.parent_id,
+		f.sort,
+		f.sort_code,
+		f.name,
+		f.code,
+		f.func_url,
+		f.is_disabled,
+		f.is_del,
+		f.creator_id,
+		f.create_time,
+		f.channel
+		FROM
+		tb_admin_role_fun rf
+		LEFT JOIN tb_admin_function f
+		ON rf.fun_module_code LIKE CONCAT(f.sort_code, '%' )
+		<where>
+			f.is_del = '0' AND f.is_disabled = '0'
+			<if test="parentId != null">
+				AND f.parent_id = #{parentId,jdbcType=BIGINT}
+			</if>
+			<if test="roleId != null">
+				AND rf.role_id = #{roleId,jdbcType=BIGINT}
+			</if>
+		</where>
+		ORDER BY f.sort
+	</select>
+
+	<select id="findFunctionList" parameterType="java.util.Map" resultMap="BaseResultMap">
+		SELECT
+		fun_module_id, sort_code, name, func_url, parent_id, code, is_disabled,
+		creator_id, create_time, sort, is_del, channel
+		FROM
+		tb_admin_function
+		<where>
+			<if test="parentId != null">
+				AND parent_id = #{parentId,jdbcType=BIGINT}
+			</if>
+			<if test="sortCode != null">
+				AND sort_code = #{sortCode,jdbcType=VARCHAR}
+			</if>
+			<if test="funcUrl != null">
+				AND func_url = #{funcUrl,jdbcType=VARCHAR}
+			</if>
+			<if test="isDisabled != null">
+				AND is_disabled = #{isDisabled,jdbcType=VARCHAR}
+			</if>
+			AND is_del='0'
+		</where>
+		ORDER BY sort
+	</select>
+
+</mapper>

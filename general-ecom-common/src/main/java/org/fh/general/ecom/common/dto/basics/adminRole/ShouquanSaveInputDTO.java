@@ -1,0 +1,15 @@
+package org.fh.general.ecom.common.dto.basics.adminRole;
+
+import lombok.Data;
+
+@Data
+public class ShouquanSaveInputDTO {
+
+    private Long roleId;
+
+    private String functions;
+
+    private String remark;
+
+
+}

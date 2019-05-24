@@ -1,0 +1,224 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.basics.dao.ElectronicsAccountDao;
+import org.fh.general.ecom.basics.model.ElectronicsAccount;
+import org.fh.general.ecom.basics.service.ElectronicsAccountService;
+import org.fh.general.ecom.basics.service.PhoneVacodeService;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountPwdInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountUpdatePwdInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsInitAccountInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.Random;
+
+/**
+ * <p>
+ * 电子账户基本信息表 服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+@Service
+public class ElectronicsAccountServiceImpl extends ServiceImpl<ElectronicsAccountDao, ElectronicsAccount> implements ElectronicsAccountService {
+
+    @Autowired
+    private PhoneVacodeService phoneVacodeService;
+
+    @Override
+    public String initAccount(ElectronicsInitAccountInputDTO dto) {
+
+        ElectronicsAccount account = findByUserId(dto.getUserId());
+        if (null != account) {
+            return "电子账户已经存在";
+        }
+        account = new ElectronicsAccount();
+
+        account.setBranchName(dto.getBranchName());
+        account.setBranch(dto.getBranch());
+        String accountType = "6200";
+        account.setAccountType(accountType);
+        account.setChannel(dto.getChannel());
+        account.setUserId(dto.getUserId());
+        String accountNo = createAccountNo(accountType, dto.getBranch());
+        //设置支付码
+        //String paymentCode = String.valueOf((Long.valueOf(accountNo) + System.currentTimeMillis()));
+        //account.setPaymentCode(paymentCode);
+        ////设置支付密码过期时间
+        //account.setExpirationTime(DateUtils.dateMinute(1));
+        account.setAccountNo(accountNo);
+        account.setFinancingUsableAmount(BigDecimal.ZERO);
+        account.setRedBagAmount(BigDecimal.ZERO);
+        //account.setPayPassword(PasswordUtils.doubleMd5(account.getPayPassword()));
+        baseMapper.insert(account);
+        return OutEnum.SUCCESS.getCode();
+    }
+    @Override
+    public OutCodeEntity createAccountPwd(ElectronicsAccountPwdInputDTO dto){
+        OutCodeEntity result = new OutCodeEntity();
+
+        ElectronicsAccount acct = findByUserId(dto.getUserId());
+        if (null == acct) {
+            result.setCode("555555");
+            result.setMessage("电子账户不存在");
+            return result;
+        }
+        if (StringUtils.isNotEmpty(acct.getPayPassword())) {
+            result.setCode("555555");
+            result.setMessage("支付密码已存在");
+            return result;
+        }
+        String accountNo = acct.getAccountNo();
+        //设置支付码
+        String paymentCode = String.valueOf((Long.valueOf(accountNo) + System.currentTimeMillis()));
+        acct.setPaymentCode(paymentCode);
+        //设置支付密码过期时间
+        acct.setExpirationTime(DateUtils.dateMinute(2));
+        acct.setAccountNo(accountNo);
+       // acct.setPayPassword(PasswordUtils.doubleMd5(tmp.getPayPassword()));
+        acct.setPayPassword(dto.getPayPassword());
+        baseMapper.updateById(acct);
+       // electronicsAccountDao.updateByPrimaryKey(acct);
+        result.setCode(OutEnum.SUCCESS.getCode());
+        result.setObj(acct);
+        return result;
+    }
+    /**
+     * 电子账户信息
+     */
+    public ElectronicsAccount findByUserId(Long userId) {
+        ElectronicsAccount elect=new ElectronicsAccount();
+        elect.setUserId(userId);
+        ElectronicsAccount electronicsAccount = baseMapper.selectOne(elect);
+        //fillAccountData(electronicsAccount);
+        return electronicsAccount;
+    }
+    @Override
+    public ElectronicsAccountOutputDTO findAccountByUserId(Long userId) {
+        ElectronicsAccountOutputDTO outputDTO= new ElectronicsAccountOutputDTO();
+        ElectronicsAccount elect=new ElectronicsAccount();
+        elect.setUserId(userId);
+        ElectronicsAccount electronicsAccount = baseMapper.selectOne(elect);
+        if(null!=electronicsAccount){
+            BeanUtils.copyProperties(electronicsAccount,outputDTO);
+            return outputDTO;
+        }
+        return null;
+    }
+
+    /**
+     * 修改支付密码
+     */
+    @Override
+    public String updatePayPwd (ElectronicsAccountUpdatePwdInputDTO dto) {
+
+        ElectronicsAccount account = findByUserId(dto.getUserId());
+        //TODO判断验证码是否正确
+        OutCodeEntity outCodeEntity = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null, dto.getBranch());
+        if(!OutEnum.SUCCESS.getCode().equals(outCodeEntity.getCode())){
+            return outCodeEntity.getMessage();
+        }
+        if (null == account) {
+            return"用户未开立电子账户！";
+        }
+        if (!account.getPayPassword().equals(dto.getOldPayPwd())) {
+            return "原支付密码输入错误!";
+        }
+        account.setPayPassword(dto.getPayPassword());
+        if (null == account.getExpirationTime() || account.getExpirationTime() < System.currentTimeMillis()) {
+            //设置支付码
+            String paymentCode = String.valueOf((Long.valueOf(account.getAccountNo()) + System.currentTimeMillis()));
+            account.setPaymentCode(paymentCode);
+            //设置支付密码过期时间
+            account.setExpirationTime(DateUtils.dateMinute(2));
+        }
+        baseMapper.updateById(account);
+        return OutEnum.SUCCESS.getCode();
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public String createAccountNo(String accountType, String branch) {
+        StringBuffer buff = new StringBuffer(accountType);
+        String no = generateNumber();
+        buff.append(no);
+        String checkNum = getCheckSum(branch, no);
+        buff.append(checkNum);
+        return buff.toString();
+    }
+    public String getCheckSum(String branch, String genNO) {
+        String cardNo = branch + genNO;
+        int[] cardNoArr = new int[cardNo.length()];
+        for (int i = 1; i < cardNoArr.length; i++) {
+            cardNoArr[i] = Integer.parseInt(String.valueOf(cardNo.charAt(i))) * 10;
+        }
+        int sum = 0;
+        for (int i = 0; i < cardNoArr.length; i++) {
+            sum += cardNoArr[i];
+        }
+        return String.valueOf((sum));
+    }
+
+    /**
+     * 生成8位账户号
+     *
+     * @return
+     */
+    public String generateNumber() {
+        String no = "";
+        // 初始化备选数组
+        int[] defaultNums = new int[10];
+        for (int i = 0; i < defaultNums.length; i++) {
+            defaultNums[i] = i;
+        }
+        Random random = new Random();
+        int[] nums = new int[8];
+        // 默认数组中可以选择的部分长度
+        int canBeUsed = 10;
+        // 填充目标数组
+        for (int j = 0; j < nums.length; j++) {
+            // 将随机选取的数字存入目标数组
+            int index = random.nextInt(canBeUsed);
+            nums[j] = defaultNums[index];
+            // 将已用过的数字扔到备选数组最后，并减小可选区域
+            swap(index, canBeUsed - 1, defaultNums);
+            canBeUsed--;
+        }
+        if (nums.length > 0) {
+            for (int i = 0; i < nums.length; i++) {
+                no += nums[i];
+            }
+        }
+        return no;
+
+    }
+    public void swap(int i, int j, int[] nums) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+}

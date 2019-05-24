@@ -1,0 +1,19 @@
+package org.fh.general.ecom.common.po.order.goldTicket;
+
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class MyGoldOutPO {
+
+    private String ticketSn;
+    private String ticketName;
+    private BigDecimal amount;
+    private Date addTime;
+    private Date offTime;
+    private String useState;
+
+}

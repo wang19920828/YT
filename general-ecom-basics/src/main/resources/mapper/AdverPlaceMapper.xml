@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.AdverPlaceDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdverPlace">
+		<id column="place_id" property="placeId" />
+		<result column="place_name" property="placeName" />
+		<result column="place_desc" property="placeDesc" />
+		<result column="place_type" property="placeType" />
+		<result column="place_width_height" property="placeWidthHeight" />
+		<result column="creator_id" property="creatorId" />
+		<result column="create_time" property="createTime" />
+		<result column="place_sign" property="placeSign" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+
+	<select id="selectBySign" resultMap="BaseResultMap" parameterType="java.lang.String">
+		SELECT * FROM tb_adver_place where place_sign=#{placeSign}
+	</select>
+</mapper>

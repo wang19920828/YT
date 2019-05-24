@@ -1,0 +1,119 @@
+package org.fh.general.ecom.common.dto.order.calendar;
+
+
+import com.github.pagehelper.PageInfo;
+import lombok.Data;
+import org.apache.poi.ss.formula.functions.T;
+import org.fh.general.ecom.common.base.Entity;
+import org.fh.general.ecom.common.base.MessageVO;
+import org.fh.general.ecom.common.base.PageVO;
+import org.fh.general.ecom.common.comm.SpecailPage;
+import org.fh.general.ecom.common.enums.OutEnum;
+
+@Data
+public class DetailCalendarPagingVO<T> implements Entity {
+
+    private String projectName;
+    private String companyName;
+    private String concatUser;
+    private String concatPhone;
+
+    private MessageVO msg;
+    private T data;
+    private PageVO page = new PageVO();
+
+
+
+
+
+    public DetailCalendarPagingVO(){}
+
+    public DetailCalendarPagingVO(PageInfo info){
+        this.page = new PageVO(info);
+    }
+    public DetailCalendarPagingVO(SpecailPage info){
+        this.page = new PageVO(info);
+    }
+
+    /**
+     * 业务处理成功
+     */
+    public void success() {
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+    }
+    /**
+     * 业务处理成功（带返回数据data,指定Message）
+     *
+     * @param msg
+     */
+    public void success(String msg) {
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),msg);
+    }
+    /**
+     * 业务处理成功（带返回数据data）
+     *
+     * @param data
+     */
+    public void success(T data,PageInfo info) {
+        if (info!=null){
+            this.page =new PageVO(info);
+        }
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+        this.data = data;
+    }
+    public void success(T data,SpecailPage info) {
+        if (info!=null){
+            this.page =new PageVO(info);
+        }
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+        this.data = data;
+    }
+
+    public void success(T data,PageInfo info,String msg) {
+        this.page =new PageVO(info);
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),msg);
+        this.data = data;
+    }
+    /**
+     * 查无业务数据
+     */
+    public void noData(){
+        this.msg = new MessageVO(
+                OutEnum.WARN.getCode(),
+                OutEnum.WARN.getMessage());
+    }
+
+    /**
+     * 查无业务数据(指定Message）
+     * @param msg
+     */
+    public void noData(String msg){
+        this.msg = new MessageVO(
+                OutEnum.WARN.getCode(),msg);
+    }
+
+    /**
+     * 接口发生异常
+     */
+    public void exception(){
+        this.msg = new MessageVO(
+                OutEnum.FAIL.getCode(),
+                OutEnum.FAIL.getMessage());
+
+    }
+
+
+
+
+
+
+
+}

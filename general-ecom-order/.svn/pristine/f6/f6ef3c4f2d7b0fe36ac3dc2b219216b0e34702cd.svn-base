@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.ProjectFormulaDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.ProjectFormula">
+		<id column="id" property="id" />
+		<result column="red_project_id" property="redProjectId" />
+		<result column="invest_id" property="investId" />
+		<result column="invest_name" property="investName" />
+		<result column="plan_id" property="planId" />
+		<result column="plan_name" property="planName" />
+		<result column="amount_invest" property="amountInvest" />
+		<result column="amount_leiji" property="amountLeiji" />
+		<result column="benqi_pre_year_rate" property="benqiPreYearRate" />
+		<result column="benqi_real_year_rate" property="benqiRealYearRate" />
+		<result column="benqi_pre_red_amount" property="benqiPreRedAmount" />
+		<result column="benqi_real_red_amount" property="benqiRealRedAmount" />
+		<result column="exp1" property="exp1" />
+		<result column="exp2" property="exp2" />
+		<result column="real_share_time" property="realShareTime" />
+		<result column="pre_share_time" property="preShareTime" />
+		<result column="product_id" property="productId" />
+		<result column="order_sn" property="orderSn" />
+		<result column="remark" property="remark" />
+		<result column="account_no" property="accountNo" />
+		<result column="add_time" property="addTime" />
+	</resultMap>
+
+	<select id="sumFormulaByPlanId" parameterType="string" resultType="org.fh.general.ecom.common.po.order.projectFormula.SumFormulaByPlanIdPO">
+		SELECT
+			sum(case when exp1=2 then (benqi_real_red_amount) else 0 end) as	realAmount,
+			sum(case when exp1=1 then (benqi_pre_red_amount) else 0 end) as	preAmount
+		FROM
+			tb_red_project_formula
+		WHERE
+			plan_id = #{planId}
+	</select>
+
+
+	<select id="sumOnePlanAmount" parameterType="org.fh.general.ecom.common.dto.order.projectFormula.SumOnePlanAmountInputDTO" resultType="java.math.BigDecimal">
+		SELECT
+			SUM(benqi_real_red_amount)
+		FROM
+			tb_red_project_formula
+		<where>
+			<if test="planId!=null and planId!=''">
+				AND plan_id = #{planId}
+			</if>
+			<if test="successStatus!=null and successStatus!=''">
+				AND exp1 = #{successStatus}
+			</if>
+			<if test="orderSn!=null and orderSn!=''">
+				AND order_sn = #{orderSn}
+			</if>
+		</where>
+
+	</select>
+
+
+
+	<select id="sumAmount" parameterType="org.fh.general.ecom.order.model.ProjectFormula" resultType="java.math.BigDecimal">
+	SELECT
+		SUM(benqi_real_red_amount)
+	FROM
+		tb_red_project_formula a
+	LEFT JOIN (
+		SELECT
+			a.plan_id
+		FROM
+			tb_invest_product a
+		LEFT JOIN tb_invest_order b ON a.product_id = b.product_id AND a.order_sn = b.order_sn
+	) c ON a.plan_id = c.plan_id
+	WHERE
+		a.product_id = #{productId}
+	AND a.invest_id = #{investId}
+	AND a.exp1 =#{exp1}
+	</select>
+</mapper>

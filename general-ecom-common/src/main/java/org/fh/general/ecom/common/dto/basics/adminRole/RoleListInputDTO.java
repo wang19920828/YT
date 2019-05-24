@@ -1,0 +1,21 @@
+package org.fh.general.ecom.common.dto.basics.adminRole;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+@Data
+public class RoleListInputDTO {
+
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+
+    private String branch;
+
+    private String roleName;
+
+    private String isDel;
+
+    private String isDisabled;
+
+}

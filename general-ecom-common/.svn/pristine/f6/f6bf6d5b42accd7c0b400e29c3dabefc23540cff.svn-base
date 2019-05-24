@@ -1,0 +1,24 @@
+package org.fh.general.ecom.common.po.order.refundInfo;
+
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+import org.springframework.format.annotation.DateTimeFormat;
+
+@Data
+public class RefundInfoListParamPO {
+
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+
+    private String orderSn;
+    private String investNameOrAccount;
+    private String type;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String addTimeStart;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String addTimeEnd;
+    private String status;
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.DealFlowDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.DealFlow">
+		<id column="id" property="id" />
+		<result column="flow_no" property="flowNo" />
+		<result column="order_sn" property="orderSn" />
+		<result column="pay_type" property="payType" />
+		<result column="trans_type" property="transType" />
+		<result column="trans_stuts" property="transStuts" />
+		<result column="trans_amt" property="transAmt" />
+		<result column="yhq_amt" property="yhqAmt" />
+		<result column="score_amt" property="scoreAmt" />
+		<result column="third_flow" property="thirdFlow" />
+		<result column="order_flow" property="orderFlow" />
+		<result column="remark" property="remark" />
+		<result column="add_time" property="addTime" />
+		<result column="over_time" property="overTime" />
+		<result column="state" property="state" />
+		<result column="third_info" property="thirdInfo" />
+		<result column="elec_amt" property="elecAmt" />
+		<result column="pay_type_source" property="payTypeSource" />
+		<result column="channel" property="channel" />
+		<result column="notify_url" property="notifyUrl" />
+		<result column="notify_time" property="notifyTime" />
+		<result column="notify_success" property="notifySuccess" />
+		<result column="phone" property="phone" />
+	</resultMap>
+
+</mapper>

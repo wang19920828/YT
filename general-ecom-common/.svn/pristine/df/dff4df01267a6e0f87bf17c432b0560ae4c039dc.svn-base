@@ -1,0 +1,51 @@
+package org.fh.general.ecom.common.dto.basics.help.GuideArticle;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import lombok.Data;
+
+@Data
+public class GuideArticleOutputDTO {
+    private static final long serialVersionUID = 1L;
+
+    private Integer id;
+    @TableField("guide_id")
+    private Integer guideId;
+    /**
+     * 类型，0：1
+     */
+    private String type;
+    private String information;
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getGuideId() {
+        return guideId;
+    }
+
+    public void setGuideId(Integer guideId) {
+        this.guideId = guideId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
+    }
+}

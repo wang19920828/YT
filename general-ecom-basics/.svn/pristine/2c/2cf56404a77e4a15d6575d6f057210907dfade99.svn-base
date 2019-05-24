@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminOperationLogDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdminOperationLog">
+		<id column="id" property="id" />
+		<result column="admin_no" property="adminNo" />
+		<result column="login_name" property="loginName" />
+		<result column="execute_time" property="executeTime" />
+		<result column="admin_real_name" property="adminRealName" />
+		<result column="depart_name" property="departName" />
+		<result column="role_type" property="roleType" />
+		<result column="operation_desc" property="operationDesc" />
+		<result column="operation_result" property="operationResult" />
+		<result column="trans_info" property="transInfo" />
+		<result column="ip_addr" property="ipAddr" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+	  id, admin_no, login_name  ,execute_time,  admin_real_name, depart_name,
+	  role_type ,operation_desc, operation_result, trans_info, ip_addr
+ </sql>
+
+	<select id="findPage" parameterType="org.fh.general.ecom.common.po.basics.adminOperationLog.AdminOperationLogPO" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_admin_operation_log
+		<where>
+			<if test="adminNo!=null"> and admin_no=#{adminNo}</if>
+			<if test="loginName!=null"> and admin_no=#{loginName}</if>
+		</where>
+
+	</select>
+</mapper>

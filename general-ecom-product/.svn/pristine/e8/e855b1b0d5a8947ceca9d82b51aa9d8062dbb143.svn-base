@@ -1,0 +1,60 @@
+package org.fh.general.ecom.product.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddDetailDTO;
+import org.fh.general.ecom.common.dto.product.project.OutputProjectDetailInfoDTO;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.product.dao.ProjectDetailDao;
+import org.fh.general.ecom.product.model.ProjectDetail;
+import org.fh.general.ecom.product.service.ProjectDetailService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+/**
+ * <p>
+ * 项目详情表 服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+@Service
+public class ProjectDetailServiceImpl extends ServiceImpl<ProjectDetailDao, ProjectDetail> implements ProjectDetailService {
+
+    @Override
+    public boolean insertDetail(InputProjectAddDetailDTO dto) {
+        ProjectDetail projectDetail = new  ProjectDetail();
+        projectDetail.setProjectId(dto.getProjectId());
+        projectDetail=   baseMapper.selectOne(projectDetail);
+        if(projectDetail==null){
+            projectDetail = new ProjectDetail();
+            projectDetail.setCreateDate(new Date());
+            projectDetail.setCreateBy(dto.getCreateBy());
+        }
+        BeanUtils.copyProperties(dto,projectDetail);
+        projectDetail.setProjectId(dto.getProjectId());
+        projectDetail.setUpdateDate(new Date());
+        projectDetail.setUpdateBy(dto.getUpdateBy()==null?dto.getCreateBy():dto.getUpdateBy());
+        projectDetail.setStatus(ComEnum.IsDelete.NORMAL.getValue());
+        if( projectDetail.getId()!=null){
+            return  baseMapper.updateAllColumnById(projectDetail)>0?true:false;
+        }else {
+            return   baseMapper.insert(projectDetail)>0?true:false;
+        }
+    }
+
+    @Override
+    public OutputProjectDetailInfoDTO findDetailByProjectId(Long projectId) {
+        OutputProjectDetailInfoDTO response= new OutputProjectDetailInfoDTO();
+        ProjectDetail projectDetail = new ProjectDetail();
+        projectDetail.setProjectId(projectId);
+        projectDetail = this.baseMapper.selectOne(projectDetail);
+        if(projectDetail!=null){
+            BeanUtils.copyProperties(projectDetail,response);
+            return response;
+        }
+        return null;
+    }
+}

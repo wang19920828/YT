@@ -1,0 +1,21 @@
+package org.fh.general.ecom.common.dto.order.refundInfo;
+
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+@Data
+public class RefundMoneyInputDTO {
+
+    private String orderSn;
+
+    private BigDecimal amount;
+
+    /**
+     * 支付方式：1-微信支付、2-QQ钱包支付、3-支付宝支付、4-电子钱包支付
+     */
+    private String payType;
+
+
+}

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.CmssmsTemplateDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.CmssmsTemplate">
+		<id column="id" property="id" />
+		<result column="channel" property="channel" />
+		<result column="sms_type" property="smsType" />
+		<result column="content" property="content" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    id, channel, sms_type, content, create_time, update_time
+  	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_cmssms_template
+		where id = #{id}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_cmssms_template
+    where id = #{id}
+  </delete>
+	<insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.CmssmsTemplate" >
+		insert into tb_cmssms_template
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="channel != null" >
+				channel,
+			</if>
+			<if test="smsType != null" >
+				sms_type,
+			</if>
+			<if test="content != null" >
+				content,
+			</if>
+			<if test="createTime != null" >
+				create_time,
+			</if>
+			<if test="updateTime != null" >
+				update_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				#{id},
+			</if>
+			<if test="channel != null" >
+				#{channel},
+			</if>
+			<if test="smsType != null" >
+				#{smsType},
+			</if>
+			<if test="content != null" >
+				#{content},
+			</if>
+			<if test="createTime != null" >
+				#{createTime},
+			</if>
+			<if test="updateTime != null" >
+				#{updateTime},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.CmssmsTemplate" >
+		update tb_cmssms_template
+		<set >
+			<if test="channel != null" >
+				channel = #{channel},
+			</if>
+			<if test="smsType != null" >
+				sms_type = #{smsType},
+			</if>
+			<if test="content != null" >
+				content = #{content},
+			</if>
+			<if test="createTime != null" >
+				create_time = #{createTime},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.CmssmsTemplate" >
+    update tb_cmssms_template
+    set channel = #{channel},
+      sms_type = #{smsType},
+      content = #{content},
+      create_time = #{createTime},
+      update_time = #{updateTime}
+    where id = #{id}
+  </update>
+
+	<select id="selectByChannelType" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tb_cmssms_template
+		where
+		channel = #{channel}
+		and sms_type = #{smsType}
+	</select>
+
+</mapper>

@@ -1,0 +1,22 @@
+package org.fh.general.ecom.common.comm;
+
+import lombok.Data;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/25 13:50
+ * @Description:
+ */
+@Data
+public class OutCodeEntity {
+
+    private String  code;
+    private String message;
+    private Object obj;
+   public OutCodeEntity(String code, String message){
+        this.code = code;
+        this.message = message;
+    }
+    public OutCodeEntity(){}
+
+}

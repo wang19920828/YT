@@ -1,0 +1,26 @@
+package org.fh.general.ecom.common.dto.product.project;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/20
+ **/
+@Data
+public class InputProjectUpdateStatusDTO {
+
+    @Check(empty = false,description = "项目id字符串")
+    private String ids;
+
+    @Check(empty = false,description = "项目状态")
+    private String projectStatus;
+
+    @Check(empty = false,description = "修改人")
+    private String updateBy;
+
+    private String endTime;
+
+
+
+}

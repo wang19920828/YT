@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.UserAddressDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.UserAddress">
+		<id column="id" property="id" />
+		<result column="user_id" property="userId" />
+		<result column="is_host" property="isHost" />
+		<result column="name" property="name" />
+		<result column="sex" property="sex" />
+		<result column="mobile" property="mobile" />
+		<result column="tel" property="tel" />
+		<result column="post_code" property="postCode" />
+		<result column="address" property="address" />
+		<result column="latitude" property="latitude" />
+		<result column="longitude" property="longitude" />
+		<result column="sign_area" property="signArea" />
+		<result column="district_code" property="districtCode" />
+		<result column="area_code" property="areaCode" />
+		<result column="status" property="status" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    id ,user_id,is_host,name,sex,mobile,tel,post_code,address,latitude,longitude,sign_area,district_code,area_code,status
+  </sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_user_address
+		where id = #{id}
+	</select>
+	<select id="selectByUserId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_user_address
+		where user_id = #{userId} and status !='1'
+	</select>
+	<select id="selectUserAddressByHost" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_user_address
+		where user_id = #{userId} and is_host='1'and status !='1'
+	</select>
+
+	<insert id="insertAddress" parameterType="org.fh.general.ecom.basics.model.UserAddress"
+			useGeneratedKeys="true" keyProperty="id">
+    insert into tb_user_address (id ,user_id,is_host,name,sex,mobile,tel,post_code,address,latitude,longitude,sign_area,district_code,area_code)
+    values (#{id}, #{userId},#{isHost},#{name},#{sex},#{mobile},#{tel},#{postCode},#{address},#{latitude},#{longitude},#{signArea},#{districtCode},#{areaCode})
+  </insert>
+
+
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_user_address
+    where id = #{id}
+  </delete>
+
+	<update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.UserAddress" >
+		update tb_user_address
+		<set >
+			<if test="isHost != null" >
+				is_host = #{isHost},
+			</if>
+			<if test="name != null" >
+				name = #{name},
+			</if>
+			<if test="sex != null" >
+				sex = #{sex},
+			</if>
+			<if test="mobile != null" >
+				mobile = #{mobile},
+			</if>
+			<if test="tel != null" >
+				tel = #{tel},
+			</if>
+			<if test="postCode != null" >
+				post_code = #{postCode},
+			</if>
+			<if test="address != null" >
+				address = #{address},
+			</if>
+			<if test="latitude != null" >
+				latitude = #{latitude},
+			</if>
+			<if test="longitude != null" >
+				longitude = #{longitude},
+			</if>
+			<if test="districtCode != null" >
+				district_code = #{districtCode},
+			</if>
+			<if test="signArea != null" >
+				sign_area = #{signArea},
+			</if>
+			<if test="districtCode != null" >
+				district_code = #{districtCode},
+			</if>
+			<if test="areaCode != null" >
+				area_code = #{areaCode},
+			</if>
+			<if test="status != null" >
+				status = #{status},
+			</if>
+
+		</set>
+		where id = #{id}
+	</update>
+	<update id="setIsHost" parameterType="org.fh.general.ecom.basics.model.UserAddress">
+		update  tb_user_address set isHost=#{isHost} where  id = #{id}
+	</update>
+</mapper>

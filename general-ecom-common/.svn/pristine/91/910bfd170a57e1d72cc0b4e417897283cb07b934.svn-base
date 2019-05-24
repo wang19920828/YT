@@ -1,0 +1,56 @@
+package org.fh.general.ecom.common.dto.product.mongo;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/25
+ **/
+@Data
+public class OutputMongoProjectDTO {
+
+    private String id;
+    private String projectName;//项目名称
+    private String areaAddress;
+    private String pcImageUrl;
+    private String appImageUrl;
+    private String projectSummary;
+    private String projectType;
+    private BigDecimal projectValuation;
+    private String projectStatus;
+    private String rightsType;
+    private String propertyWeight;
+
+    private BigDecimal totalAmount;
+    private String isOverRaised;
+    private BigDecimal maxAmount;
+    private BigDecimal successRate;
+    private String redTerm;
+    private BigDecimal InvestmentAmount;
+    private BigDecimal limitAmount;
+    private String district;
+
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    private Date startTime;
+    private Date endTime;
+    private Date purchaseStartTime;
+    private Date purchaseEndTime;
+
+    private Date publishDate;
+
+
+    private String branch;
+    private String branchName;
+    private String channel ;
+
+
+    private String companyName;
+    private String logo;
+    private String icon;
+    private String projectTypeName;
+}

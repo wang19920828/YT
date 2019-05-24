@@ -1,0 +1,24 @@
+package org.fh.general.ecom.common.po.order.withdrawal;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+import org.springframework.format.annotation.DateTimeFormat;
+
+@Data
+public class WithdrawalListParamPO {
+
+
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+
+    private String applyNameOrAccount;
+    private String status;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String addTimeStart;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String addTimeEnd;
+
+
+}

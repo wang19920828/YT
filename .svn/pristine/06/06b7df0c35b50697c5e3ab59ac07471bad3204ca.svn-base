@@ -1,0 +1,7 @@
+
+ environment_name = test
+
+sms.openApi.expiry.date=50
+sms.encode=utf-8
+extra_code_validity=300
+

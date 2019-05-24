@@ -1,0 +1,50 @@
+package org.fh.general.ecom.common.vo.product.organization;
+
+import lombok.Data;
+
+/**
+ * 页面上要显示的 对象
+ * @Author huliping
+ * @DATE 2018/9/13
+ **/
+@Data
+public class OrganizationListVO {
+    /**
+     * ID
+     */
+    private Long id;
+    /**
+     *企业编号
+     *
+     */
+    private String companyNo;
+
+    /**
+     * 企业名称
+     */
+    private String  companyName;
+
+    /**
+     * 注册区域
+     */
+    private String registeredAddress;
+
+    /**
+     * 联系人
+     */
+    private String contacts;
+    /**
+     * 联系电话
+     */
+
+    private String contactsTel;
+
+    /**
+     * 客户经理
+     */
+    private String customerManager;
+
+
+    private String  district;
+
+}

@@ -1,0 +1,116 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.BankCardService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.basics.user.bankCard.BankCardInsertInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.bankCard.BankCardListOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.bankCard.BankCardOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.bankCard.BankCardUpdateInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.HttpUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * 用户银行卡信息
+ *
+ * @author wzy
+ * @since 2018-09-18
+ */
+
+@RestController
+public class BankCardController {
+    @Autowired
+    private BankCardService bankCardService;
+
+    /**
+     *删除
+     */
+    @RequestMapping("BC000001")
+    public BaseVO deleteById (Long id){
+        BaseVO baseVO=new BaseVO();
+        String code=this.bankCardService.deleteByPrimaryKey(id);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(OutEnum.FAIL.getMessage());
+            return  baseVO;
+        }
+        baseVO.success();
+        return  baseVO;
+    }
+
+
+    /**
+     * 根据id查
+     */
+    @RequestMapping("BC000002")
+    public BaseVO selectByPrimaryKey (Long id){
+        BaseVO baseVO = new BaseVO();
+        BankCardOutputDTO out=bankCardService.selectByPrimaryKey(id);
+        if(out!=null){
+            baseVO.success(out);
+        }else{
+            baseVO.noData();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 添加
+     * @param dto
+     */
+    @RequestMapping("BC000003")
+    public BaseVO insertBankCard (BankCardInsertInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        String code=bankCardService.insertBankCard(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(OutEnum.FAIL.getMessage());
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+
+    /**
+     * 修改
+     * @param dto
+     */
+    @RequestMapping("BC000004")
+    public BaseVO updateByPrimaryKeySelective (BankCardUpdateInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        String code=bankCardService.updateByPrimaryKeySelective(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(OutEnum.FAIL.getMessage());
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+    /**
+     * 用户卡集合查询
+     * @return
+     */
+    @RequestMapping("BC000005")
+    public BaseVO userBankCardList(Long userId) {
+        BaseVO baseVO = new BaseVO();
+        BankCardListOutputDTO out=bankCardService.userBankCardList(userId);
+        if(0==out.getBankCardListOutput().size()){
+            baseVO.noData();
+        }else{
+            baseVO.success(out);
+        }
+        return baseVO;
+    }
+    /**
+     * 银行卡简单验证
+     */
+    @RequestMapping("BC000006")
+    public BaseVO BankCard(String accountNo) {
+        BaseVO baseVO = new BaseVO();
+        String url="https://ccdcapi.alipay.com/validateAndCacheCardInfo.json?_input_charset=utf-8&cardNo="+accountNo+"&cardBinCheck=true";
+        String s = HttpUtils.doGet(url);
+        baseVO.success(s);
+        return baseVO;
+    }
+
+}

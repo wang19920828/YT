@@ -1,0 +1,20 @@
+package org.fh.general.ecom.common.dto.order.refundInfo;
+
+
+import com.github.pagehelper.PageInfo;
+import lombok.Data;
+import org.fh.general.ecom.common.comm.Page;
+import org.fh.general.ecom.common.po.order.refundInfo.RefundInfoListOutPO;
+
+import java.util.List;
+
+@Data
+public class RefundInfoListOutputDTO {
+
+
+
+    private List<RefundInfoListOutPO> list;
+
+    PageInfo pageInfo;
+
+}

@@ -1,0 +1,21 @@
+package org.fh.general.ecom.product.service;
+
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddProgrammeListDTO;
+import org.fh.general.ecom.common.dto.product.project.OutputProjectProgrammeListDTO;
+import org.fh.general.ecom.product.model.ProjectProgramme;
+import com.baomidou.mybatisplus.service.IService;
+
+/**
+ * <p>
+ * 项目权益方案 服务类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+public interface ProjectProgrammeService extends IService<ProjectProgramme> {
+
+    boolean insertBatchList(InputProjectAddProgrammeListDTO dto);
+
+    OutputProjectProgrammeListDTO findList(Long projectId);
+}

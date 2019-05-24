@@ -1,0 +1,94 @@
+package org.fh.general.ecom.product.model;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * <p>
+ * 项目详情表
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+@Data
+@TableName("tb_project_detail")
+public class ProjectDetail implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+    /**
+     * 项目id
+     */
+	@TableField("project_id")
+	private Long projectId;
+    /**
+     * 项目详情
+     */
+	@TableField("project_detail")
+	private String projectDetail;
+
+
+	@TableField("pc_header_images")
+	private String  pcHeaderImages;
+
+	@TableField("app_header_images")
+	private String  appHeaderImages;
+    /**
+     * 投资权益介绍
+     */
+	@TableField("programme_detail")
+	private String programmeDetail;
+    /**
+     * 额外福利
+     */
+	@TableField("extra_benefits")
+	private String extraBenefits;
+    /**
+     * 退出机制
+     */
+	@TableField("exit_mechanism")
+	private String exitMechanism;
+    /**
+     * 风险控制
+     */
+	@TableField("wind_control_measures")
+	private String windControlMeasures;
+    /**
+     * 创建人
+     */
+
+	@TableField("create_by")
+	private String createBy;
+
+
+	@TableField("create_date")
+	private Date createDate;
+    /**
+     * 修改人
+     */
+	@TableField("update_by")
+	private String updateBy;
+    /**
+     * 修改时间
+     */
+	@TableField("update_date")
+	private Date updateDate;
+    /**
+     * 状态
+     */
+	private String status;
+
+
+
+
+
+}

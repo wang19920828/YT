@@ -1,0 +1,23 @@
+package org.fh.general.ecom.basics.client;
+
+
+import org.fh.general.ecom.common.dto.order.order.OrderEntityOutDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/10/10 18:04
+ * @Description:
+ */
+@FeignClient(name="order")
+public interface OrderClient {
+
+    /**
+     * 根据单号查订单
+     */
+   @RequestMapping("ZORD8001")
+   public OrderEntityOutDTO findEntityByOrderSnOfPay(@RequestBody String orderSn);
+
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.TeamInformationDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.TeamInformation">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="subtitle" property="subtitle" />
+		<result column="photo" property="photo" />
+		<result column="name" property="name" />
+		<result column="job" property="job" />
+		<result column="imformation" property="imformation" />
+		<result column="happen_date" property="happenDate" />
+		<result column="del" property="del" />
+	</resultMap>
+	<resultMap id="BaseResultMap2" type="org.fh.general.ecom.common.dto.basics.help.TeamInformation.TeamInformationOutputDTO">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="subtitle" property="subtitle" />
+		<result column="photo" property="photo" />
+		<result column="name" property="name" />
+		<result column="job" property="job" />
+		<result column="imformation" property="imformation" />
+		<result column="happen_date" property="happenDate" />
+	</resultMap>
+
+
+	<select id="selectByTypeId" resultMap="BaseResultMap2" parameterType="java.lang.Long" >
+		select
+		*
+		from tb_team_information
+		where type = #{type,jdbcType=BIGINT}
+	</select>
+
+</mapper>

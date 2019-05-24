@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.Admin" >
+    <id column="admin_id" property="adminId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="real_name" property="realName" jdbcType="VARCHAR" />
+    <result column="login_pwd" property="loginPwd" jdbcType="VARCHAR" />
+    <result column="login_second_pwd" property="loginSecondPwd" jdbcType="VARCHAR" />
+    <result column="admin_phone" property="adminPhone" jdbcType="VARCHAR" />
+    <result column="admin_email" property="adminEmail" jdbcType="VARCHAR" />
+    <result column="last_login_ip" property="lastLoginIp" jdbcType="VARCHAR" />
+    <result column="last_login_time" property="lastLoginTime" jdbcType="TIMESTAMP" />
+    <result column="admin_type" property="adminType" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="channel" property="channel" jdbcType="VARCHAR" />
+    <result column="is_lock_screen" property="isLockScreen" jdbcType="VARCHAR" />
+    <result column="branch" property="branch" jdbcType="VARCHAR" />
+    <result column="branch_name" property="branchName" jdbcType="VARCHAR" />
+    <result column="create_user_id" property="createUserId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_user_id" property="modifyUserId" jdbcType="BIGINT" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    admin_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email, 
+    last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen, 
+    branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_admin
+    where admin_id = #{adminId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_admin
+    where admin_id = #{adminId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="org.fh.general.ecom.basics.model.Admin"
+          useGeneratedKeys="true" keyProperty="adminId">
+    insert into tb_admin (admin_id, name, real_name, 
+      login_pwd, login_second_pwd, admin_phone, 
+      admin_email, last_login_ip, last_login_time, 
+      admin_type, remark, status, 
+      channel, is_lock_screen, branch, 
+      branch_name, create_user_id, create_time, 
+      modify_user_id, modify_time)
+    values (#{adminId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{realName,jdbcType=VARCHAR}, 
+      #{loginPwd,jdbcType=VARCHAR}, #{loginSecondPwd,jdbcType=VARCHAR}, #{adminPhone,jdbcType=VARCHAR}, 
+      #{adminEmail,jdbcType=VARCHAR}, #{lastLoginIp,jdbcType=VARCHAR}, #{lastLoginTime,jdbcType=TIMESTAMP}, 
+      #{adminType,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{channel,jdbcType=VARCHAR}, #{isLockScreen,jdbcType=VARCHAR}, #{branch,jdbcType=VARCHAR}, 
+      #{branchName,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyUserId,jdbcType=BIGINT}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.Admin"
+          useGeneratedKeys="true" keyProperty="adminId">
+    insert into tb_admin
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="adminId != null" >
+        admin_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="realName != null" >
+        real_name,
+      </if>
+      <if test="loginPwd != null" >
+        login_pwd,
+      </if>
+      <if test="loginSecondPwd != null" >
+        login_second_pwd,
+      </if>
+      <if test="adminPhone != null" >
+        admin_phone,
+      </if>
+      <if test="adminEmail != null" >
+        admin_email,
+      </if>
+      <if test="lastLoginIp != null" >
+        last_login_ip,
+      </if>
+      <if test="lastLoginTime != null" >
+        last_login_time,
+      </if>
+      <if test="adminType != null" >
+        admin_type,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="channel != null" >
+        channel,
+      </if>
+      <if test="isLockScreen != null" >
+        is_lock_screen,
+      </if>
+      <if test="branch != null" >
+        branch,
+      </if>
+      <if test="branchName != null" >
+        branch_name,
+      </if>
+      <if test="createUserId != null" >
+        create_user_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyUserId != null" >
+        modify_user_id,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="adminId != null" >
+        #{adminId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPwd != null" >
+        #{loginPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="loginSecondPwd != null" >
+        #{loginSecondPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="adminPhone != null" >
+        #{adminPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="adminEmail != null" >
+        #{adminEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginIp != null" >
+        #{lastLoginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginTime != null" >
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="adminType != null" >
+        #{adminType,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="isLockScreen != null" >
+        #{isLockScreen,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null" >
+        #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null" >
+        #{branchName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUserId != null" >
+        #{modifyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.Admin" >
+    update tb_admin
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null" >
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPwd != null" >
+        login_pwd = #{loginPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="loginSecondPwd != null" >
+        login_second_pwd = #{loginSecondPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="adminPhone != null" >
+        admin_phone = #{adminPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="adminEmail != null" >
+        admin_email = #{adminEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginIp != null" >
+        last_login_ip = #{lastLoginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginTime != null" >
+        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="adminType != null" >
+        admin_type = #{adminType,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        channel = #{channel,jdbcType=VARCHAR},
+      </if>
+      <if test="isLockScreen != null" >
+        is_lock_screen = #{isLockScreen,jdbcType=VARCHAR},
+      </if>
+      <if test="branch != null" >
+        branch = #{branch,jdbcType=VARCHAR},
+      </if>
+      <if test="branchName != null" >
+        branch_name = #{branchName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null" >
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyUserId != null" >
+        modify_user_id = #{modifyUserId,jdbcType=BIGINT},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where admin_id = #{adminId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.Admin" >
+    update tb_admin
+    set name = #{name,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      login_pwd = #{loginPwd,jdbcType=VARCHAR},
+      login_second_pwd = #{loginSecondPwd,jdbcType=VARCHAR},
+      admin_phone = #{adminPhone,jdbcType=VARCHAR},
+      admin_email = #{adminEmail,jdbcType=VARCHAR},
+      last_login_ip = #{lastLoginIp,jdbcType=VARCHAR},
+      last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      admin_type = #{adminType,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      channel = #{channel,jdbcType=VARCHAR},
+      is_lock_screen = #{isLockScreen,jdbcType=VARCHAR},
+      branch = #{branch,jdbcType=VARCHAR},
+      branch_name = #{branchName,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_user_id = #{modifyUserId,jdbcType=BIGINT},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where admin_id = #{adminId,jdbcType=BIGINT}
+  </update>
+
+  <select id="findList" resultMap="BaseResultMap">
+      select
+       <include refid="Base_Column_List" />
+       from tb_admin
+    order by create_time desc
+    </select>
+
+  <select id="findByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+     <include refid="Base_Column_List" />
+     from tb_admin
+     where name = #{name,jdbcType=VARCHAR}
+  </select>
+  <select id="findByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
+     select
+      <include refid="Base_Column_List" />
+      from tb_admin
+      where admin_phone = #{adminPhone,jdbcType=VARCHAR}
+   </select>
+  <select id="findByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
+     select
+      <include refid="Base_Column_List" />
+      from tb_admin
+      where admin_email = #{adminEmail,jdbcType=VARCHAR}
+   </select>
+    <update id="updateBatchAdmin" parameterType="java.util.Map">
+          update tb_admin
+          <set>
+            <if test="status != null" >
+              status = #{status,jdbcType=VARCHAR},
+            </if>
+            <if test="loginPwd != null" >
+              login_pwd = #{loginPwd,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyTime != null" >
+              modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+          </set>
+
+      <where>                                                                    
+        <if test="ids!=null and ids!=''">
+            and id in
+          <foreach collection ="ids" item="item" index= "index" open ="(" separator="," close= ")">
+                     #{item}
+          </foreach >
+        </if>
+
+      </where>
+    </update>
+
+
+
+
+
+  
+</mapper>

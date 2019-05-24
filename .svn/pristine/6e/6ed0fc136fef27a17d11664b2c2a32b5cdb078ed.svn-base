@@ -1,0 +1,32 @@
+package org.fh.general.ecom.basics.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.fh.general.ecom.basics.model.AdminRoleFunc;
+
+import java.util.List;
+import java.util.Map;
+
+
+@Mapper
+public interface AdminRoleFuncDao {
+    int deleteByPrimaryKey(Long roleFunId);
+
+    int insert(AdminRoleFunc record);
+
+    int insertSelective(AdminRoleFunc record);
+
+    AdminRoleFunc selectByPrimaryKey(Long roleFunId);
+
+    int updateByPrimaryKeySelective(AdminRoleFunc record);
+
+    int updateByPrimaryKey(AdminRoleFunc record);
+
+    List<AdminRoleFunc> findAllRoleFun(Map<String, Object> params);
+
+    void updateRoleFunByRoleId(Map<String, Object> roleFunUpdate);
+
+   	void delSign(Map<String, Object> roleFunUpdate);
+   	
+    void deleteRoleFunByFun(String sortCode);
+
+}

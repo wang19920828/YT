@@ -1,0 +1,162 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.github.pagehelper.PageHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.dto.basics.user.UserOutputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.InvestShareLogInputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.InvestShareLogOutputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.MemberDetailPageInputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.MemberDetailPageOutputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.MemberInvestAddInputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.MemberInvestListInputDTO;
+import org.fh.general.ecom.common.dto.order.memberInvest.MemberInvestListOutputDTO;
+import org.fh.general.ecom.common.enumeration.order.OrderEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.po.order.memberInvest.MemberDetailOutPO;
+import org.fh.general.ecom.common.po.order.memberInvest.MemberInvestListParamPO;
+import org.fh.general.ecom.common.po.order.memberInvest.MemberInvestListOutPO;
+import org.fh.general.ecom.common.po.order.memberInvest.MemberPlanListOutPO;
+import org.fh.general.ecom.common.po.order.memberInvest.MemberPlanListParamPO;
+import org.fh.general.ecom.common.vo.order.memberInvest.MemberInvestLogVO;
+import org.fh.general.ecom.common.vo.order.memberInvest.MemberPlanListVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.fh.general.ecom.order.client.BasicsClient;
+import org.fh.general.ecom.order.client.ProductClient;
+import org.fh.general.ecom.order.model.Calendar;
+import org.fh.general.ecom.order.model.MemberInvest;
+import org.fh.general.ecom.order.dao.MemberInvestDao;
+import org.fh.general.ecom.order.model.ProjectFormula;
+import org.fh.general.ecom.order.service.MemberInvestService;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.order.service.ProjectFormulaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import org.springframework.beans.BeanUtils;
+import com.github.pagehelper.PageInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 会员投资表（一个会员多次购买同一个项目的不同方案）；以项目为单位 服务实现类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+@Slf4j
+@Service
+public class MemberInvestServiceImpl extends ServiceImpl<MemberInvestDao, MemberInvest> implements MemberInvestService {
+
+
+    @Autowired
+    private ProjectFormulaService projectFormulaService;
+    @Autowired
+    private ProductClient productClient;
+    @Autowired
+    private BasicsClient basicsClient;
+
+
+    @Override
+    public MemberInvestListOutputDTO findPage(MemberInvestListInputDTO dto)throws Exception {
+        MemberInvestListParamPO  paramPO=new MemberInvestListParamPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        List<MemberInvestListOutPO>  list=baseMapper.findMemberInvestList(paramPO);
+        PageInfo pageInfo=new PageInfo(list);
+
+        MemberInvestListOutputDTO response=new MemberInvestListOutputDTO();
+        if(list !=null && list.size()>0){
+            response.setList(list);
+            response.setPageInfo(pageInfo);
+        }
+        return response;
+    }
+
+
+    @Override
+    public String addEntity(MemberInvestAddInputDTO dto)  throws Exception{
+        String code="";
+        try {
+            MemberInvest entity=new MemberInvest();
+            BeanUtils.copyProperties(dto,entity );
+            baseMapper.insert(entity);
+            code= OutEnum.SUCCESS.getCode();
+        }catch (Exception e){
+            e.printStackTrace();
+            code=OutEnum.FAIL.getCode();
+        }
+        return code;
+    }
+
+
+    @Override
+    public MemberDetailPageOutputDTO detailBgMemberInvest(MemberDetailPageInputDTO dto){
+        MemberDetailPageOutputDTO response=new MemberDetailPageOutputDTO();
+        //基本信息
+        ProjectOneDetailVO  project=this.productClient.findDetailByProjectId(dto.getProductId());
+        if(project==null){
+            log.info("数据不完整，项目基础表没有项目ID为["+dto.getProductId()+"]的数据");
+            return null;
+        }
+        response.setProjectStatus(ProjectEnum.ProjectStatus.codeOf(project.getProjectStatus()).getName());
+        MemberDetailOutPO memEn=this.baseMapper.memberDetail(dto.getInvestId());
+        if(memEn!=null){
+            response.setUserName(memEn.getUserName());
+            response.setPhone(memEn.getUserPhone());
+            response.setProjectName(memEn.getProjectName());
+            response.setProjectId(dto.getProductId());
+        }
+
+        //项目方案列表
+        MemberPlanListParamPO planParam=new MemberPlanListParamPO();
+        planParam.setUserId(dto.getInvestId());
+        planParam.setProductId(dto.getProductId());
+        List<MemberPlanListOutPO>  planList= this.baseMapper.findMemberPlanList(planParam);
+        if(planList==null || planList.size()==0){
+            log.info("会员["+dto.getInvestId()+"]项目["+dto.getProductId()+"]方案列表查无数据");
+            return null;
+        }
+        List<MemberPlanListVO> planListVO=new ArrayList<MemberPlanListVO>();
+        planList.forEach((MemberPlanListOutPO temp)->{
+            MemberPlanListVO planVo=new MemberPlanListVO();
+            BeanUtils.copyProperties(temp,planVo);
+            planVo.setOrderType(OrderEnum.OrderType.codeOf(temp.getOrderType()).getName());
+            planListVO.add(planVo);
+        });
+        response.setPlanList(planListVO);
+        return response;
+    }
+
+    //投资详情-投资分红记录分页
+    @Override
+    public InvestShareLogOutputDTO detailInvestShareLogPage(InvestShareLogInputDTO dto){
+        InvestShareLogOutputDTO response=new InvestShareLogOutputDTO();
+        //投资分红记录 (只展示真正分红了的)
+        EntityWrapper<ProjectFormula> wrapper = new EntityWrapper<ProjectFormula>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        wrapper.eq("product_id",dto.getProductId());
+        wrapper.eq("invest_id",dto.getInvestId());
+        wrapper.eq("exp1","2");
+        List<ProjectFormula> list=this.projectFormulaService.selectList(wrapper);
+        if(list!=null && list.size()>0){
+            List<MemberInvestLogVO> logList=new ArrayList<MemberInvestLogVO>();
+            list.forEach((ProjectFormula temp)->{
+                MemberInvestLogVO logEn=new MemberInvestLogVO();
+                BeanUtils.copyProperties(temp,logEn);
+                logList.add(logEn);
+            });
+            PageInfo pageInfo=new PageInfo(list);
+            response.setPageInfo(pageInfo);
+            response.setLogList(logList);
+        }else{
+            log.info("投资分红记录暂时没有数据！");
+            return null;
+        }
+        return response;
+    }
+}

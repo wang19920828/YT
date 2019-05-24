@@ -1,0 +1,36 @@
+# application dev
+spring:
+  application:
+    name: api
+  datasource:
+    url:  jdbc:mysql://127.0.0.1:3306/db_cust_info?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 'root'
+  data:
+    mongodb:
+      uri: mongodb://117.78.34.24:27017/ecard_dev?maxPoolSize=256&socket-timeout=5000
+  redis:
+    host: 117.78.34.24
+    password: Jokwin@Hotel.com
+    port: 7111
+    database: 0
+    timeout: 2000
+server:
+  port: 8707
+zuul:
+  routes:
+    general-ecom-order:
+      path: /org/business/order/**
+      serviceId: order
+    general-ecom-product:
+      path: /org/business/product/**
+      serviceId: product
+    general-ecom-basics:
+      path: /org/business/basics/**
+      serviceId: basics
+ribbon:
+  ReadTimeout: 60000
+  ConnectTimeout: 60000
+
+

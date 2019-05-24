@@ -1,0 +1,131 @@
+package org.fh.general.ecom.product.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.common.dto.product.order.OutputProgrammeCountDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddProgrammeDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddProgrammeListDTO;
+import org.fh.general.ecom.common.dto.product.project.OutputProjectProgrammeListDTO;
+import org.fh.general.ecom.common.dto.product.web.InputWebProjectProgrammePageDTO;
+import org.fh.general.ecom.common.enumeration.order.OrderEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.po.product.order.InputProgrammePO;
+import org.fh.general.ecom.common.po.product.project.ProjectProgrammeListOutputPO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.product.client.OrderClient;
+import org.fh.general.ecom.product.dao.ProjectProgrammeDao;
+import org.fh.general.ecom.product.model.ProjectProgramme;
+import org.fh.general.ecom.product.service.ProjectProgrammeService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * <p>
+ * 项目权益方案 服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+@Service
+public class ProjectProgrammeServiceImpl extends ServiceImpl<ProjectProgrammeDao, ProjectProgramme> implements ProjectProgrammeService {
+
+    @Autowired
+    private ProjectProgrammeDao projectProgrammeDao;
+    @Autowired
+    private OrderClient orderClient;
+    @Override
+    public boolean insertBatchList(InputProjectAddProgrammeListDTO dto) {
+        List<InputProjectAddProgrammeDTO> list = dto.getList();
+        if(list!=null && list.size()>0) {
+            List<ProjectProgramme> listProjects = new ArrayList<ProjectProgramme>();
+            list.forEach((InputProjectAddProgrammeDTO temp) -> {
+                ProjectProgramme projectProgramme = new ProjectProgramme();
+                BeanUtils.copyProperties(temp, projectProgramme);
+                projectProgramme.setProjectId(dto.getProjectId());
+                projectProgramme.setCreateDate(new Date());
+                projectProgramme.setCreateBy(dto.getCreateBy());
+
+                projectProgramme.setUpdateDate(new Date());
+                projectProgramme.setUpdateBy(dto.getUpdateBy());
+                if(projectProgramme.getId()!=null){
+                    baseMapper.updateById(projectProgramme);
+                }else {
+                    listProjects.add(projectProgramme);
+                }
+            });
+            if(listProjects!=null && listProjects.size()>0){
+                insertBatch(listProjects);
+            }
+            return  true;
+        }
+        return false;
+    }
+
+    @Override
+    public OutputProjectProgrammeListDTO findList(Long projectId) {
+        OutputProjectProgrammeListDTO outputProjectProgrammeListDTO = new OutputProjectProgrammeListDTO();
+        EntityWrapper wrapper=new EntityWrapper();
+        wrapper.eq("project_id",projectId);
+        List<ProjectProgramme> list = this.baseMapper.selectList(wrapper);
+        if(list!=null && list.size()>0) {
+            List<ProjectProgrammeListOutputPO> listpo = new ArrayList<ProjectProgrammeListOutputPO>();
+            list.forEach((ProjectProgramme temp) -> {
+                ProjectProgrammeListOutputPO po = new ProjectProgrammeListOutputPO();
+                BeanUtils.copyProperties(temp, po);
+                listpo.add(po);
+            });
+            outputProjectProgrammeListDTO.setProjectProgrammeListOutputPOList(listpo);
+            return outputProjectProgrammeListDTO;
+        }
+        return null;
+
+    }
+    @Override
+    public BigDecimal findTotalAmount(String projectId){
+
+      String total =   this.projectProgrammeDao.findTotalAmount(projectId);
+      if(StringUtils.isNotEmpty(total)){
+          return  new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP);
+      }
+      return BigDecimal.ZERO;
+    }
+
+    @Override
+    public OutputProjectProgrammeListDTO findWebProjectProgrammePage(InputWebProjectProgrammePageDTO dto){
+        OutputProjectProgrammeListDTO outputProjectProgrammeListDTO = new OutputProjectProgrammeListDTO();
+
+        ProjectProgrammeListOutputPO  projectProgrammeListOutputPO=new ProjectProgrammeListOutputPO();
+        projectProgrammeListOutputPO.setProjectId(Long.valueOf(dto.getProjectId()));
+        List<ProjectProgrammeListOutputPO> list=baseMapper.findList(projectProgrammeListOutputPO);
+        PageInfo pageInfo=new PageInfo(list);
+        list.forEach((ProjectProgrammeListOutputPO temp) -> {
+            InputProgrammePO inputProgrammePO=new InputProgrammePO();
+            inputProgrammePO.setPlanId(temp.getId()+"");
+
+            if(ProjectEnum.ProjectStatus.APPOINTMENT.getValue().equals(temp.getProjectStatus())){
+                inputProgrammePO.setOrderTypes(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue());
+            }else{
+                inputProgrammePO.setOrderTypes(OrderEnum.OrderType.APPOINTMENTAMOUNT_BUY.getValue()+","+OrderEnum.OrderType.OPEN_BUY.getValue());
+            }
+            OutputProgrammeCountDTO  outputProgrammeCountDTO = orderClient.findProgrammeCountById(inputProgrammePO);
+            if(outputProgrammeCountDTO!=null){
+                String num = outputProgrammeCountDTO.getTotal()==null?"0":outputProgrammeCountDTO.getTotal();
+                temp.setTotal((temp.getNumber()- Long.valueOf(num))+"");
+            }else{
+                temp.setTotal(temp.getNumber()+"");
+            }
+        });
+        outputProjectProgrammeListDTO.setProjectProgrammeListOutputPOList(list);
+        outputProjectProgrammeListDTO.setPageInfo(pageInfo);
+        return outputProjectProgrammeListDTO;
+    }
+
+}

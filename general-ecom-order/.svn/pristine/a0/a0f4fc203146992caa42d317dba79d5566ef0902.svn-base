@@ -1,0 +1,551 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.json.JSONObject;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.comm.ExcelHeader;
+import org.fh.general.ecom.common.comm.ExportEntity;
+import org.fh.general.ecom.common.dto.basics.dictionary.DictionaryListInDTO;
+import org.fh.general.ecom.common.dto.basics.user.payRefund.PayRefundInsertTkInputDTO;
+import org.fh.general.ecom.common.dto.order.dealFlow.DealFlowEntityInputDTO;
+import org.fh.general.ecom.common.dto.order.dealFlow.DealFlowEntityOutputDTO;
+import org.fh.general.ecom.common.dto.order.goldTicket.GoldTicketAddInputDTO;
+import org.fh.general.ecom.common.dto.order.order.*;
+import org.fh.general.ecom.common.dto.order.orderLog.OrderLogListOutputDTO;
+import org.fh.general.ecom.common.dto.order.orderProduct.OrderProductDTO;
+import org.fh.general.ecom.common.dto.product.order.OrderListCountOutputDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputOrderDetailDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputProgrammeCountDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.UpdateOperaLogInputDTO;
+import org.fh.general.ecom.common.enumeration.order.OrderEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.po.order.order.OrderListOutPO;
+import org.fh.general.ecom.common.po.order.order.OrderListParamPO;
+import org.fh.general.ecom.common.po.order.order.OrderPO;
+import org.fh.general.ecom.common.po.product.order.*;
+import org.fh.general.ecom.common.upload.UploadService;
+import org.fh.general.ecom.common.upload.UploadServiceImpl;
+import org.fh.general.ecom.common.utils.*;
+import org.fh.general.ecom.common.vo.basics.dictionary.DictionaryListVo;
+import org.fh.general.ecom.common.vo.product.project.PlanEntityVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.fh.general.ecom.order.client.BasicsClient;
+import org.fh.general.ecom.order.client.ProductClient;
+import org.fh.general.ecom.order.dao.OrderDao;
+import org.fh.general.ecom.order.model.Order;
+import org.fh.general.ecom.order.service.*;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.*;
+
+
+/**
+ * <p>
+ * 订单信息表 服务类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-08-09
+ */
+@Slf4j
+@Service
+public class OrderServiceImpl extends ServiceImpl<OrderDao, Order> implements OrderService {
+
+
+    @Autowired
+    private ProductClient productClient;
+    @Autowired
+    private BasicsClient basicsClient;
+    @Autowired
+    private OrderLogService orderLogService;
+    @Autowired
+    private OrderProductService orderProductService;
+    @Autowired
+    private DealFlowService dealFlowService;
+    @Autowired
+    private ProjectFormulaService projectFormulaService;
+    @Autowired
+    private GoldTicketService goldTicketService;
+
+
+
+    @Override
+    public OrderListOutputDTO findPage(OrderListInputDTO dto) {
+        OrderListParamPO  paramPO=new OrderListParamPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        List<OrderListOutPO>  list=baseMapper.findOrderList(paramPO);
+        PageInfo pageInfo=new PageInfo(list);
+
+        OrderListOutputDTO response=new OrderListOutputDTO();
+        if(list !=null && list.size()>0){
+            response.setList(list);
+            response.setPageInfo(pageInfo);
+        }
+        return response;
+    }
+
+
+    @Override
+    public List<OrderPO> findList(FindListInputDTO dto){
+        EntityWrapper<Order> wrapper = new EntityWrapper<Order>();
+        if(StringUtils.isNotEmpty(dto.getOrderStatus())){
+            wrapper.eq("order_status",dto.getOrderStatus());
+        }
+        if(StringUtils.isNotEmpty(dto.getPayStatus())){
+            wrapper.eq("pay_status",dto.getPayStatus());
+        }
+        if(StringUtils.isNotEmpty(dto.getOrderType())){
+            wrapper.eq("order_type",dto.getOrderType());
+        }
+        if(StringUtils.isNotEmpty(dto.getProductId())){
+            wrapper.eq("product_id",dto.getProductId());
+        }
+        if(StringUtils.isNotEmpty(dto.getNoCompleteTime())){
+            wrapper.isNull("complete_time");
+        }
+        List<Order> list=baseMapper.selectList(wrapper);
+        List<OrderPO> opList=new ArrayList<OrderPO>();
+        if(list!=null && list.size()>0){
+            list.forEach((Order temp)->{
+                OrderPO  po=new OrderPO();
+                BeanUtils.copyProperties(temp,po);
+                opList.add(po);
+            });
+            return opList;
+        }
+        return null;
+    }
+
+
+    @Override
+    public String delOrder(Long id){
+        Order entity=new Order();
+        entity.setOrderId(id);
+        entity.setIsDel(OrderEnum.IsDelete.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateOrder(OrderUpdateInputDTO dto) {
+        Order entity=new Order();
+        BeanUtils.copyProperties(dto,entity );
+        Order param=new Order();
+        param.setOrderSn(dto.getOrderSn());
+        Order findOne= baseMapper.selectOne(param);
+        if(findOne==null){
+            return OutEnum.WARN.getCode();
+        }
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updatePayStatus(String orderSn,String payStatus) {
+        Order param=new Order();
+        try {
+            param.setOrderSn(orderSn);
+            Order findOne= baseMapper.selectOne(param);
+            if(findOne==null){
+                return OutEnum.WARN.getCode();
+            }
+            findOne.setPayStatus(payStatus);
+            baseMapper.updateById(findOne);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return OutEnum.FAIL.getCode();
+        }
+        return OutEnum.SUCCESS.getCode();
+    }
+
+
+
+    @Override
+    public OrderEntityOutDTO findEntityByOrderSn(String orderSn){
+        Order param=new Order();
+        param.setOrderSn(orderSn);
+        Order entity= baseMapper.selectOne(param);
+        if(entity!=null){
+            OrderEntityOutDTO response=new OrderEntityOutDTO();
+            BeanUtils.copyProperties(entity,response );
+            return response;
+        }
+        return null;
+    }
+
+
+
+    @Override
+    public String downloadExcel(OrderListInputDTO dto) throws Exception {
+        OrderListParamPO  paramPO=new OrderListParamPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        List<OrderListOutPO>  orderList=baseMapper.findOrderList(paramPO);
+        orderList.forEach((OrderListOutPO temp) -> {
+            temp.setOrderType(OrderEnum.OrderType.codeOf(temp.getOrderType()).getName());
+            temp.setOrderStatus(OrderEnum.OrderStataus.codeOf(temp.getOrderStatus()).getName());
+            temp.setPayStatus(OrderEnum.PayStatus.codeOf(temp.getPayStatus()).getName());
+            temp.setAddTimeStr(DateUtils.formatDate(temp.getAddTime(),DateUtils.DATE_FROMAT2));
+        });
+        Map<String, Object> map = new HashMap();
+        map.put("list", orderList);
+        map.put("titles", this.setTitleList());
+
+        String json = JSONObject.fromObject(map).toString();
+        ExportEntity entity = ExportEntity.resultToExport(json);
+        UploadService uploadService = new UploadServiceImpl();
+        HSSFWorkbook workbook = ExcelUtils.export(entity, 17f, (short) 20, "");
+
+        String filePath="";
+        if (workbook != null) {
+            // 获取当前时间用作文件名
+            String filename = DateUtils.formatDateForWx(System.currentTimeMillis()) + ".xls";
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            workbook.write(os);
+            filePath = uploadService.uploadFile(os.toByteArray(), filename);
+        }
+        return filePath;
+    }
+
+    private List<ExcelHeader> setTitleList(){
+        List<ExcelHeader> titleList = new ArrayList<ExcelHeader>();
+        ExcelHeader header1 = new ExcelHeader("addTimeStr", "订单时间", 0);
+        ExcelHeader header2 = new ExcelHeader("orderSn", "订单编号", 0);
+        ExcelHeader header3 = new ExcelHeader("orderType", "订单类型", 0);
+        ExcelHeader header4 = new ExcelHeader("orderStatus", "订单状态", 0);
+        ExcelHeader header5 = new ExcelHeader("allPrice", "订单金额", 0);
+        ExcelHeader header6 = new ExcelHeader("projectName", "项目名称", 0);
+        ExcelHeader header7 = new ExcelHeader("userName", "投资人", 0);
+        ExcelHeader header8 = new ExcelHeader("userPhone", "投资人手机号", 0);
+        ExcelHeader header9 = new ExcelHeader("yuyuePrice", "预约金额", 0);
+        ExcelHeader header10 = new ExcelHeader("payStatus", "支付状态", 0);
+
+        titleList.add(header1);
+        titleList.add(header2);
+        titleList.add(header3);
+        titleList.add(header4);
+        titleList.add(header5);
+        titleList.add(header6);
+        titleList.add(header7);
+        titleList.add(header8);
+        titleList.add(header9);
+        titleList.add(header10);
+        return titleList;
+    }
+
+    public OutputOrderDetailDTO findAppointmentAmountByProjectId(String projectId){
+        OutputOrderDetailDTO response= new OutputOrderDetailDTO();
+        InputOrderDetailPO inputOrderDetailPO = new InputOrderDetailPO();
+        inputOrderDetailPO.setProductId(projectId);
+        inputOrderDetailPO.setOrderType(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue());
+        InputOrderDetailPO po= baseMapper.findAmountByProjectId(inputOrderDetailPO);
+        if(po!=null){
+            BeanUtils.copyProperties(po,response);
+        }
+        return response;
+    }
+
+    public  OutputOrderDetailDTO findBySubscribeForAmountProjectId(String projectId){
+        OutputOrderDetailDTO response= new OutputOrderDetailDTO();
+        InputOrderDetailPO inputOrderDetailPO = new InputOrderDetailPO();
+        inputOrderDetailPO.setProductId(projectId);
+        inputOrderDetailPO.setDelOrderType(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue());
+        InputOrderDetailPO po= baseMapper.findAmountByProjectId(inputOrderDetailPO);
+        if(po!=null){
+            BeanUtils.copyProperties(po,response);
+        }
+        return response;
+    }
+
+    @Override
+    public OrderBgDetailOutputDTO detailBgOrder(String orderSn){
+        OrderBgDetailOutputDTO dtoEn=new OrderBgDetailOutputDTO();
+        try {
+            //1）订单
+            Order param=new Order();
+            param.setOrderSn(orderSn);
+            Order order= baseMapper.selectOne(param);
+            if(order==null){
+                dtoEn.exception("订单编号["+orderSn+"]有误，查无数据");
+                return dtoEn;
+            }
+            BeanUtils.copyProperties(order,dtoEn);
+            //订单类型
+            dtoEn.setOrderType(OrderEnum.OrderType.codeOf(order.getOrderType()).getName());
+            if("1".equals(order.getOrderType())){
+                Order paramPre=new Order();//预定认购订单
+                paramPre.setOrderSn(orderSn);
+                Order orderPre= baseMapper.selectOne(paramPre);//付定金的单子
+                if(orderPre!=null){
+                    dtoEn.setHavePay(orderPre.getAllPrice());
+                }
+            }
+
+            //2）项目状态
+            ProjectOneDetailVO project=this.productClient.findDetailByProjectId(order.getProductId());
+            if(project==null){
+                dtoEn.exception("项目ID["+order.getProductId()+"]有误，查无数据");
+                return dtoEn;
+            }
+            String statusStr=ProjectEnum.ProjectStatus.codeOf(project.getProjectStatus()).getName();
+            dtoEn.setProjectStatus(statusStr);
+
+            OrderProductDTO op=this.orderProductService.findEntityByOrderSn(orderSn);
+            if(op==null){
+                dtoEn.exception("["+orderSn+"]订单产品信息有误，查无数据！");
+                return dtoEn;
+            }
+            dtoEn.setPlanName(op.getProductPlan());
+            dtoEn.setNum(op.getNum());
+            dtoEn.setPrice(op.getLessMoney());
+
+            //3）方案
+            PlanEntityVO programme=this.productClient.findProgrammeEntityById(op.getPlanId());
+            if(programme==null){
+                dtoEn.exception("方案ID["+op.getPlanId()+"]有误,查无数据");
+                return dtoEn;
+            }
+            dtoEn.setAppointmentAmount(programme.getUnitPrice());//预约总金额（包括定金全部的）
+            //数据字典查询定金比例
+            String  dicValue=this.getDictionaryOneValue("appointment_rate",null);
+            BigDecimal appomentRate=new BigDecimal(dicValue).divide(new BigDecimal(100),2,BigDecimal.ROUND_HALF_UP);
+            BigDecimal shouldA=programme.getUnitPrice().multiply(appomentRate).setScale(2,BigDecimal.ROUND_HALF_UP);
+            dtoEn.setShouldAmount(shouldA);//定金都是按照项目权益方案单价的1%
+
+            //流水
+            DealFlowEntityInputDTO dfParam=new DealFlowEntityInputDTO();
+            dfParam.setOrderSn(orderSn);
+            dfParam.setState("1");
+            dfParam.setTransStuts("0202");
+            dfParam.setTransType("1");
+            DealFlowEntityOutputDTO  dfDto=this.dealFlowService.findEntityByParams(dfParam);
+            if(dfDto!=null){
+                dtoEn.setFlowNo(dfDto.getFlowNo());
+            }else{
+                if("1".equals(order.getPayStatus())){
+                    dtoEn.setFlowNo(System.currentTimeMillis()+"");//无流水号默认系统当前时间 20180426100000000
+                }
+            }
+
+            //退款等订单异常
+            OrderLogListOutputDTO logDto=this.orderLogService.findListByOrderSn(orderSn);
+            if(logDto!=null && logDto.getList()!=null && logDto.getList().size()>0){
+                dtoEn.setLogList(logDto.getList());
+            }
+            dtoEn.success();
+        } catch (Exception e) {
+            dtoEn.exception(e.getMessage());
+            e.printStackTrace();
+        }
+        return dtoEn;
+    }
+
+
+    @Override
+    public OrderBgDetailOutputDTO findEntityByParams(FindEntityByParamsDTO paramDto) {
+        OrderBgDetailOutputDTO dtoEn = new OrderBgDetailOutputDTO();
+        //1）订单
+        Order param = new Order();
+        BeanUtils.copyProperties(paramDto,param);
+        Order order = baseMapper.selectOne(param);
+        if (order == null) {
+            log.info("订单查无数据");
+            return null;
+        }
+        BeanUtils.copyProperties(order, dtoEn);
+        return dtoEn;
+    }
+
+
+
+
+
+
+    @Override
+    public OrderListCountOutputDTO findUserListPage(OrderListInputDTO dto) {
+        OrderCountListOutPO paramPO=new OrderCountListOutPO();
+        paramPO.setProjectId(dto.getProjectId());
+        paramPO.setPayStatus("1");
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        List<OrderCountListOutPO>  list=baseMapper.findUserListPage(paramPO);
+        PageInfo pageInfo=new PageInfo(list);
+        OrderListCountOutputDTO response=new OrderListCountOutputDTO();
+        if(list !=null && list.size()>0){
+            list.forEach((OrderCountListOutPO temp) -> {
+                BigDecimal totalAmount =  this.projectFormulaService.findEntity(temp);
+                temp.setRedAmount(totalAmount);
+            });
+            response.setList(list);
+            response.setPageInfo(pageInfo);
+        }
+        return response;
+    }
+
+
+
+    public OutputUserCountPO findCountUser(String projectId){
+        InputUserCountPO inputUserCountPO=new InputUserCountPO();
+        inputUserCountPO.setProjectId(projectId);
+        inputUserCountPO.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_OK.getValue());
+        OutputUserCountPO outputUserCountPO = this.baseMapper.findCountUser(inputUserCountPO);
+        return  outputUserCountPO;
+
+    }
+    public  OutputProgrammeCountDTO findProgrammeCountById(InputProgrammePO dto){
+        OutputProgrammeCountDTO outputProgrammeCountDTO= new OutputProgrammeCountDTO();
+        outputProgrammeCountDTO =  orderProductService.findProgrammeCountById(dto);
+        return  outputProgrammeCountDTO;
+
+    }
+
+
+
+    /**
+     * 取消订单
+     * @param dto
+  * @return
+     */
+    @Override
+    public String cancelOrder(CanacelOrderInputDTO dto){
+        String code="";
+        try {
+            Order param=new Order();
+            param.setOrderSn(dto.getOrderSn());
+            Order order= baseMapper.selectOne(param);
+            if(order==null){
+                return "订单编号["+dto.getOrderSn()+"]有误，查无数据";
+            }
+            order.setOrderStatus(dto.getOrderStatus());
+
+            if(OrderEnum.PayStatus.PAY_STATUS_OK.getValue().equals(order.getPayStatus())){
+                if(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue().equals(order.getOrderType())){
+                    //预约单-转代金券
+                    GoldTicketAddInputDTO goldParam=new GoldTicketAddInputDTO();
+                    String random = ToolUtils.getRandomString(7, VerifyUtils.RANDOM_RANGE_SMALL);
+                    goldParam.setTicketSn("G"+random); // G+生成7位随机字符串
+                    goldParam.setAddTime(new Date());
+                    goldParam.setOffTime(this.goldTicketService.getDelayTime(new Date()));
+                    goldParam.setAmount(order.getAllPrice());
+                    goldParam.setBranch(order.getBranch());
+                    goldParam.setDelayNum(1);
+                    goldParam.setOrderSn(order.getOrderSn());
+                    goldParam.setUseState("1");
+                    goldParam.setUserId(order.getUserId());
+                    goldParam.setUserName(order.getUserName());
+                    goldParam.setUserPhone(order.getUserPhone());
+                    String goldCode=this.goldTicketService.addEntity(goldParam);
+                    if(!OutEnum.SUCCESS.getCode().equals(goldCode)){
+                        return goldCode;
+                    }
+                    order.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_REFUND_OK.getValue());
+                }else{
+                    //发起退款申请
+                    PayRefundInsertTkInputDTO redundEn=new PayRefundInsertTkInputDTO();
+                    redundEn.setOrderNo(order.getOrderSn());
+                    if("3".equals(dto.getOrderStatus())){//3-认购失败 4-冷静期退出
+                        redundEn.setTkType("0");//0-筹资失败退款，1-冷静期退款
+                    }else{
+                        redundEn.setTkType("1");
+                    }
+                    BaseVO refundBaseVo=this.basicsClient.insertRefundApply(redundEn);
+                    if(!OutEnum.SUCCESS.getCode().equals(refundBaseVo.getMsg().getCode())){
+                        return "["+order.getOrderSn()+"]添加退款申请记录失败";
+                    }
+                    order.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_REFUND_WAIT.getValue());
+                }
+            }
+            this.baseMapper.updateById(order);
+
+            //更新操作日志
+            UpdateOperaLogInputDTO upOperEn=new UpdateOperaLogInputDTO();
+            upOperEn.setProjectId(Long.valueOf(order.getProductId()));
+            upOperEn.setQuitUserNum(1L);
+            upOperEn.setQuitTotalAmount(order.getAllPrice());
+            this.productClient.updateOperaLogRenGouStatus(upOperEn);
+        } catch (Exception e) {
+            code=OutEnum.FAIL.getCode();
+            e.printStackTrace();
+        }
+        code=OutEnum.SUCCESS.getCode();
+        return code;
+    }
+
+
+    @Override
+    public String getDictionaryOneValue(String key,String branch){
+        DictionaryListInDTO dicParam=new DictionaryListInDTO();
+        dicParam.setType(key);
+        dicParam.setBranch(branch==null?"1001":branch);
+        List<DictionaryListVo>  list= this.basicsClient.findDicListByKey(dicParam);
+        if(list!=null && list.size()>0){
+            return list.get(0).getValue();
+        }
+        return null;
+    }
+
+    /**
+     * 判断是否募资满了
+     * @param projectId
+     * @param projectTotalAmount
+     * @return
+     */
+    @Override
+    public JustIfFullOutputDTO justIfFull(Long projectId, BigDecimal projectTotalAmount){
+        JustIfFullOutputDTO  fullDto=new JustIfFullOutputDTO();
+        Map<String,Object> sumParam=new HashMap<String,Object>();
+        sumParam.put("orderStatus","1");
+        sumParam.put("productId",projectId);
+        sumParam.put("payStatus",OrderEnum.PayStatus.PAY_STATUS_OK.getValue());
+        BigDecimal realRaiseAmount= this.baseMapper.sumAllPriceByProjectId(sumParam);
+        if(realRaiseAmount.compareTo(projectTotalAmount)>0){
+            fullDto.setFullFlag(true);
+        }else{
+            fullDto.setFullFlag(false);
+        }
+        fullDto.setRealRaiseAmount(realRaiseAmount);
+        log.info("【需要募资（"+projectTotalAmount+"）元，实际募资（"+realRaiseAmount+"）元，故募资（"+fullDto.getFullFlag()+"）】");
+        return fullDto;
+    }
+
+
+    /**
+     * 获取预约认购订单总得投资额=预约单金额+尾款单金额
+     * @param endOrderSn
+     * @return
+     */
+    @Override
+    public BigDecimal getTwoPartAllPrice(String endOrderSn){
+        BigDecimal  investAmount=new BigDecimal(0.00);
+        Order param=new Order();
+        param.setOrderSn(endOrderSn);
+        Order oldEn= baseMapper.selectOne(param);//尾款订单
+        if(StringUtils.isNotEmpty(oldEn.getOldcode())){
+            OrderEntityOutDTO  preOrder=this.findEntityByOrderSn(oldEn.getOldcode());
+            investAmount=oldEn.getAllPrice().add(preOrder==null?new BigDecimal(0.00):preOrder.getAllPrice());
+        }else{
+            investAmount=oldEn.getAllPrice();
+        }
+        return investAmount;
+    }
+    @Override
+    public Boolean findUserIsNotProduct (Long userId){
+        Map<String,Object> map=new HashMap<>();
+        map.put("user_id",userId);
+        map.put("pay_status",'1');
+        List<Order> list = baseMapper.selectByMap(map);
+        if(list!=null && list.size()>0){
+            return true;
+        }
+        return false;
+    }
+}

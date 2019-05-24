@@ -1,0 +1,148 @@
+package org.fh.general.ecom.basics.model;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * <p>
+ * 
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-17
+ */
+@TableName("tb_customer")
+@Data
+public class Customer implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 客户号
+     */
+	@TableId(value="cust_id", type= IdType.AUTO)
+	private Long custId;
+    /**
+     * 用户id
+     */
+	@TableField("user_id")
+	private Long userId;
+    /**
+     * 真实名（若传一个整体的真实姓名，则存入此字段）
+     */
+	@TableField("real_name")
+	private String realName;
+    /**
+     * 性别 0-女,1-男
+     */
+	private String sex;
+    /**
+     * 出生日期
+     */
+	private Date birthday;
+    /**
+     * 婚姻状况 1-未婚，2-已婚，3-离异，4-丧偶
+     */
+	@TableField("marry_status")
+	private String marryStatus;
+    /**
+     * 配偶姓名
+     */
+	@TableField("sp_name")
+	private String spName;
+    /**
+     * 配偶电话
+     */
+	@TableField("sp_phone")
+	private String spPhone;
+    /**
+     * 有无子女 1-无，2-1个，3-2个，4-3个，5-4个，6-5个，7-5个以上
+     */
+	@TableField("has_child")
+	private String hasChild;
+    /**
+     * 房产状况 1-无，2-有
+     */
+	@TableField("has_house")
+	private String hasHouse;
+    /**
+     * 是否有车 1-无，2-有
+     */
+	@TableField("has_car")
+	private String hasCar;
+    /**
+     * 月收入 1--1000-1999元，2--2000-2999元，3--3000-3999元，4--4000-4999元，5--5000-5999元，6--6000-6999元，7--7000-7999元，8--8000-8999元，9--9000-9999元，10--10000-14999元，11--15000-19999元，12--20000元以上
+     */
+	private String salary;
+    /**
+     * 有无社保 1--无，2--有
+     */
+	@TableField("has_social")
+	private String hasSocial;
+    /**
+     * 社保
+     */
+	@TableField("social_security")
+	private String socialSecurity;
+    /**
+     * 户口所在地(区)
+     */
+	@TableField("res_areaId")
+	private String resAreaId;
+    /**
+     * 户口所在地详细地址
+     */
+	@TableField("res_address")
+	private String resAddress;
+    /**
+     * 证件类型（1-身份证、2-护照）
+     */
+	@TableField("cert_type")
+	private String certType;
+    /**
+     * 证件号码
+     */
+	@TableField("cert_id")
+	private String certId;
+    /**
+     * 证件图片1
+     */
+	@TableField("cert_img1")
+	private String certImg1;
+    /**
+     * 证件图片2
+     */
+	@TableField("cert_img2")
+	private String certImg2;
+    /**
+     * 证件图片3
+     */
+	@TableField("cert_img3")
+	private String certImg3;
+    /**
+     * 职业
+     */
+	private String job;
+    /**
+     * 客户状态（1-正常 2-禁用 3 逻辑删除）
+     */
+	@TableField("cust_status")
+	private String custStatus;
+    /**
+     * 是否认证：0否，1待审核，2审核未通过，3通过
+     */
+	@TableField("is_name")
+	private String isName;
+	/**
+	 * 原因（审核）
+	 */
+	private String reason;
+
+
+}

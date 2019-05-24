@@ -1,0 +1,139 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/10/11 14:20
+ * @Description:
+ */
+@Data
+public class UserPhoneOutputDTO {
+    /**
+     */
+    @TableId(value="user_id", type= IdType.AUTO)
+    private Long userId;
+    /**
+     * 用户昵称
+     */
+    @TableField("nick_name")
+    private String nickName;
+    /**
+     * 个人头像
+     */
+    @TableField("user_img")
+    private String userImg;
+    /**
+     * 登录名
+     */
+    @TableField("login_name")
+    private String loginName;
+    /**
+     * 手机号
+     */
+    private String phone;
+    /**
+     * 邮箱
+     */
+    private String email;
+    /**
+     * 微信
+     */
+    private String weixin;
+    /**
+     * 积分
+     */
+    private Long credits;
+    /**
+     * 平台：1001-D5厨房 1002-美食工场 1003-爱炉火锅 1004-真真小吃
+     */
+    private String branch;
+    /**
+     * 平台名称
+     */
+    @TableField("branch_name")
+    private String branchName;
+    /**
+     * 账户
+     */
+    private String account;
+    /**
+     * 可用金额
+     */
+    @TableField("cash_amount")
+    private BigDecimal cashAmount;
+    /**
+     * 可提现金额
+     */
+    @TableField("can_extract_amount")
+    private BigDecimal canExtractAmount;
+    /**
+     * 代金券数量
+     */
+    private int cashCouponNum;
+    /**
+     * 注册时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    @TableField("register_time")
+    private Date registerTime;
+    /**
+     * 真实姓名
+     */
+    @TableField("real_name")
+    private String realName;
+    /**
+     * 生日
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    private Date birthday;
+    /**
+     * 性别 0-女,1-男
+     */
+    private String sex;
+    /**
+     * 证件号码
+     */
+    @TableField("cert_no")
+    private String certNo;
+    /**
+     * 证件图片1
+     */
+    @TableField("cert_img1")
+    private String certImg1;
+    /**
+     * 证件图片2
+     */
+    @TableField("cert_img2")
+    private String certImg2;
+    /**
+     * 证件图片3
+     */
+    @TableField("cert_img3")
+    private String certImg3;
+    /**
+     * 是否认证：0未认证，1待审核，2审核未通过，3通过
+     */
+    @TableField("is_name")
+    private String isName;
+    /**
+     * 支付密码状态0未设定，1，有支付密码
+     */
+    @TableField("is_payPwd")
+    private String isPayPwd;
+    /**
+     * 是否有登录密码0无1有
+     */
+    private String isPwd;
+    /**
+     * 地址
+     */
+    private String resAddress;
+}

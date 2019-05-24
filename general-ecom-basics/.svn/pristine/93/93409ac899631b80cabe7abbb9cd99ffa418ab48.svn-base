@@ -1,0 +1,150 @@
+package org.fh.general.ecom.basics.model;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+/**
+ * <p>
+ * 账目流水
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-27
+ */
+@TableName("tb_fund_journal")
+@Data
+public class FundJournal implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 资金流水ID
+     */
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+    /**
+     * 消费渠道-废弃
+     */
+	@TableField("channel_no")
+	private String channelNo;
+    /**
+     * 资金交易流水号
+     */
+	@TableField("journal_no")
+	private String journalNo;
+    /**
+     * 关联流水号
+     */
+	@TableField("other_sn")
+	private String otherSn;
+    /**
+     * 交易流水号
+     */
+	@TableField("trans_journal_no")
+	private String transJournalNo;
+    /**
+     * 电子钱包余额
+     */
+	@TableField("dzqb_amt")
+	private BigDecimal dzqbAmt;
+    /**
+     * 绑定卡余额-废弃
+     */
+	@TableField("bdk_amt")
+	private BigDecimal bdkAmt;
+    /**
+     * 电子账户
+     */
+	@TableField("ele_acct")
+	private String eleAcct;
+    /**
+     * 收支类型(1-充值，2-消费，3-提现,4:赠送,5:分红)
+     */
+	@TableField("sz_type")
+	private String szType;
+    /**
+     * 冲账状态0为冲正1已冲正-废弃
+     */
+	private String state;
+    /**
+     * 交易金额
+     */
+	@TableField("trans_amt")
+	private String transAmt;
+    /**
+     * 备注
+     */
+	private String remark;
+    /**
+     * 摘要
+     */
+	private String summ;
+    /**
+     * 交易时间
+     */
+	@TableField("trans_time")
+	private Long transTime;
+	@TableField("admin_id")
+	private Long adminId;
+	@TableField("admin_name")
+	private String adminName;
+    /**
+     * 第三方账单流水:天子星流水号--废弃
+     */
+	@TableField("third_bill_code")
+	private String thirdBillCode;
+    /**
+     * 账户类型：1电子账户 2.押金账户 3.理财账户 4.现金 5.其他
+     */
+	@TableField("account_type")
+	private Integer accountType;
+    /**
+     * 押金账户余额-废弃
+     */
+	@TableField("foregift_amount")
+	private BigDecimal foregiftAmount;
+    /**
+     * 理财金账户余额-废弃
+     */
+	@TableField("financing_amount")
+	private BigDecimal financingAmount;
+    /**
+     * 支付方式：1-微信支付、2-QQ钱包支付、3-支付宝支付、4-电子钱包支付、5-电子卡支付 6-券兑换 7-平台支付 8-京东到家 9-美团 10-百度 11-人民币  13-理财账户 14- 其他：如活动推广 15-红包
+     */
+	@TableField("pay_type")
+	private Integer payType;
+    /**
+     * 平台
+     */
+	private String branch;
+    /**
+     * 手机号
+     */
+	private String phone;
+    /**
+     * 来源：1：产品 2：图书 5：自助机
+     */
+	private Integer source;
+    /**
+     * 现金红包余额
+     */
+	@TableField("red_bag_amount")
+	private BigDecimal redBagAmount;
+    /**
+     * 平台名称
+     */
+	private String branchName;
+    /**
+     * 渠道:1-线下,2-微信(公众号),3-Android（app）,4-IOS（app）,5-小程序,6-Web,7-Wap
+     */
+	private Integer channel;
+
+
+
+}

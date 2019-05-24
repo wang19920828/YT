@@ -1,0 +1,27 @@
+package org.fh.general.ecom.basics.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.fh.general.ecom.basics.model.AdminLoginLog;
+
+import java.util.Map;
+
+@Mapper
+public interface AdminLoginLogDao {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(AdminLoginLog record);
+
+    int insertSelective(AdminLoginLog record);
+
+    AdminLoginLog selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(AdminLoginLog record);
+
+    int updateByPrimaryKey(AdminLoginLog record);
+    /**
+    	 * 登陆日志查询
+    	 * @param paraMap
+    	 * @return
+    	 */
+     AdminLoginLog selectByParams(Map<String, Object> paraMap);
+}

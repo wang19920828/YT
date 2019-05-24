@@ -1,0 +1,133 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.PhoneVacodeService;
+import org.fh.general.ecom.basics.service.UserService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.sms.phoneVacode.*;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.utils.VerifyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+/**
+ * <p>
+ *  短信验证  前端控制器
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-20
+ */
+@RestController
+public class PhoneVacodeController {
+    @Autowired
+    private PhoneVacodeService  phoneVacodeService;
+    @Autowired
+    private UserService userService;
+    /**
+     * 获取短信验证码
+     */
+    @RequestMapping("PVC00001")
+    public BaseVO savePhoneVacode(PhoneVacodeSaveInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        String code=phoneVacodeService.savePhoneVacode(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+    /**
+     * 验证
+     * @return
+     */
+    @RequestMapping("PVC00002")
+    public BaseVO updateVerifyPhoneVacode(PhoneVacodeVerifyInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        try{
+            if(StringUtils.isEmpty(dto.getPhone())){
+                baseVO.error("手机号不能为空");
+                return baseVO;
+            }else{
+                if(!VerifyUtils.isMobile(dto.getPhone())){
+                    baseVO.error("手机号格式不正确");
+                    return baseVO;
+                }
+            }
+            if(StringUtils.isEmpty(dto.getVaCode())){
+                baseVO.error("短信验证码");
+                return baseVO;
+            }
+            if(StringUtils.isEmpty(dto.getBranch())){
+                baseVO.error("平台不能为空");
+                return baseVO;
+            }
+
+            //验证手机号是否注册
+//            UserAddInputDTO us=new  UserAddInputDTO();
+//            us.setBranch(dto.getBranch());
+//            us.setLoginName(dto.getPhone());
+//           boolean bo=userService.checkPhoneIsExist(us);
+//            if(){
+//                baseVO.error("手机号未注册！");
+//                return baseVO;
+//            }
+            //验证短信验证码
+            OutCodeEntity out = phoneVacodeService.verifyPhoneVacode(dto.getPhone(), dto.getVaCode(), null,dto.getBranch());
+            if(!OutEnum.SUCCESS.getCode().equals(out.getCode())){
+                baseVO.error(out.getMessage());
+                return baseVO;
+            }
+            baseVO.success();
+        }catch(Exception e){
+            e.printStackTrace();
+            baseVO.error("系统报错!");
+        }
+        return baseVO;
+    }
+
+    /**
+     *分页查询短信验证码
+     */
+    @RequestMapping("PVC00003")
+    public PagingVO findPage( PhoneVacodeListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            PhoneVacodeListOutputDTO dtoEntity= this.phoneVacodeService.findPage(dto);
+            List<PhoneVacodeOutputDTO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            pagingVO.success(list,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+    /**
+     * 向用户发送短信验证码
+     */
+    @RequestMapping("PVC00004")
+    public BaseVO getUserPhoneVacode(PhoneVacodeGetUserInputDTO dto){
+        BaseVO baseVO = new BaseVO();
+        String code=phoneVacodeService.getUserPhoneVacode(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            baseVO.error(code);
+            return  baseVO;
+        }
+        baseVO.success();
+        return baseVO;
+    }
+
+}

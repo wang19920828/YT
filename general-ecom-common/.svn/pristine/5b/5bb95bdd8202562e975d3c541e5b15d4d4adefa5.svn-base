@@ -1,0 +1,66 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.math.BigDecimal;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/10/11 14:20
+ * @Description:
+ */
+@Data
+public class UserPhoneOutputDTO {
+    /**
+     */
+    @TableId(value="user_id", type= IdType.AUTO)
+    private Long userId;
+    /**
+     * 用户昵称
+     */
+    @TableField("nick_name")
+    private String nickName;
+    /**
+     * 个人头像
+     */
+    @TableField("user_img")
+    private String userImg;
+    /**
+     * 登录名
+     */
+    @TableField("login_name")
+    private String loginName;
+    /**
+     * 手机号
+     */
+    private String phone;
+    /**
+     * 积分
+     */
+    private Long credits;
+    /**
+     * 平台：1001-D5厨房 1002-美食工场 1003-爱炉火锅 1004-真真小吃
+     */
+    private String branch;
+    /**
+     * 平台名称
+     */
+    @TableField("branch_name")
+    private String branchName;
+    /**
+     * 账户
+     */
+    private String account;
+    /**
+     * 可用金额
+     */
+    @TableField("cash_amount")
+    private BigDecimal cashAmount;
+    /**
+     * 代金券数量
+     */
+    private int cashCouponNum;
+}

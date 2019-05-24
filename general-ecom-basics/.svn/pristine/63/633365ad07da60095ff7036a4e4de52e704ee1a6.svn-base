@@ -1,0 +1,14 @@
+package org.fh.general.ecom.basics.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.basics.model.District;
+import org.fh.general.ecom.common.dto.basics.district.DistrictPageDTO;
+
+public interface DistrictService  extends IService<District> {
+
+    public DistrictPageDTO findTreeAllList();
+
+    public  DistrictPageDTO findOneLevelList();
+
+    String findBySortCode(String code);
+}

@@ -1,0 +1,85 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.github.pagehelper.PageHelper;
+import org.fh.general.ecom.common.dto.order.order.OrderListOutputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoAddInputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoListInputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoListOutputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundMoneyInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.order.order.OrderListOutPO;
+import org.fh.general.ecom.common.po.order.order.OrderListParamPO;
+import org.fh.general.ecom.common.po.order.refundInfo.RefundInfoListOutPO;
+import org.fh.general.ecom.common.po.order.refundInfo.RefundInfoListParamPO;
+import org.fh.general.ecom.order.model.RefundInfo;
+import org.fh.general.ecom.order.dao.RefundInfoDao;
+import org.fh.general.ecom.order.service.RefundInfoService;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import com.github.pagehelper.PageInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 退款申请表 服务实现类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+@Service
+public class RefundInfoServiceImpl extends ServiceImpl<RefundInfoDao, RefundInfo> implements RefundInfoService {
+
+
+
+
+    @Override
+    public RefundInfoListOutputDTO findPage(RefundInfoListInputDTO dto)throws Exception {
+        RefundInfoListOutputDTO response=new RefundInfoListOutputDTO();
+        RefundInfoListParamPO paramPO=new RefundInfoListParamPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        List<RefundInfoListOutPO>  list=baseMapper.findRefundInfoList(paramPO);
+        PageInfo pageInfo=new PageInfo(list);
+        if(list !=null && list.size()>0){
+            response.setList(list);
+            response.setPageInfo(pageInfo);
+        }
+        return response;
+    }
+
+
+    @Override
+    public String addEntity(RefundInfoAddInputDTO dto)  throws Exception{
+        String code="";
+        try {
+            RefundInfo entity=new RefundInfo();
+            BeanUtils.copyProperties(dto,entity );
+            baseMapper.insert(entity);
+            code= OutEnum.SUCCESS.getCode();
+        }catch (Exception e){
+            e.printStackTrace();
+            code=OutEnum.FAIL.getCode();
+        }
+        return code;
+    }
+
+
+    /**
+     * 退款
+     * @param dto
+     * @return
+     */
+    @Override
+    public String refundMoney(RefundMoneyInputDTO dto){
+        String code="";
+
+        return code;
+    }
+}

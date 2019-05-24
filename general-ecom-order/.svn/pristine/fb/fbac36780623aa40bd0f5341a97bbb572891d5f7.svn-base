@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.RedAuditDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.RedAudit">
+		<id column="id" property="id" />
+		<result column="red_project_id" property="redProjectId" />
+		<result column="project_name" property="projectName" />
+		<result column="company_name" property="companyName" />
+		<result column="project_id" property="projectId" />
+		<result column="current_time" property="currentTime" />
+		<result column="zhiding_time" property="zhidingTime" />
+		<result column="current_amount" property="currentAmount" />
+		<result column="status" property="status" />
+		<result column="add_time" property="addTime" />
+		<result column="user_name" property="userName" />
+		<result column="branch" property="branch" />
+		<result column="exp1" property="exp1" />
+		<result column="exp2" property="exp2" />
+	</resultMap>
+
+</mapper>

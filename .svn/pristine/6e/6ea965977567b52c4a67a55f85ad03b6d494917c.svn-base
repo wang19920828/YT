@@ -1,0 +1,147 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.AdminRoleService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.adminRole.*;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.adminRole.RoleListOutputPO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.vo.basics.adminrole.RoleDetailVO;
+import org.fh.general.ecom.common.vo.basics.adminrole.RoleListVO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 角色表 前端控制器
+ * </p>
+ *
+ * @author wyk
+ * @since 2018-09-19
+ */
+@RestController
+public class AdminRoleController {
+
+    @Autowired
+    private AdminRoleService adminRoleService;
+
+    /**
+     * 分页列表
+     */
+    @RequestMapping("ROLE0001")
+    public PagingVO findPage(RoleListInputDTO dto) {
+        PagingVO pagingVO = new PagingVO();
+        try {
+            if (StringUtils.isEmpty(dto.getCurrentPageNum()) || StringUtils.isEmpty(dto.getPageCount())) {
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            RoleListOutputDTO dtoEntity = this.adminRoleService.findPage(dto);
+            List<RoleListOutputPO> list = dtoEntity.getList();
+            if (list == null || list.size() == 0) {
+                pagingVO.noData();
+                return pagingVO;
+            }
+            List<RoleListVO> listvo = new ArrayList<RoleListVO>();
+            list.forEach((RoleListOutputPO temp) -> {
+                RoleListVO voEn = new RoleListVO();
+                BeanUtils.copyProperties(temp, voEn);
+                listvo.add(voEn);
+            });
+            pagingVO.success(listvo, dtoEntity.getPageInfo());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return pagingVO;
+    }
+
+    /**
+     * 添加
+     */
+    @RequestMapping("ROLE0002")
+    public BaseVO addEntity(RoleAddInputDTO dto) {
+        BaseVO baseVO = new BaseVO();
+        try {
+            String code = this.adminRoleService.addEntity(dto);
+            if (!OutEnum.SUCCESS.getCode().equals(code)) {
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 删除
+     */
+    @RequestMapping("ROLE0003")
+    public BaseVO deleteEntityById(Long id) {
+        BaseVO baseVO = new BaseVO();
+        try {
+            String code = this.adminRoleService.deleteEntityById(id);
+            if (!OutEnum.SUCCESS.getCode().equals(code)) {
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 修改
+     */
+    @RequestMapping("ROLE0004")
+    public BaseVO updateEntity(RoleUpdateInputDTO dto) {
+        BaseVO baseVO = new BaseVO();
+        try {
+            if (StringUtils.isEmpty(dto.getId())) {
+                baseVO.mustParam();
+                return baseVO;
+            }
+            String code = this.adminRoleService.updateEntity(dto);
+            if (!OutEnum.SUCCESS.getCode().equals(code)) {
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+    /**
+     * 详情
+     */
+    @RequestMapping("ROLE0005")
+    public BaseVO findEntityById(Long id) {
+        BaseVO baseVO = new BaseVO();
+        try {
+            RoleDetailOutputDTO response = this.adminRoleService.findEntityById(id);
+            if (response == null) {
+                baseVO.noData();
+                return baseVO;
+            }
+            RoleDetailVO vo = new RoleDetailVO();
+            BeanUtils.copyProperties(response, vo);
+            baseVO.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+
+}

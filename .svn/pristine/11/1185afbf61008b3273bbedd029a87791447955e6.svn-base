@@ -1,0 +1,31 @@
+package org.fh.general.ecom.basics.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class AdminRoleFunc  implements Serializable {
+    private Long roleFunId;
+    /**
+     *  角色ID
+     */
+    private Long roleId;
+    /**
+     *  功能模块编码
+     */
+    private String funModuleCode;
+    /**
+     * 备注 0 备注正常 1 备注删除
+     */
+    private String remark;
+    /**
+     *创建人id
+     */
+    private Long creatorId;
+    /**
+     *  创建时间
+     */
+    private Long createTime;
+
+}

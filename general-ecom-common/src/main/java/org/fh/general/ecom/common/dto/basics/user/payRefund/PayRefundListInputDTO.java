@@ -1,0 +1,76 @@
+package org.fh.general.ecom.common.dto.basics.user.payRefund;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/10/17 18:30
+ * @Description:
+ */
+@Data
+public class PayRefundListInputDTO {
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+
+    /**
+     * 用户名（真实）
+     */
+    @TableField("real_name")
+    private String realName;
+
+    /**
+     * 账户号
+     */
+    @TableField("account_no")
+    private String accountNo;
+    private Long userId;
+    /**
+     * 申请时间
+     */
+   // @TableField("apply_time")
+   // private Date applyTime;
+    /**
+     * 开始时间
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date timeStart;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date timeEnd;
+    /**
+     * 0待审核，1通过，2驳回
+     */
+    @TableField("tx_status")
+    private String txStatus;
+    /**
+     * 类型 0，提现；1，退款
+     */
+    private String type;
+    /**
+     * 订单号
+     */
+    @TableField("order_no")
+    private String orderNo;
+    /**
+     * 退款状态0，待退款；1已退款
+     */
+    @TableField("tk_status")
+    private String tkStatus;
+    /**
+     * 退款类型0，筹资失败退款，1冷静期退款
+     */
+    @TableField("tk_type")
+    private String tkType;
+
+    /**
+     * 平台
+     */
+    private String branch;
+
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.CouponsCodeDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.CouponsCode">
+		<id column="id" property="id" />
+		<result column="yhm" property="yhm" />
+		<result column="amount" property="amount" />
+		<result column="coupon_name" property="couponName" />
+		<result column="coupons_id" property="couponsId" />
+		<result column="send_type" property="sendType" />
+		<result column="situation" property="situation" />
+		<result column="off_time" property="offTime" />
+		<result column="status" property="status" />
+		<result column="record_no" property="recordNo" />
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+
+
+
+	<select id="findMyList" parameterType="org.fh.general.ecom.common.po.order.couponsCode.MyCouponsCodeParamsPO" resultType="org.fh.general.ecom.common.po.order.couponsCode.MyCouponsCodePO">
+		SELECT
+			A.yhm AS yhm,
+		    A.coupons_id as couponsId,
+			A.coupon_name AS couponName,
+			A.create_time AS createTime,
+			A.off_time AS offTime,
+			A.situation,
+			B.low_money AS manAmount,
+			B.di_money AS amount,
+			B.type,
+			B.rule
+		FROM
+		tb_coupons_code A
+		JOIN tb_coupons B ON A.coupons_id = B.id
+		<where>
+			<if test="userId!=null and userId!=''">
+				AND A.user_id = #{userId}
+			</if>
+			<if test="status!=null and status!=''">
+				AND A.status = #{status}
+			</if>
+			<if test="myOffTimeStart!=null and myOffTimeStart!=''">
+				AND A.create_time <![CDATA[<= #{myOffTimeStart} ]]>
+				AND A.off_time <![CDATA[>= #{myOffTimeStart} ]]>
+			</if>
+		</where>
+		order by A.id desc
+	</select>
+
+
+
+</mapper>

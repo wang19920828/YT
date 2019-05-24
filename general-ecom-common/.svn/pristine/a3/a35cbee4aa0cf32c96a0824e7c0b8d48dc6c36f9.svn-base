@@ -1,0 +1,18 @@
+package org.fh.general.ecom.common.dto.order.withdrawal;
+
+
+import lombok.Data;
+import org.fh.general.ecom.common.po.order.withdrawal.WithdrawalListOutPO;
+import com.github.pagehelper.PageInfo;
+
+import java.util.List;
+
+@Data
+public class WithdrawalListOutputDTO {
+
+    private List<WithdrawalListOutPO> list;
+
+    PageInfo pageInfo;
+
+
+}

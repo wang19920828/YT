@@ -1,0 +1,31 @@
+package org.fh.general.ecom.basics.dao;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.fh.general.ecom.basics.model.AdminRoleRelate;
+
+import java.util.List;
+
+
+@Mapper
+public interface AdminRoleRelateDao {
+    int deleteByPrimaryKey(Long id);
+
+    int insert(AdminRoleRelate record);
+
+    int insertSelective(AdminRoleRelate record);
+
+    AdminRoleRelate selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(AdminRoleRelate record);
+
+    int updateByPrimaryKey(AdminRoleRelate record);
+
+    List<AdminRoleRelate> findListByAdminId(Long amdinId);
+
+    int deleteByAdminId(Long adminId);
+
+    List<AdminRoleRelate> findListByRoleId(Long roleId);
+
+    List<Long> findDistinctRoleList();
+
+}

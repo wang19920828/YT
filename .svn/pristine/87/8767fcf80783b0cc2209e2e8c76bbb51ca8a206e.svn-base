@@ -1,0 +1,25 @@
+package org.fh.general.ecom.basics.model;
+
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class AdminLoginLog  implements Serializable {
+    private Long id;
+    //管理员id
+    private Long adminId;
+   //管理员名称
+    private String adminName;
+    //手机号
+    private String phone;
+     //登陆时间
+    private Long loginTime;
+    //陆登ip
+    private String loginIp;
+    //退出时间
+    private Long loginOutTime;
+
+
+}

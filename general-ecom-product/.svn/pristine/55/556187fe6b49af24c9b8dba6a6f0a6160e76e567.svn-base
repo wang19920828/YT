@@ -1,0 +1,29 @@
+package org.fh.general.ecom.product.client;
+
+import org.fh.general.ecom.common.dto.basics.dictionary.InputDictionaryQueryDTO;
+import org.fh.general.ecom.common.dto.product.user.OutputUserDetailDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/21
+ **/
+@FeignClient(name = "basics")
+public interface UserClient {
+
+
+    //查询项目预约总金额
+    @RequestMapping("RUSER1001")
+    public OutputUserDetailDTO findUserByUserId(@RequestBody Long userId    );
+
+    @RequestMapping("DIST80003")
+    public String findbySortCode(@RequestBody  String sortCode    );
+
+
+    @RequestMapping("BAS90008")
+    public String findLabelByValueAndType(@RequestBody InputDictionaryQueryDTO dto    );
+
+
+}

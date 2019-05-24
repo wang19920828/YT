@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminRoleFuncDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdminRoleFunc" >
+    <id column="role_fun_id" property="roleFunId" jdbcType="BIGINT" />
+    <result column="role_id" property="roleId" jdbcType="BIGINT" />
+    <result column="fun_module_code" property="funModuleCode" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="creator_id" property="creatorId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    role_fun_id, role_id, fun_module_code, remark, creator_id, create_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_admin_role_func
+    where role_fun_id = #{roleFunId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_admin_role_func
+    where role_fun_id = #{roleFunId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="org.fh.general.ecom.basics.model.AdminRoleFunc" >
+    insert into tb_admin_role_func (role_fun_id, role_id, fun_module_code, 
+      remark, creator_id, create_time
+      )
+    values (#{roleFunId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, #{funModuleCode,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{creatorId,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.AdminRoleFunc" >
+    insert into tb_admin_role_func
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="roleFunId != null" >
+        role_fun_id,
+      </if>
+      <if test="roleId != null" >
+        role_id,
+      </if>
+      <if test="funModuleCode != null" >
+        fun_module_code,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="creatorId != null" >
+        creator_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="roleFunId != null" >
+        #{roleFunId,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null" >
+        #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="funModuleCode != null" >
+        #{funModuleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorId != null" >
+        #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.AdminRoleFunc" >
+    update tb_admin_role_func
+    <set >
+      <if test="roleId != null" >
+        role_id = #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="funModuleCode != null" >
+        fun_module_code = #{funModuleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creatorId != null" >
+        creator_id = #{creatorId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where role_fun_id = #{roleFunId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.AdminRoleFunc" >
+    update tb_admin_role_func
+    set role_id = #{roleId,jdbcType=BIGINT},
+      fun_module_code = #{funModuleCode,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      creator_id = #{creatorId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=BIGINT}
+    where role_fun_id = #{roleFunId,jdbcType=BIGINT}
+  </update>
+  <sql id="roleFun_list">
+  	role_fun_id,role_id,fun_module_code,remark,creator_id,create_time
+  </sql>
+  <select id="findAllRoleFun" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+		select
+			<include refid="roleFun_list"/>
+		from tb_admin_role_func
+		<where>
+			<if test="roleFunId != null and roleFunId !=''"> and role_fun_id = #{roleFunId}</if>
+			<if test="roleId !=null and roleId != ''"> and role_id = #{roleId}</if>
+			<if test="funModuleCode != null and funModuleCode != ''"> and fun_module_code = #{funModuleCode}</if>
+			<if test="remark !=null and remark != ''"> and remark like CONCAT('%',#{remark},'%')</if>
+			<if test="creatorId !=null and creatorId !=''"> and creator_id = #{creatorId}</if>
+			<if test="createTime != null and createTime != ''"> and create_time = #{createTime}</if>
+		</where>
+		order by role_fun_id desc
+		<if test="start != null and  end !=null ">
+			limit #{start},#{end}
+		</if>
+	</select>
+
+  <update id="updateRoleFunByRoleId" parameterType="java.util.HashMap">
+  		update tb_admin_role_func
+  		<set>
+  			remark = #{remark}
+  		</set>
+  		<where>
+  			role_id = #{roleId}
+  		</where>
+  	</update>
+
+  <update id="delSign" parameterType="java.util.HashMap">
+ 		DELETE from tb_admin_role_func where remark = #{remark} and role_id = #{roleId}
+ 	</update>
+
+  <delete id="deleteRoleFunByFun" parameterType="String">
+ 		delete from tb_admin_role_func where fun_module_code = #{fun_module_code}
+ 	</delete>
+</mapper>

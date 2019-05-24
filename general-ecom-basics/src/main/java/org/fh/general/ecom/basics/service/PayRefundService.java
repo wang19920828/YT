@@ -1,0 +1,21 @@
+package org.fh.general.ecom.basics.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.basics.model.PayRefund;
+import org.fh.general.ecom.common.dto.basics.user.payRefund.*;
+
+/**
+ * <p>
+ *  服务类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-10-15
+ */
+public interface PayRefundService extends IService<PayRefund> {
+    String insertTxPayRefund(PayRefundInsertInputDTO dto)throws Exception;
+    PayRefundListOutputDTO findPage(PayRefundListInputDTO dto);
+    PayRefundOutputDTO findPayRefundById(Long id);
+    String updatePayRefundById(PayRefundUpdateInputDTO dto);
+    String insertTkPayRefund(PayRefundInsertTkInputDTO dto)throws Exception;
+}

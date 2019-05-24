@@ -1,0 +1,202 @@
+package org.fh.general.ecom.order.controller;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.order.calendar.CalendarAddInputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.CalendarListInputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.CalendarListOutputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.DetailCalendarHeadInputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.DetailCalendarHeadOutputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.FindBgDetailPageInputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.FindBgDetailPageOutputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.FindBgFormulaPageInputDTO;
+import org.fh.general.ecom.common.dto.order.calendar.FindBgFormulaPageOutputDTO;
+import org.fh.general.ecom.common.po.order.calendar.CalendarListOutPO;
+import org.fh.general.ecom.common.po.order.calendar.InDaysInputDTO;
+import org.fh.general.ecom.common.po.order.calendar.InDaysOutputDTO;
+import org.fh.general.ecom.common.po.order.calendar.MyCalListInputDTO;
+import org.fh.general.ecom.common.po.order.calendar.MyCalListOutputDTO;
+import org.fh.general.ecom.common.vo.order.calendar.CalendarListVO;
+import org.fh.general.ecom.common.vo.order.projectFormula.ProjectFormulaListVO;
+import org.fh.general.ecom.order.service.CalendarService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 分红日历表 前端控制器
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+@RestController
+public class CalendarController {
+
+
+    @Autowired
+    private CalendarService calendarService;
+
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("CAL8005")
+    public PagingVO findPage(CalendarListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            CalendarListOutputDTO dtoEntity= this.calendarService.findPage(dto);
+            List<CalendarListOutPO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            List<CalendarListVO> listvo=new ArrayList<CalendarListVO>();
+            list.forEach((CalendarListOutPO temp) -> {
+                CalendarListVO voEn=new CalendarListVO();
+                BeanUtils.copyProperties(temp,voEn);
+                listvo.add(voEn);
+            });
+
+            pagingVO.success(listvo,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+
+
+    /**
+     * 添加
+     * */
+    @RequestMapping("CAL8001")
+    public BaseVO addEntity(CalendarAddInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            /*String code=this.calendarService.addEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+
+
+    /**
+     * 日历-基本信息（头部）
+     * */
+    @RequestMapping("CAL8002")
+    public BaseVO detailInfoHead(DetailCalendarHeadInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            DetailCalendarHeadOutputDTO dtoEntity= this.calendarService.calendarHead(dto);
+            if(dtoEntity==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            baseVO.success(dtoEntity);
+        } catch (Exception e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     * 日历-基本信息（底部）
+     * */
+    @RequestMapping("CAL8006")
+    public PagingVO detailInfoPageBottom(FindBgDetailPageInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            FindBgDetailPageOutputDTO dtoEntity= this.calendarService.findBgDetailPage(dto);
+            List<CalendarListVO> list= dtoEntity.getCalendarList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            pagingVO.success(list,dtoEntity.getPageInfo());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+
+
+    /**
+     * 日历-查看
+     * */
+    @RequestMapping("CAL8003")
+    public PagingVO findBgFormulaPage(FindBgFormulaPageInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+
+            FindBgFormulaPageOutputDTO dtoEntity= this.calendarService.findBgFormulaPage(dto);
+            List<ProjectFormulaListVO> list= dtoEntity.getFormulaList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            pagingVO.success(dtoEntity.getFormulaList(),dtoEntity.getPageInfo());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+    //========================================前台  start=============
+    @RequestMapping("CAL8004")
+    public BaseVO findMyCalendarList(MyCalListInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            MyCalListOutputDTO dtoEntity= this.calendarService.findMyCalendarList(dto);
+            if(dtoEntity==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            baseVO.success(dtoEntity);
+        } catch (Exception e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+
+    /**
+     * 查询有分红日历记录的那几天
+     * @param dto
+     * @return
+     */
+    @RequestMapping("CAL8007")
+    public BaseVO findInDays(InDaysInputDTO dto) {
+        BaseVO baseVO = new BaseVO();
+        InDaysOutputDTO  resDto=this.calendarService.findInDays(dto);
+        if(resDto==null){
+            baseVO.noData();
+            return baseVO;
+        }
+        baseVO.success(resDto);
+        return baseVO;
+    }
+    //========================================前台  end=============
+
+
+
+}

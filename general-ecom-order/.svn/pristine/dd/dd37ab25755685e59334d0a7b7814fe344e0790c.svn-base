@@ -1,0 +1,30 @@
+package org.fh.general.ecom.order.service;
+
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoAddInputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoListInputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundInfoListOutputDTO;
+import org.fh.general.ecom.common.dto.order.refundInfo.RefundMoneyInputDTO;
+import org.fh.general.ecom.order.model.RefundInfo;
+import com.baomidou.mybatisplus.service.IService;
+
+/**
+ * <p>
+ * 退款申请表 服务类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+public interface RefundInfoService extends IService<RefundInfo> {
+
+
+
+
+
+    RefundInfoListOutputDTO findPage(RefundInfoListInputDTO dto)throws Exception;
+
+
+    String addEntity(RefundInfoAddInputDTO dto)throws Exception;
+
+    String refundMoney(RefundMoneyInputDTO dto);
+}

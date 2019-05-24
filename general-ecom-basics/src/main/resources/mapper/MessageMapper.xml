@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.MessageDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.Message">
+		<id column="id" property="id" />
+		<result column="type" property="type" />
+		<result column="status" property="status" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="op_name" property="opName" />
+		<result column="op_time" property="opTime" />
+		<result column="create_time" property="createTime" />
+		<result column="push_type" property="pushType" />
+		<result column="push_time" property="pushTime" />
+		<result column="img" property="img" />
+		<result column="del" property="del" />
+		<result column="rele" property="rele" />
+		<result column="branch" property="branch" />
+		<result column="flag" property="flag" />
+		<result column="standby" property="standby" />
+	</resultMap>
+
+</mapper>

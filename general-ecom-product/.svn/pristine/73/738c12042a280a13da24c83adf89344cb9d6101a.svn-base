@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ShopDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.Shop">
+		<id column="shop_id" property="shopId" />
+		<result column="shop_sn" property="shopSn" />
+		<result column="shop_name" property="shopName" />
+		<result column="login_pwd" property="loginPwd" />
+		<result column="shop_type_id" property="shopTypeId" />
+		<result column="shop_size_id" property="shopSizeId" />
+		<result column="address_code" property="addressCode" />
+		<result column="address" property="address" />
+		<result column="img_src" property="imgSrc" />
+		<result column="telphone" property="telphone" />
+		<result column="shopowner_id" property="shopownerId" />
+		<result column="is_coffee" property="isCoffee" />
+		<result column="is_train" property="isTrain" />
+		<result column="is_food" property="isFood" />
+		<result column="limit_send_price" property="limitSendPrice" />
+		<result column="free_send_price" property="freeSendPrice" />
+		<result column="status" property="status" />
+		<result column="creator" property="creator" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="is_del" property="isDel" />
+		<result column="full_money" property="fullMoney" />
+		<result column="fanxian_money" property="fanxianMoney" />
+		<result column="longitude" property="longitude" />
+		<result column="latitude" property="latitude" />
+		<result column="remark" property="remark" />
+		<result column="open_time" property="openTime" />
+		<result column="close_time" property="closeTime" />
+		<result column="distribution_open_time" property="distributionOpenTime" />
+		<result column="distribution_close_time" property="distributionCloseTime" />
+		<result column="month_select" property="monthSelect" />
+		<result column="day_select" property="daySelect" />
+		<result column="week_select" property="weekSelect" />
+		<result column="ri_qi" property="riQi" />
+		<result column="is_holiday" property="isHoliday" />
+		<result column="pmonth_select" property="pmonthSelect" />
+		<result column="pday_select" property="pdaySelect" />
+		<result column="pweek_select" property="pweekSelect" />
+		<result column="pri_qi" property="priQi" />
+		<result column="pis_holiday" property="pisHoliday" />
+		<result column="channel" property="channel" />
+		<result column="branch" property="branch" />
+		<result column="is_all_branch" property="isAllBranch" />
+		<result column="branch_name" property="branchName" />
+		<result column="shop_ip" property="shopIp" />
+	</resultMap>
+
+</mapper>

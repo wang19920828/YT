@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.AdverDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.Adver">
+		<id column="adver_id" property="adverId" />
+		<result column="adver_name" property="adverName" />
+		<result column="place_id" property="placeId" />
+		<result column="effective_date" property="effectiveDate" />
+		<result column="expiry_date" property="expiryDate" />
+		<result column="img_src" property="imgSrc" />
+		<result column="link_src" property="linkSrc" />
+		<result column="status" property="status" />
+		<result column="remark" property="remark" />
+		<result column="branch;" property="branch" />
+		<result column="creator_id" property="creatorId" />
+		<result column="create_time" property="createTime" />
+		<result column="adver_order" property="adverOrder" />
+	</resultMap>
+
+</mapper>

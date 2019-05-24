@@ -1,0 +1,144 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.AdverDao;
+import org.fh.general.ecom.basics.model.Adver;
+import org.fh.general.ecom.basics.service.AdverService;
+import org.fh.general.ecom.common.dto.basics.help.Adver.AdverInputDTO;
+import org.fh.general.ecom.common.dto.basics.help.Adver.AdverListInputDTO;
+import org.fh.general.ecom.common.dto.basics.help.Adver.AdverListOutputDTO;
+import org.fh.general.ecom.common.dto.basics.help.Adver.AdverOutputDTO;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.help.AdverListOutPO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author wyy
+ * @since 2018-10-26
+ */
+@Service
+public class AdverServiceImpl extends ServiceImpl<AdverDao, Adver> implements AdverService {
+
+    @Override
+    public AdverListOutputDTO findPage(AdverListInputDTO dto) {
+        AdverListOutputDTO response=new AdverListOutputDTO();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        EntityWrapper<Adver> wrapper = new EntityWrapper<>();
+        wrapper.eq("status",dto.getStatus());
+        if(null!=dto.getPlaceId()&&!dto.getPlaceId().equals(""))
+        wrapper.eq("place_id",dto.getPlaceId());
+        List<Adver> list=baseMapper.selectList(wrapper);
+        PageInfo pageInfo=new PageInfo(list);
+        List<AdverListOutPO>  listpo=new ArrayList<AdverListOutPO>();
+        list.forEach((Adver temp) -> {
+            AdverListOutPO po=new AdverListOutPO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+    @Override
+    public AdverOutputDTO selectByPrimaryKey(Long id) {
+        AdverOutputDTO entity2=new AdverOutputDTO();
+        Adver entity=baseMapper.selectById(id);
+        if(null==entity){
+            return null;
+        }
+        BeanUtils.copyProperties(entity,entity2);
+        return entity2;
+    }
+
+    @Override
+    public String insertAdver(AdverInputDTO dto) {
+        Adver entity =new Adver();
+        BeanUtils.copyProperties(dto,entity);
+        EntityWrapper<Adver> wrapper = new EntityWrapper<Adver>();
+        wrapper.where("status={0}",ComEnum.IsDelete.NORMAL.getValue())
+                .andNew("place_Id={0}",dto.getPlaceId())
+                .andNew("adver_name={0}",dto.getAdverName());
+        int i =  baseMapper.selectCount(wrapper);
+        if(i>0){
+            return "该数据已经存在";
+        }else {
+            baseMapper.insert(entity);
+            return OutEnum.SUCCESS.getCode();
+        }
+    }
+
+    @Override
+    public String updateAdver(AdverInputDTO dto) {
+        Adver entity =new Adver();
+        BeanUtils.copyProperties(dto,entity);
+        Adver article = this.baseMapper.selectById(dto.getAdverId());
+        if(article==null){
+            return OutEnum.WARN.getMessage();
+        }
+        EntityWrapper<Adver> wrapper = new EntityWrapper<Adver>();
+        wrapper.where("status={0}",ComEnum.IsDelete.NORMAL.getValue())
+                .andNew("place_Id={0}",dto.getPlaceId())
+                .andNew("adver_name={0}",dto.getAdverName());
+        int i =  baseMapper.selectCount(wrapper);
+        if(i>0){
+            if(article.getAdverId().equals(dto.getAdverId())){
+                baseMapper.updateById(entity);
+                return OutEnum.SUCCESS.getCode();
+            }
+        }
+       /* EntityWrapper<GuideArticle> wrapper = new EntityWrapper<GuideArticle>();
+        wrapper.where("type={0}",ComEnum.NewsOrGuide.NEWS.getValue())
+                .andNew("branch={0}",dto.getBranch()==null? ComEnum.Branch.YUN_TOU.getValue():dto.getBranch())
+                .andNew("del={0}",ComEnum.IsDelete.NORMAL.getValue())
+                .andNew("title={0}",dto.getTitle());
+        int i =  baseMapper.selectCount(wrapper);
+        if(i>0){
+            return "该字典已经存在";
+        }else{
+            baseMapper.updateById(entity);
+            return OutEnum.SUCCESS.getCode();
+        }*/
+        return "该标题已存在！";
+    }
+
+    @Override
+    public String deleteByPrimaryKey(Long id) {
+        Adver entity=baseMapper.selectById(id);
+        if(null!=entity){
+            entity.setStatus(ComEnum.IsDelete.DEL.getValue());
+            baseMapper.updateById(entity);
+            return OutEnum.SUCCESS.getCode();
+        }else{
+            return OutEnum.FAIL.getCode();
+        }
+    }
+
+    @Override
+    public String updatePublish(AdverInputDTO dto) {
+        Adver entity=baseMapper.selectById(dto.getAdverId());
+        if(null!=entity){
+            SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");//转换格式
+            entity.setStatus(dto.getStatus());
+            baseMapper.updateById(entity);
+            return OutEnum.SUCCESS.getCode();
+        }else{
+
+            return OutEnum.FAIL.getCode();
+        }
+
+    }
+}

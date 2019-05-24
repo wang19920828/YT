@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.OrganizationInfoDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.OrganizationInfo">
+		<id column="id" property="id" />
+		<result column="company_name" property="companyName" />
+		<result column="company_no" property="companyNo" />
+		<result column="registered_capital" property="registeredCapital" />
+		<result column="legal_person_name" property="legalPersonName" />
+		<result column="corporate_identity_card" property="corporateIdentityCard" />
+		<result column="social_credit_code" property="socialCreditCode" />
+		<result column="term_of_validit" property="termOfValidit" />
+		<result column="registered_address" property="registeredAddress" />
+		<result column="detail_address" property="detailAddress" />
+		<result column="scope_of_operation" property="scopeOfOperation" />
+		<result column="business_license" property="businessLicense" />
+		<result column="bank_name" property="bankName" />
+		<result column="bank_account" property="bankAccount" />
+		<result column="contacts" property="contacts" />
+		<result column="contacts_tel" property="contactsTel" />
+		<result column="customer_manager" property="customerManager" />
+		<result column="status" property="status" />
+		<result column="create_by" property="createBy" />
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+		<result column="remarks" property="remarks" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="channel" property="channel" />
+	</resultMap>
+
+</mapper>

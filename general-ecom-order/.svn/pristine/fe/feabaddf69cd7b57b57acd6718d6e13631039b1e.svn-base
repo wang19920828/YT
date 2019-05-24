@@ -1,0 +1,207 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.couponsCode.CouponsCodeAddInputDTO;
+import org.fh.general.ecom.common.dto.order.couponsCode.CouponsCodeDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.couponsCode.CouponsCodeListInputDTO;
+import org.fh.general.ecom.common.dto.order.couponsCode.CouponsCodeListOutputDTO;
+import org.fh.general.ecom.common.dto.order.couponsCode.CouponsCodeUpdateInputDTO;
+import org.fh.general.ecom.common.dto.order.couponsLog.CouponsLogAddInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.order.couponsCode.CouponsCodeListOutPO;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.utils.ToolUtils;
+import org.fh.general.ecom.common.utils.VerifyUtils;
+import org.fh.general.ecom.order.model.Coupons;
+import org.fh.general.ecom.order.model.CouponsCode;
+import org.fh.general.ecom.order.dao.CouponsCodeDao;
+import org.fh.general.ecom.order.model.CouponsCode;
+import org.fh.general.ecom.order.service.CouponsCodeService;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.order.service.CouponsLogService;
+import org.fh.general.ecom.order.service.CouponsService;
+import org.fh.general.ecom.order.service.GoldTicketService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * <p>
+ * 优惠码表 服务实现类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-12
+ */
+@Slf4j
+@Service
+public class CouponsCodeServiceImpl extends ServiceImpl<CouponsCodeDao, CouponsCode> implements CouponsCodeService {
+
+    @Autowired
+    private CouponsService couponsService;
+    @Autowired
+    private CouponsLogService couponsLogService;
+
+    @Override
+    public CouponsCodeListOutputDTO findPage(CouponsCodeListInputDTO dto)throws Exception {
+        CouponsCodeListOutputDTO response=new CouponsCodeListOutputDTO();
+        EntityWrapper<CouponsCode> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getCouponName())){
+            wrapper.like("coupon_name",dto.getCouponName());
+        }
+        if(StringUtils.isNotEmpty(dto.getSendType())){
+            wrapper.eq("send_type",dto.getSendType());
+        }
+        if(StringUtils.isNotEmpty(dto.getStatus())){
+            wrapper.eq("status",dto.getStatus());
+        }
+        if(StringUtils.isNotEmpty(dto.getYhm())){
+            wrapper.eq("yhm",dto.getYhm());
+        }
+        if(StringUtils.isNotEmpty(dto.getCouponsId())){
+            wrapper.eq("coupons_id",dto.getCouponsId());
+        }
+        if(StringUtils.isNotEmpty(dto.getAddTimeStart())){
+            wrapper.gt("create_time",dto.getAddTimeStart());
+        }
+        if(StringUtils.isNotEmpty(dto.getAddTimeEnd())){
+            wrapper.lt("create_time",dto.getAddTimeEnd());
+        }
+        List<CouponsCode> list=baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo=new PageInfo(list);
+        List<CouponsCodeListOutPO>  listpo=new ArrayList<CouponsCodeListOutPO>();
+        list.forEach((CouponsCode temp) -> {
+            CouponsCodeListOutPO po=new CouponsCodeListOutPO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+
+    @Override
+    public String addEntity(CouponsCodeAddInputDTO dto)  throws Exception{
+        String code="";
+        try {
+            String recordNo="REC"+System.currentTimeMillis();//批次号
+            CouponsDetailOutputDTO coupons=this.couponsService.findEntityById(dto.getCouponsId());
+            if(coupons==null){
+                return "优惠券ID["+dto.getCouponsId()+"]信息有误,查无数据！";
+            }
+            for (int i = 0; i < dto.getSendNum(); i++) {
+                CouponsCode entity=new CouponsCode();
+                BeanUtils.copyProperties(dto,entity );
+                // 生成8位随机字符串
+                String yhmRandom = ToolUtils.getRandomString(8, VerifyUtils.RANDOM_RANGE_SMALL);
+                entity.setYhm(yhmRandom);
+                entity.setCreateTime(new Date());
+                entity.setRecordNo(recordNo);
+                if("1".equals(dto.getSendType())){
+                    //待领用
+                    entity.setStatus("3");
+                    //领用的失效日期从领用的当天算起 TODO
+                }else{
+                    //待使用
+                    entity.setStatus("1");
+                    if(StringUtils.isNotEmpty(coupons.getReceiveEnd())){
+                        Date offTime=DateUtils.getDateAfter(coupons.getReceiveEnd(),coupons.getDays().intValue());
+                        entity.setOffTime(offTime);
+                    }
+                }
+                entity.setAmount(coupons.getDiMoney());
+                entity.setCouponName(coupons.getCouponName());
+                baseMapper.insert(entity);
+
+            }
+            //记录日志
+            CouponsLogAddInputDTO coupLog=new CouponsLogAddInputDTO();
+            coupLog.setAddTime(new Date());
+            coupLog.setCoupon(coupons.getCouponName());
+            coupLog.setBusScenario(dto.getSituation());
+            coupLog.setNum(dto.getSendNum());
+            coupLog.setType(dto.getSendType());
+            coupLog.setPhone(recordNo);
+            this.couponsLogService.addEntity(coupLog);
+            code= OutEnum.SUCCESS.getCode();
+
+        }catch (Exception e){
+            e.printStackTrace();
+            code=OutEnum.FAIL.getCode();
+        }
+        return code;
+    }
+
+    @Override
+    public String deleteEntityById(Long id) {
+        CouponsCode entity=new CouponsCode();
+        entity.setId(id);
+        //entity.setIsDelete(ComEnum.IsDelete.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateEntity(CouponsCodeUpdateInputDTO dto) {
+        CouponsCode entity=new CouponsCode();
+        BeanUtils.copyProperties(dto,entity);
+        CouponsCode param=new CouponsCode();
+        param.setId(dto.getId());
+        CouponsCode findOne= baseMapper.selectOne(param);
+        if(findOne==null){
+            return OutEnum.WARN.getCode();
+        }
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public CouponsCodeDetailOutputDTO findEntityById(Long id) {
+        CouponsCodeDetailOutputDTO response=new CouponsCodeDetailOutputDTO();
+        CouponsCode entity=baseMapper.selectById(id);
+        if(entity!=null){
+            BeanUtils.copyProperties(entity,response );
+            return response;
+        }
+        return null;
+    }
+
+
+    /**
+     * @param orderSn
+     * @return
+     */
+    @Override
+    public CouponsCodeListOutputDTO findListByOrderSn(String orderSn) {
+        CouponsCodeListOutputDTO dto=new CouponsCodeListOutputDTO();
+        EntityWrapper<CouponsCode> wrapper = new EntityWrapper<>();
+        wrapper.eq("order_sn",orderSn);
+        List<CouponsCode> list=baseMapper.selectList(wrapper);
+
+        if(list !=null && list.size()>0){
+            List<CouponsCodeListOutPO> poList=new ArrayList<CouponsCodeListOutPO>();
+            list.forEach((CouponsCode temp)->{
+                CouponsCodeListOutPO poEn=new CouponsCodeListOutPO();
+                BeanUtils.copyProperties(temp,poEn);
+                poList.add(poEn);
+            });
+            dto.setList(poList);
+        }
+
+        return dto;
+    }
+
+}

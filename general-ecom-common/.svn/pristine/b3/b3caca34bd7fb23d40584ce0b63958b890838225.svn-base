@@ -1,0 +1,38 @@
+package org.fh.general.ecom.common.dto.order.redProject;
+
+import com.github.pagehelper.PageInfo;
+import lombok.Data;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.MessageVO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.vo.order.projectFormula.ProjectFormulaListVO;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+public class RedApplyTryOutputDTO {
+
+    private BigDecimal preShareRedTotal=new BigDecimal(0.00);
+    private BigDecimal realShareRedTotal=new BigDecimal(0.00);
+    private List<ProjectFormulaListVO> formulaList;
+    PageInfo pageInfo;
+    private MessageVO msg;
+    /**
+     * 接口发生异常
+     */
+    public void exception(String exception_msg){
+        this.msg = new MessageVO(
+                OutEnum.FAIL.getCode(),
+                exception_msg);
+    }
+    /**
+     * 业务处理成功
+     */
+    public void success() {
+        this.msg = new MessageVO(
+                OutEnum.SUCCESS.getCode(),
+                OutEnum.SUCCESS.getMessage());
+    }
+
+}

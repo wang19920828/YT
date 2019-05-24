@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminLogDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.AdminLog" >
+    <id column="admin_log_id" property="adminLogId" jdbcType="BIGINT" />
+    <result column="admin_id" property="adminId" jdbcType="BIGINT" />
+    <result column="role_id" property="roleId" jdbcType="BIGINT" />
+    <result column="oper_module" property="operModule" jdbcType="VARCHAR" />
+    <result column="oper_result" property="operResult" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="oper_time" property="operTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    admin_log_id, admin_id, role_id, oper_module, oper_result, remark, oper_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_admin_log
+    where admin_log_id = #{adminLogId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_admin_log
+    where admin_log_id = #{adminLogId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="org.fh.general.ecom.basics.model.AdminLog" >
+    insert into tb_admin_log (admin_log_id, admin_id, role_id, 
+      oper_module, oper_result, remark, 
+      oper_time)
+    values (#{adminLogId,jdbcType=BIGINT}, #{adminId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, 
+      #{operModule,jdbcType=VARCHAR}, #{operResult,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{operTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.AdminLog" >
+    insert into tb_admin_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="adminLogId != null" >
+        admin_log_id,
+      </if>
+      <if test="adminId != null" >
+        admin_id,
+      </if>
+      <if test="roleId != null" >
+        role_id,
+      </if>
+      <if test="operModule != null" >
+        oper_module,
+      </if>
+      <if test="operResult != null" >
+        oper_result,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="operTime != null" >
+        oper_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="adminLogId != null" >
+        #{adminLogId,jdbcType=BIGINT},
+      </if>
+      <if test="adminId != null" >
+        #{adminId,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null" >
+        #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="operModule != null" >
+        #{operModule,jdbcType=VARCHAR},
+      </if>
+      <if test="operResult != null" >
+        #{operResult,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null" >
+        #{operTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.AdminLog" >
+    update tb_admin_log
+    <set >
+      <if test="adminId != null" >
+        admin_id = #{adminId,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null" >
+        role_id = #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="operModule != null" >
+        oper_module = #{operModule,jdbcType=VARCHAR},
+      </if>
+      <if test="operResult != null" >
+        oper_result = #{operResult,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null" >
+        oper_time = #{operTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where admin_log_id = #{adminLogId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.AdminLog" >
+    update tb_admin_log
+    set admin_id = #{adminId,jdbcType=BIGINT},
+      role_id = #{roleId,jdbcType=BIGINT},
+      oper_module = #{operModule,jdbcType=VARCHAR},
+      oper_result = #{operResult,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      oper_time = #{operTime,jdbcType=TIMESTAMP}
+    where admin_log_id = #{adminLogId,jdbcType=BIGINT}
+  </update>
+</mapper>

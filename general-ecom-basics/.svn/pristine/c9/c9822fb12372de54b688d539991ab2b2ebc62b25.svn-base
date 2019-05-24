@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.AdminDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.Admin">
+		<id column="admin_id" property="adminId" />
+		<result column="role_id" property="roleId" />
+		<result column="name" property="name" />
+		<result column="real_name" property="realName" />
+		<result column="login_pwd" property="loginPwd" />
+		<result column="login_second_pwd" property="loginSecondPwd" />
+		<result column="admin_phone" property="adminPhone" />
+		<result column="admin_email" property="adminEmail" />
+		<result column="last_login_ip" property="lastLoginIp" />
+		<result column="last_login_time" property="lastLoginTime" />
+		<result column="remark" property="remark" />
+		<result column="status" property="status" />
+		<result column="create_user_id" property="createUserId" />
+		<result column="create_time" property="createTime" />
+		<result column="modify_user_id" property="modifyUserId" />
+		<result column="modify_time" property="modifyTime" />
+		<result column="is_lock_screen" property="isLockScreen" />
+		<result column="channel" property="channel" />
+		<result column="admin_type" property="adminType" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+	</resultMap>
+
+	<!--<sql id="Base_Column_List" >
+		admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+		last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+		branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+	</sql>-->
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+			   admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+			   last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+			   branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+		from tb_admin
+		where admin_id = #{adminId,jdbcType=BIGINT}
+	</select>
+
+	<select id="findAdminList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+		last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+		branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+		from tb_admin
+		<where>
+			<if test="name!=null and name!=''">
+				AND name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="adminPhone!=null and adminPhone!=''">
+				AND admin_phone like CONCAT('%',#{adminPhone},'%')
+			</if>
+			<if test="adminEmail!=null and adminEmail!=''">
+				AND admin_email like CONCAT('%',#{adminEmail},'%')
+			</if>
+			<if test="status!=null and status!=''">
+				AND status =#{status}
+			</if>
+			<if test="branch!=null and branch!=''">
+				AND branch =#{branch}
+			</if>
+			<if test="roleId!=null and roleId!=''">
+				AND role_id =#{roleId}
+			</if>
+
+		</where>
+		order by create_time desc
+	</select>
+
+	<select id="findByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+			   admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+			   last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+			   branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+		from tb_admin
+		where name = #{name,jdbcType=VARCHAR}
+	</select>
+	<select id="findByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+			   admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+			   last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+			   branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+		from tb_admin
+		where admin_phone = #{adminPhone,jdbcType=VARCHAR}
+	</select>
+	<select id="findByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+			   admin_id, role_id, name, real_name, login_pwd, login_second_pwd, admin_phone, admin_email,
+			   last_login_ip, last_login_time, admin_type, remark, status, channel, is_lock_screen,
+			   branch, branch_name, create_user_id, create_time, modify_user_id, modify_time
+		from tb_admin
+		where admin_email = #{adminEmail,jdbcType=VARCHAR}
+	</select>
+
+	<update id="updateBatchAdmin" parameterType="java.util.Map">
+		update tb_admin
+		<set>
+			<if test="status != null" >
+				status = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPwd != null" >
+				login_pwd = #{loginPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="modifyTime != null" >
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+
+		<where>
+			<if test="ids!=null and ids!=''">
+				and admin_id in
+				<foreach collection ="ids" item="item" index= "index" open ="(" separator="," close= ")">
+					#{item}
+				</foreach >
+			</if>
+
+		</where>
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.Admin" >
+		update tb_admin
+		set
+			name = #{name,jdbcType=VARCHAR},
+			real_name = #{realName,jdbcType=VARCHAR},
+			login_pwd = #{loginPwd,jdbcType=VARCHAR},
+			login_second_pwd = #{loginSecondPwd,jdbcType=VARCHAR},
+			admin_phone = #{adminPhone,jdbcType=VARCHAR},
+			admin_email = #{adminEmail,jdbcType=VARCHAR},
+			last_login_ip = #{lastLoginIp,jdbcType=VARCHAR},
+			last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+			admin_type = #{adminType,jdbcType=VARCHAR},
+			remark = #{remark,jdbcType=VARCHAR},
+			status = #{status,jdbcType=VARCHAR},
+			channel = #{channel,jdbcType=VARCHAR},
+			is_lock_screen = #{isLockScreen,jdbcType=VARCHAR},
+			branch = #{branch,jdbcType=VARCHAR},
+			branch_name = #{branchName,jdbcType=VARCHAR},
+			create_user_id = #{createUserId,jdbcType=BIGINT},
+			create_time = #{createTime,jdbcType=TIMESTAMP},
+			modify_user_id = #{modifyUserId,jdbcType=BIGINT},
+			modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+		where admin_id = #{adminId,jdbcType=BIGINT}
+	</update>
+
+</mapper>

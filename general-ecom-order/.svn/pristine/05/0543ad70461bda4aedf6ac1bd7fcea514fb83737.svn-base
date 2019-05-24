@@ -1,0 +1,12 @@
+package org.fh.general.ecom.order.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.common.dto.order.orderMy.MyOrderPageInputDTO;
+import org.fh.general.ecom.common.dto.order.orderMy.MyOrderPageOutputDTO;
+import org.fh.general.ecom.order.model.Order;
+
+public interface OrderMyService extends IService<Order> {
+
+     MyOrderPageOutputDTO findMyOrderPage(MyOrderPageInputDTO dto);
+
+}

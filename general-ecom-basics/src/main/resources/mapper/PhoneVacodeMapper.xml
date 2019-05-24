@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.PhoneVacodeDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.PhoneVacode">
+		<id column="id" property="id" />
+		<result column="phone" property="phone" />
+		<result column="phone_code" property="phoneCode" />
+		<result column="create_time" property="createTime" />
+		<result column="status" property="status" />
+		<result column="business_code" property="businessCode" />
+		<result column="sms_content" property="smsContent" />
+		<result column="branch" property="branch" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    id, phone, phone_code, create_time, status, business_code, sms_content, branch
+  </sql>
+	<select id="selectByParamOne" parameterType="java.util.Map" resultMap="BaseResultMap" >
+		SELECT * FROM tb_phone_vacode
+		<where>
+			<if test="phone != null and phone!=''">
+				phone = #{phone}
+			</if>
+			<if test="branch != null and branch!=''">
+				and branch = #{branch}
+			</if>
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+		</where>
+		order by  create_time desc  limit 1
+	</select>
+	<select id="selectByParam" parameterType="java.util.Map" resultMap="BaseResultMap" >
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM tb_phone_vacode
+		<where>
+			<if test="phone != null and phone!=''">
+				phone = #{phone}
+			</if>
+			<if test="branch != null and branch!=''">
+				and branch = #{branch}
+			</if>
+			<if test="status != null and status !=''">
+				and status = #{status}
+			</if>
+		</where>
+		order by  create_time desc  limit 1
+	</select>
+
+</mapper>

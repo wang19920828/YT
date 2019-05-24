@@ -1,0 +1,48 @@
+
+package org.fh.general.ecom.order.client;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.product.project.FinancingListInputDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectUpdateStatusDTO;
+import org.fh.general.ecom.common.po.product.project.ProjectFinancingOutputPO;
+import org.fh.general.ecom.common.vo.product.organization.OrganizationDetailVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectDetailVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectProgrammeVO;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.cloud.openfeign.FeignClient;
+
+import java.util.List;
+
+/**
+ * order工程调用product的服务
+ */
+@FeignClient(name = "product")
+public interface ProductClient {
+
+
+    @RequestMapping("RPG00007")
+    OrganizationDetailVO findDetailByCompanyNo(@RequestBody String companyNo);
+
+    @RequestMapping("RP000011")
+    ProjectOneDetailVO findDetailByProjectId(@RequestBody String projectId);
+    //更新项目状态
+    @RequestMapping("P000010")
+    BaseVO updateProjectStatus(@RequestBody InputProjectUpdateStatusDTO dto);
+
+    @RequestMapping("RPRO0001")
+    List<ProjectProgrammeVO> findProjectProgrammeList(@RequestBody Long projectId);
+
+    @RequestMapping("PRO0003")
+    ProjectProgrammeVO findProgrammeEntityById(@RequestBody Long id);
+
+    //查询项目列表
+    @RequestMapping("FIN0011")
+    List<ProjectFinancingOutputPO>  findFinancingList(@RequestBody FinancingListInputDTO dto);
+
+
+
+
+}
+

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.ExtraCodeDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.ExtraCode">
+		<id column="id" property="id" />
+		<result column="extra_code" property="extraCode" />
+		<result column="browser_code" property="browserCode" />
+		<result column="create_time" property="createTime" />
+		<result column="status" property="status" />
+	</resultMap>
+
+</mapper>

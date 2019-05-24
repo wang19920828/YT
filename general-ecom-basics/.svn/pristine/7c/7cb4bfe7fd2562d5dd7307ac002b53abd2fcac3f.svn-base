@@ -1,0 +1,387 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.fh.general.ecom.basics.dao.AdminDao;
+import org.fh.general.ecom.basics.dao.AdminLoginLogDao;
+import org.fh.general.ecom.basics.dao.AdminRoleDao;
+import org.fh.general.ecom.basics.model.Admin;
+import org.fh.general.ecom.basics.model.AdminFunction;
+import org.fh.general.ecom.basics.model.AdminLoginLog;
+import org.fh.general.ecom.basics.model.AdminRole;
+import org.fh.general.ecom.basics.service.AdminFunctionService;
+import org.fh.general.ecom.basics.service.AdminService;
+import org.fh.general.ecom.common.dto.basics.admin.*;
+import org.fh.general.ecom.common.enumeration.basics.AdminEnum;
+import org.fh.general.ecom.common.enumeration.basics.MongoEnum;
+import org.fh.general.ecom.common.enumeration.basics.RedisEnum;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.mongo.MongoDbUtil;
+import org.fh.general.ecom.common.po.basics.admin.AdminListOutPO;
+import org.fh.general.ecom.common.redis.RedisHashService;
+import org.fh.general.ecom.common.redis.RedisHashServiceImpl;
+import org.fh.general.ecom.common.utils.PasswordUtils;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+
+/**
+ * <p>
+ * 管理员 服务实现类
+ * </p>
+ *
+ * @author wyk
+ * @since 2018-09-19
+ */
+@Service
+public class AdminServiceImpl extends ServiceImpl<AdminDao, Admin> implements AdminService {
+
+    @Autowired
+    private AdminDao adminDao;
+
+    @Autowired
+    private AdminRoleDao adminRoleDao;
+
+    @Autowired
+    private AdminLoginLogDao adminLoginLogDao;
+
+    @Autowired
+    private AdminFunctionService adminFunctionService;
+
+    private RedisHashService redisHashService = new RedisHashServiceImpl();
+
+    public static final int CACHE_EXP_HOUR = 3600 * 2;  //缓存时效 2小时
+
+    /**
+     * 管理员登录
+     */
+    @Override
+    public AdminLoginOutPutDTO loginAdmin(AdminLoginDTO dto) {
+        String browserCode=dto.getBrowserCode();
+        AdminLoginOutPutDTO out=new AdminLoginOutPutDTO();
+        try {
+            Admin admin=this.adminDao.findByName(dto.getName());
+            //校验登录名
+            if(admin==null){
+                out.setCode(AdminEnum.AdminLogin.NAME.getValue());
+                return out;
+            }
+            //校验登录密码
+            if(!dto.getLoginPwd().equals(admin.getLoginPwd())){
+                out.setCode(AdminEnum.AdminLogin.PWD.getValue());
+                return out;
+            }
+            //校验账号状态
+            if(admin.getStatus().equals(AdminEnum.AdminStatus.FORBID.getValue())){
+                out.setCode(AdminEnum.AdminLogin.FORBID.getValue());
+                return out;
+            }
+            if(admin.getStatus().equals(AdminEnum.AdminStatus.DEL.getValue())){
+                out.setCode(AdminEnum.AdminLogin.DEL.getValue());
+                return out;
+            }
+            //查询角色权限
+            admin.setAllFunctionstr(this.getAdminFuncJson(admin));// 权限
+            //更新登录信息
+            admin.setIsLockScreen(ComEnum.IsDelete.NORMAL.getValue());// 默认不锁屏:0
+            admin.setLastLoginIp(dto.getLoginIp());
+            admin.setLastLoginTime(new Date());
+            this.adminDao.updateByPrimaryKey(admin);
+            // 添加登录日志
+            AdminLoginLog log = new AdminLoginLog();
+            log.setAdminId(admin.getAdminId());
+            log.setAdminName(admin.getName());
+            log.setPhone(admin.getAdminPhone());
+            log.setLoginIp(dto.getLoginIp());
+            log.setLoginTime(new Date());
+            this.adminLoginLogDao.insert(log);
+
+             //BeanUtils.copyProperties(admin,out);
+             //out.setCode(AdminEnum.AdminLogin.SUCCESS.getValue());
+            //加入到缓存
+            String key= RedisEnum.RedisKey.ADMINLOGIN.getValue()+"_"+browserCode;
+            redisHashService.set(key, JSONObject.fromObject(admin).toString(), CACHE_EXP_HOUR);
+            out = this.getAdminLoginInfo(browserCode);
+        } catch (Exception e) {
+            out.setCode(AdminEnum.AdminLogin.FAIL.getValue());
+            e.printStackTrace();
+        }
+        return out;
+    }
+
+   /* public String getAdminFunc(Long roleId)throws Exception{
+        List<AdminFunction> hasFunctions = this.adminFunctionService.findRoleFuncList(roleId);
+        if(hasFunctions!=null && hasFunctions.size()>0){
+            return JSONArray.fromObject(hasFunctions).toString();
+        }
+        return null;
+    }*/
+
+
+    private String getAdminFuncJson(Admin adminInfo) throws Exception {
+        String json = "";
+        Long roleId = adminInfo.getRoleId();// 角色id
+        String value = redisHashService.get(RedisEnum.RedisKey.QUANXIAN.getValue() + "_" + roleId);
+        List<AdminFunction> hasfunction = functionList(value);
+        if (hasfunction.size()==0) {
+            Map<String, Object> roleFunMap = new HashMap<String, Object>();
+            roleFunMap.put("roleId", roleId.toString());
+            Boolean flag = null == MongoDbUtil.findOne(MongoEnum.MongoKey.MONGODB_SHOUQUAN.getValue(),roleFunMap) ? false : true;
+            if (flag) {
+                Map<String, Class> mapClass = new HashMap<String, Class>();
+                mapClass.put("childFuncs", AdminFunction.class);
+                json = MongoDbUtil.findOne(MongoEnum.MongoKey.MONGODB_SHOUQUAN.getValue(), roleFunMap).get("hasFunctions").toString();
+            }
+        } else {
+            json = JSONArray.fromObject(hasfunction).toString();
+        }
+        return json;
+    }
+
+    private List<AdminFunction> functionList(String value) {
+        Map<String, Class> map = new HashMap<String, Class>();
+        map.put("childFuncs", AdminFunction.class);
+        JSONArray json = JSONArray.fromObject(value);
+        List<AdminFunction> list = JSONArray.toList(json, AdminFunction.class, map);
+        return list;
+    }
+
+    /*private AdminLoginOutPutDTO logAdmin(Admin adminInfo, AdminLoginDTO dto) {
+        AdminLoginOutPutDTO out=new AdminLoginOutPutDTO();
+        try {
+            //更新登录信息
+            adminInfo.setIsLockScreen(ComEnum.IsDelete.NORMAL.getValue());// 默认不锁屏:0
+            adminInfo.setLastLoginIp(dto.getLoginIp());
+            adminInfo.setLastLoginTime(new Date());
+            this.adminDao.updateByPrimaryKey(adminInfo);
+
+            // 添加登录日志
+            AdminLoginLog log = new AdminLoginLog();
+            log.setAdminId(adminInfo.getAdminId());
+            log.setAdminName(adminInfo.getName());
+            log.setPhone(adminInfo.getAdminPhone());
+            log.setLoginIp(dto.getLoginIp());
+            log.setLoginTime(new Date());
+            this.adminLoginLogDao.insert(log);
+            out.setCode(AdminEnum.AdminLogin.SUCCESS.getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.setCode(AdminEnum.AdminLogin.FAIL.getValue());
+        }
+        return out;
+    }*/
+
+    public AdminLoginOutPutDTO getAdminLoginInfo(String browserCode) {
+        AdminLoginOutPutDTO out=new AdminLoginOutPutDTO();
+        try {
+            String key = RedisEnum.RedisKey.ADMINLOGIN.getValue() + "_" + browserCode;
+            String josnValue = redisHashService.get(key);
+            Admin adminInfo = getAdminFromJson(josnValue);
+            if (adminInfo == null) {
+                out.setCode(AdminEnum.AdminLogin.ADMIN_NULL.getValue());
+                return out;
+            }
+            adminInfo.setAllFunctionstr(this.getAdminFuncJson(adminInfo));
+            out.setAdminId(adminInfo.getAdminId());
+            out.setName(adminInfo.getName());
+            out.setAdminPhone(adminInfo.getAdminPhone());
+            out.setAdminEmail(adminInfo.getAdminEmail());
+            out.setAllFunctionstr(adminInfo.getAllFunctionstr());
+            out.setCode(AdminEnum.AdminLogin.SUCCESS.getValue());
+        } catch (Exception e) {
+            e.printStackTrace();
+            out.setCode(AdminEnum.AdminLogin.FAIL.getValue());
+        }
+        return out;
+    }
+
+    private Admin getAdminFromJson(String josnValue) {
+        Map<String, Class> map = new HashMap<String, Class>();
+        map.put("adminRole", AdminRole.class);
+        map.put("allFunction", AdminFunction.class);
+        map.put("adminLog", AdminLoginLog.class);
+        JSONObject json = JSONObject.fromObject(josnValue);
+        Admin admin = (Admin) JSONObject.toBean(json, Admin.class, map);
+        return admin;
+    }
+
+    @Override
+    public String resetPwd(Long adminId) {
+         Admin admin=this.adminDao.selectByPrimaryKey(adminId);
+         if(admin!=null){
+             admin.setLoginPwd(PasswordUtils.Md5("888888"));
+             admin.setModifyTime(new Date());
+             this.baseMapper.updateById(admin);
+         }
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updatePwd(AdminUpdatePwdDTO dto) {
+        Admin admin=this.adminDao.selectByPrimaryKey(dto.getAdminId());
+        if(admin==null){
+            return AdminEnum.AdminUpdatePwd.NAME.getValue();
+        }
+        if(!admin.getLoginPwd().equals(dto.getOldPwd())){
+            return AdminEnum.AdminUpdatePwd.OLDPWD.getValue();
+        }
+        admin.setLoginPwd(dto.getNewPwd());
+        admin.setModifyTime(new Date());
+        baseMapper.updateById(admin);
+        return AdminEnum.AdminUpdatePwd.SUCCESS.getValue();
+    }
+
+    @Override
+    public String loginOff(String browserCode) {
+        redisHashService.delete(RedisEnum.RedisKey.ADMINLOGIN.getValue() + "_" + browserCode);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+
+    @Override
+    public AdminListOutPutDTO findPage(AdminListInputDTO dto) throws Exception {
+        AdminListOutPutDTO response = new AdminListOutPutDTO();
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        Map<String,Object> map=new HashMap<>();
+        if(StringUtils.isNotEmpty(dto.getBranch())){
+            map.put("branch",dto.getBranch());
+        }
+        if(StringUtils.isNotEmpty(dto.getStatus())){
+            map.put("status",dto.getStatus());
+        }
+        if(StringUtils.isNotEmpty(dto.getName())){
+            map.put("name",dto.getName());
+        }
+        if(StringUtils.isNotEmpty(dto.getAdminPhone())){
+            map.put("adminPhone",dto.getAdminPhone());
+        }
+        List<Admin> list = adminDao.findAdminList(map);
+
+        PageInfo pageInfo = new PageInfo(list);
+        List<AdminListOutPO> listpo = new ArrayList<AdminListOutPO>();
+        list.forEach((Admin temp) -> {
+            AdminListOutPO po = new AdminListOutPO();
+            BeanUtils.copyProperties(temp, po);
+            AdminRole role=this.adminRoleDao.selectById(temp.getRoleId());
+            if(role!=null){
+                po.setRoleNames(role.getRoleName());
+            }
+            listpo.add(po);
+        });
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+    @Override
+    public String addEntity(AdminAddInputDTO dto) throws Exception {
+        //检验是否存在
+        Admin admin=adminDao.findByName(dto.getName());
+        if(admin!=null){
+            return AdminEnum.AdminAdd.LOGIN_ACCOUNT.getValue();
+        }
+        admin=adminDao.findByPhone(dto.getAdminPhone());
+        if(admin!=null){
+            return AdminEnum.AdminAdd.PHONE.getValue();
+        }
+        admin=adminDao.findByEmail(dto.getAdminEmail());
+        if(admin!=null){
+            return AdminEnum.AdminAdd.EMAIL.getValue();
+        }
+
+        admin = new Admin();
+        BeanUtils.copyProperties(dto, admin);
+        admin.setLoginPwd(PasswordUtils.Md5("888888"));
+        admin.setIsLockScreen("0");
+        admin.setStatus(AdminEnum.AdminStatus.NORMAL.getValue());
+        admin.setCreateTime(new Date());
+        admin.setModifyTime(new Date());
+        baseMapper.insert(admin);
+        return AdminEnum.AdminAdd.SUCCESS.getValue();
+    }
+
+    @Override
+    public String deleteEntityById(Long id) throws Exception {
+        Admin entity = new Admin();
+        entity.setAdminId(id);
+        entity.setStatus(AdminEnum.AdminStatus.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateEntity(AdminUpdateInputDTO dto) throws Exception {
+        Admin admin=adminDao.findByName(dto.getName());
+        if(admin!=null){
+            if(admin.getAdminId().compareTo(dto.getAdminId())!=0){
+                return AdminEnum.AdminAdd.LOGIN_ACCOUNT.getValue();
+            }
+        }
+        admin=adminDao.findByPhone(dto.getAdminPhone());
+        if(admin!=null){
+            if(admin.getAdminId().compareTo(dto.getAdminId())!=0){
+                return AdminEnum.AdminAdd.PHONE.getValue();
+            }
+        }
+        admin=adminDao.findByEmail(dto.getAdminEmail());
+        if(admin!=null){
+            if(admin.getAdminId().compareTo(dto.getAdminId())!=0){
+                return AdminEnum.AdminAdd.EMAIL.getValue();
+            }
+        }
+        admin=new Admin();
+        BeanUtils.copyProperties(dto,admin);
+        admin.setModifyTime(new Date());
+        baseMapper.updateById(admin);
+        return AdminEnum.AdminAdd.SUCCESS.getValue();
+    }
+
+    @Override
+    public AdminDetailOutputDTO findEntityById(Long adminId) throws Exception {
+        AdminDetailOutputDTO response = new AdminDetailOutputDTO();
+        Admin entity = adminDao.selectByPrimaryKey(adminId);
+        if (entity != null) {
+            BeanUtils.copyProperties(entity, response);
+            return response;
+        }
+        return null;
+    }
+
+    @Override
+    public String updateStatus(String ids,String status)throws Exception{
+        Map<String,Object> param=new HashMap<>();
+        param.put("ids",ids.split(","));
+        param.put("status",status);
+        param.put("modifyTime",new Date());
+        this.adminDao.updateBatchAdmin(param);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+
+    @Override
+    public AdminListOutPutDTO findListByRoleId(String roleId) {
+        AdminListOutPutDTO response = new AdminListOutPutDTO();
+        Map<String,Object> map=new HashMap<>();
+        map.put("roleId",roleId);
+        map.put("status",AdminEnum.AdminStatus.NORMAL.getValue());
+        List<Admin> list = adminDao.findAdminList(map);
+        List<AdminListOutPO> listpo = new ArrayList<AdminListOutPO>();
+        list.forEach((Admin temp) -> {
+            AdminListOutPO po = new AdminListOutPO();
+            BeanUtils.copyProperties(temp, po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        return response;
+    }
+
+
+}

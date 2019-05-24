@@ -1,0 +1,93 @@
+# dev
+
+server:
+  port: 8705
+spring:
+  application:
+    name: basics
+  datasource:
+    url:  jdbc:mysql://49.4.93.86:8306/db_ecom_basics?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&&useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: '123456'
+#    url:  jdbc:mysql://172.16.10.29:8306/db_general_ecom_basics?useUnicode=true&characterEncoding=utf-8&useSSL=false
+#    driver-class-name: com.mysql.jdbc.Driver
+#    username: root
+#    password: 'mysql_20180702'
+  data:
+    mongodb:
+      uri: mongodb://117.78.34.24:27017/generalEcom_dev
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+mybatis-plus:
+  # 配置扫描xml
+  mapper-locations:
+    - classpath:mapper/*.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  type-aliases-package: org.fh.general.ecom.basics.model,org.fh.general.ecom.basics.model.sms
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+
+zuul:
+  host:
+    socket-timeout-millis: 50000
+    connect-timeout-millis: 50000
+
+ribbon:
+    ConnectTimeout: 50000
+    ReadTimeout: 50000
+
+
+
+
+
+
+unified_order_url: https://api.mch.weixin.qq.com/pay/unifiedorder
+
+refund_url: https://api.mch.weixin.qq.com/secapi/pay/refund
+
+access_token_url: https://api.weixin.qq.com/cgi-bin/token
+
+ticket_url: https://api.weixin.qq.com/cgi-bin/ticket/getticket
+
+notify_address: http://ampm.jingying8.com/org/notice/wechatPay.do
+
+web_token_url: https://api.weixin.qq.com/sns/oauth2/access_token
+
+snsapi_userinfo_url: https://api.weixin.qq.com/sns/userinfo
+
+transfers_url: https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers
+
+micropay_url: https://api.mch.weixin.qq.com/pay/micropay
+
+trade_pay: https://openapi.alipay.com/gateway.do
+
+account_wechat_appid: wxe36a317395f9601d
+
+account_wechat_mchid: 1378139302
+
+account_wechat_key: 1q2w3e4r5t6y7u8i9o0p1q2w3e4r5t6y
+
+certificate_name: 1378139302.p12
+
+call_back_adress: http://ampm.jingying8.com/
+
+
+
+
+
+
+
+
+
+
+
+
+
+

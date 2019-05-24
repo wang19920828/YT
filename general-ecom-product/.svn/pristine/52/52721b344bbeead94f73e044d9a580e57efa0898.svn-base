@@ -1,0 +1,26 @@
+package org.fh.general.ecom.product.service;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.product.projectlog.InputProjectOperAddDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.InputProjectOperLogListDTO;
+import org.fh.general.ecom.common.dto.product.projectlog.OutputProjectOperLogListDTO;
+import org.fh.general.ecom.product.model.ProjectOperLog;
+import com.baomidou.mybatisplus.service.IService;
+
+/**
+ * <p>
+ *  服务类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-20
+ */
+public interface ProjectOperLogService extends IService<ProjectOperLog> {
+
+    public OutputProjectOperLogListDTO findPage(InputProjectOperLogListDTO dto);
+
+    public String insertEntity(InputProjectOperAddDTO dto);
+
+    public BaseVO findUserListPage(InputProjectOperLogListDTO dto);
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.sms.SmsInfoDao">
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.sms.SmsInfo">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="channel" property="channel" jdbcType="VARCHAR" />
+		<result column="url" property="url" jdbcType="VARCHAR" />
+		<result column="param" property="param" jdbcType="VARCHAR" />
+		<result column="title" property="title" jdbcType="VARCHAR" />
+		<result column="is_TimeStamp" property="isTimestamp" jdbcType="CHAR" />
+		<result column="timeStamp_name" property="timestampName" jdbcType="VARCHAR" />
+		<result column="is_sign" property="isSign" jdbcType="CHAR" />
+		<result column="sign_name" property="signName" jdbcType="VARCHAR" />
+		<result column="success_type" property="successType" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="BIGINT" />
+	</resultMap>
+</mapper>

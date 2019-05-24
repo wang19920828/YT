@@ -1,0 +1,59 @@
+package org.fh.general.ecom.order.client;
+
+
+import org.fh.general.ecom.common.dto.basics.dictionary.DictionaryListInDTO;
+import org.fh.general.ecom.common.dto.basics.dictionary.InputDictionaryQueryDTO;
+import org.fh.general.ecom.common.dto.basics.dictionary.OutputDictionaryDetailDTO;
+import org.fh.general.ecom.common.dto.basics.user.UserOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.MyUserAddressPO;
+import org.fh.general.ecom.common.dto.basics.user.UserAddressOutPutDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountOutputDTO;
+import org.fh.general.ecom.common.vo.basics.dictionary.DictionaryListVo;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
+
+/**
+ * order工程调用basics的服务
+ */
+@FeignClient(name = "basics")
+public interface BasicsClient {
+
+    /**
+     * 数据字典列表项
+     * @param paramDto
+     * @return
+     */
+    @RequestMapping("BAS90007")
+    List<DictionaryListVo> findDicListByKey(@RequestBody DictionaryListInDTO paramDto) ;
+
+    //数据字典-根据value+type查询label
+    @RequestMapping("BAS90008")
+    public OutputDictionaryDetailDTO findLabelByValueAndType(@RequestBody InputDictionaryQueryDTO paramDto);
+
+    //查询用户对象
+    @RequestMapping("USER1018")
+    UserOutputDTO findCustomerByUserId(@RequestBody Long userId);
+
+    //查电子账户
+    @RequestMapping("EAC00004")
+    public ElectronicsAccountOutputDTO findAccountByUserId (@RequestBody Long userId);
+
+    /**
+     * 生成订单号
+     * @return
+     */
+    @RequestMapping("JOU8001")
+    public String getOrderJournalSn();
+
+    //我的默认收货地址对象
+    @RequestMapping("RUD000009")
+    public MyUserAddressPO findUserDefaultAddress(@RequestBody Long userId) ;
+
+    //根据主键查询收货地址
+    @RequestMapping("RUD000010")
+    public UserAddressOutPutDTO findAddressById(@RequestBody Long addressId);
+
+}

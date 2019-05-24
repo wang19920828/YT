@@ -1,0 +1,19 @@
+environment_name = dev
+
+sms.openApi.expiry.date=50
+sms.encode=utf-8
+extra_code_validity=300
+
+sms.openApi.url=http://smsapi.c123.cn/OpenPlatform/OpenApi
+sms.openApi.sAccount=1001@501024250001
+sms.openApi.sAuthKey=3C56863CDDE44257BD504170D77CBCA9
+sms.openApi.nCgid=3228
+sms.openApi.nCsid=3250
+
+sms.mxintong.send.url = http://www.mxintong.cn/SmsBatch.do
+sms.mxintong.username = bexyzm
+sms.mxintong.pwd = bex123456
+
+job.timer.open=0
+
+system.init=1

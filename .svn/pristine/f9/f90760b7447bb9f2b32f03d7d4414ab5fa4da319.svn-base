@@ -1,0 +1,39 @@
+package org.fh.general.ecom.basics.model;
+
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Data
+public class AdminFunction  implements Serializable {
+    //id
+    private Long funModuleId;
+    //编码
+    private String sortCode;
+     //功能名称
+    private String name;
+   // 菜单路径
+    private String funcUrl;
+    // 菜单图标
+    private String funcIcon;
+   // 父功能id
+    private Long parentId;
+     //功能标识
+    private String code;
+     // 是否禁用 0-启用 1-禁用
+    private String isDisabled;
+    // 创建人id
+    private Long creatorId;
+    // 创建时间
+    private Long createTime;
+    //排序
+    private Long sort;
+    //是否删除
+    private String isDel;
+    // 渠道
+    private String channel;
+    // 子菜单
+    private List<AdminFunction> childFunction;
+
+}

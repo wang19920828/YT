@@ -1,0 +1,12 @@
+package org.fh.general.ecom.common.po.order.memberInvest;
+
+import lombok.Data;
+
+@Data
+public class MemberDetailOutPO {
+
+    private String userPhone;
+    private String userName;
+    private String projectName;
+    private Long projectId;
+}

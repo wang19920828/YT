@@ -1,0 +1,198 @@
+package org.fh.general.ecom.order.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.dto.order.orderProduct.*;
+import org.fh.general.ecom.common.dto.product.order.OutputProgrammeCountDTO;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.order.orderMy.HasPlanChildenPO;
+import org.fh.general.ecom.common.po.order.orderMy.HasPlanPO;
+import org.fh.general.ecom.common.po.order.orderProduct.ListSumPlanParamPO;
+import org.fh.general.ecom.common.po.order.orderProduct.OpcountPO;
+import org.fh.general.ecom.common.po.order.orderProduct.OrderProductListOutPO;
+import org.fh.general.ecom.common.po.order.orderProduct.OrderProductPO;
+import org.fh.general.ecom.common.po.order.redProject.RaisePlanPO;
+import org.fh.general.ecom.common.po.product.order.InputProgrammePO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.order.dao.OrderProductDao;
+import org.fh.general.ecom.order.model.OrderProduct;
+import org.fh.general.ecom.order.service.OrderProductService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ * 订单产品关系表
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-08-13
+ */
+@Slf4j
+@Service
+public class OrderProductServiceImpl extends ServiceImpl<OrderProductDao, OrderProduct> implements OrderProductService {
+
+
+    @Override
+    public OrderProductListOutputDTO findPage(OrderProductListInputDTO dto)throws Exception {
+        OrderProductListOutputDTO response=new OrderProductListOutputDTO();
+        EntityWrapper<OrderProduct> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getOrderSn())){
+            wrapper.eq("order_sn",dto.getOrderSn());
+        }
+        if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }
+        log.info("================where条件:"+wrapper.getSqlSegment());
+        List<OrderProduct> list=baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo=new PageInfo(list);
+        List<OrderProductListOutPO>  listpo=new ArrayList<OrderProductListOutPO>();
+        list.forEach((OrderProduct temp) -> {
+            OrderProductListOutPO po=new OrderProductListOutPO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+
+    @Override
+    public String addEntity(OrderProductAddInputDTO dto)  throws Exception{
+        String code="";
+        try {
+            OrderProduct entity=new OrderProduct();
+            BeanUtils.copyProperties(dto,entity );
+            baseMapper.insert(entity);
+            code= OutEnum.SUCCESS.getCode();
+        }catch (Exception e){
+            e.printStackTrace();
+            code=OutEnum.FAIL.getCode();
+        }
+        return code;
+    }
+
+    @Override
+    public String deleteEntityById(Long id) {
+        OrderProduct entity=new OrderProduct();
+        entity.setId(id);
+        entity.setIsDelete(ComEnum.IsDelete.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateEntity(OrderProductUpdateInputDTO dto) {
+        OrderProduct entity=new OrderProduct();
+        BeanUtils.copyProperties(dto,entity);
+        OrderProduct param=new OrderProduct();
+        param.setId(dto.getId());
+        OrderProduct findOne= baseMapper.selectOne(param);
+        if(findOne==null){
+            return OutEnum.WARN.getCode();
+        }
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public OrderProductDetailOutputDTO findEntityById(Long id) {
+        OrderProductDetailOutputDTO response=new OrderProductDetailOutputDTO();
+        OrderProduct entity=baseMapper.selectById(id);
+        if(entity!=null){
+            BeanUtils.copyProperties(entity,response );
+            return response;
+        }
+        return null;
+    }
+
+
+    @Override
+    public  List<OrderProductPO>  findOpListByOrderSn(String orderSn){
+        List<OrderProductPO>  poList=new ArrayList<OrderProductPO>();
+        EntityWrapper<OrderProduct> wrapper = new EntityWrapper<>();
+        wrapper.eq("order_sn",orderSn);
+        wrapper.eq("is_delete","0");
+        List<OrderProduct> list=baseMapper.selectList(wrapper);
+        if(list !=null && list.size()>0){
+            list.forEach((OrderProduct temp)->{
+                OrderProductPO poEn=new OrderProductPO();
+                BeanUtils.copyProperties(temp,poEn);
+                poList.add(poEn);
+            });
+        }else{
+            log.info("订单商品集合为空！");
+        }
+        return poList;
+    }
+
+    @Override
+    public  List<OrderProduct>  findOpListByProjectId(Long userId,Long projectId){
+        List<OrderProductPO>  poList=new ArrayList<OrderProductPO>();
+       /* EntityWrapper<OrderProduct> wrapper = new EntityWrapper<>();
+        wrapper.eq("product_id",projectId);
+        wrapper.eq("user_id",userId);
+        List<OrderProduct> list=baseMapper.selectList(wrapper);*/
+        return null;
+    }
+
+    @Override
+    public List<HasPlanPO> listSumPlan(Map<String,Object> map){
+        ListSumPlanParamPO paramPO=new ListSumPlanParamPO();
+        paramPO.setUserId(Long.valueOf(map.get("userId")+""));
+        paramPO.setProjectId(Long.valueOf(map.get("projectId")+""));
+       return  this.baseMapper.listSumPlan(paramPO);
+    }
+
+
+    @Override
+    public OrderProductDTO findEntityByOrderSn(String orderSn){
+        OrderProductDTO entity=new OrderProductDTO();
+        OrderProduct param=new OrderProduct();
+        param.setOrderSn(orderSn);
+        OrderProduct response=baseMapper.selectOne(param);
+        if(response==null){
+            return null;
+        }
+        BeanUtils.copyProperties(response,entity);
+        return entity;
+    }
+
+    @Override
+    public RaisePlanPO getOpCount(OpcountPO param){
+        return this.baseMapper.getOPCount(param);
+    }
+
+
+
+    @Override
+    public OutputProgrammeCountDTO findProgrammeCountById(InputProgrammePO dto){
+        OutputProgrammeCountDTO outputProgrammeCountDTO = new OutputProgrammeCountDTO();
+
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("planId",dto.getPlanId());
+        map.put("list",StringUtils.strToList(dto.getOrderTypes()));
+        OrderProduct orderProduct = this.baseMapper.findProgrammeCountById(map);
+        if(orderProduct!=null){
+            outputProgrammeCountDTO.setTotal(orderProduct.getNum());
+            outputProgrammeCountDTO.setProjectId(orderProduct.getProductId());
+            outputProgrammeCountDTO.setProjectProgrammeId(orderProduct.getPlanId()+"");
+            return outputProgrammeCountDTO;
+        }
+        return null;
+
+    }
+}

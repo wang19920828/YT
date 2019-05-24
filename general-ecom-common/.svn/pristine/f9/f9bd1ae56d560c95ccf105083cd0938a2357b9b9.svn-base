@@ -1,0 +1,17 @@
+package org.fh.general.ecom.common.po.order.orderMy;
+
+
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class HasRedPO {
+
+    private Date realShareTime;
+    private BigDecimal benqiRealRedAmount;
+    private BigDecimal amountLeiji;
+
+
+}

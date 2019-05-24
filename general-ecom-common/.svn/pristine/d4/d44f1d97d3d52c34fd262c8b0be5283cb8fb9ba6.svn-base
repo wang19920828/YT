@@ -1,0 +1,22 @@
+package org.fh.general.ecom.common.enums;
+
+import lombok.Getter;
+
+@Getter
+public enum PageEnum {
+
+
+
+        CURRENT_NUM("1","当前页"),
+       PAGE_COUNT("20","分页大小"),
+       ;
+
+       private String  code;
+       private String message;
+      PageEnum(String code, String message){
+           this.code = code;
+           this.message = message;
+       }
+    
+
+}

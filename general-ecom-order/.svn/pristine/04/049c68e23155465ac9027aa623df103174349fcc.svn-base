@@ -1,0 +1,22 @@
+package org.fh.general.ecom.order.dao;
+
+import org.fh.general.ecom.common.po.order.refundInfo.RefundInfoListOutPO;
+import org.fh.general.ecom.common.po.order.refundInfo.RefundInfoListParamPO;
+import org.fh.general.ecom.order.model.RefundInfo;
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+
+import java.util.List;
+
+/**
+ * <p>
+  * 退款申请表 Mapper 接口
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+public interface RefundInfoDao extends BaseMapper<RefundInfo> {
+
+    List<RefundInfoListOutPO> findRefundInfoList(RefundInfoListParamPO paramPO);
+
+}

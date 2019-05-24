@@ -1,0 +1,343 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.AdminFunctionDao;
+import org.fh.general.ecom.basics.model.AdminFunction;
+import org.fh.general.ecom.basics.service.FunctionService;
+import org.fh.general.ecom.basics.service.RoleFunService;
+import org.fh.general.ecom.common.dto.basics.function.FunctionAddDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionFindPageInputDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionListOutPutDTO;
+import org.fh.general.ecom.common.dto.basics.function.FunctionUpdateDTO;
+import org.fh.general.ecom.common.enumeration.basics.FunctionEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.vo.basics.function.AdminFunctionVO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service("functionService")
+public class FunctionServiceImpl implements FunctionService {
+
+    @Autowired
+    private AdminFunctionDao adminFunctionDao;
+    @Autowired
+    private RoleFunService roleFunService;
+    
+    @Override
+    public FunctionListOutPutDTO findPage(FunctionFindPageInputDTO dto) {
+        FunctionListOutPutDTO out=new FunctionListOutPutDTO();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount());
+        List<AdminFunction> list=adminFunctionDao.selectByParentId(dto.getParentId());
+        List<AdminFunctionVO> listvo=new ArrayList<>();
+        listvo=list.stream().map(e->new AdminFunctionVO(
+        		e.getFunModuleId(),e.getSortCode(),e.getName(),
+				e.getFuncUrl(),e.getFuncIcon(),e.getParentId(),
+				e.getCode(),e.getIsDisabled(),e.getCreatorId(),
+				e.getCreateTime(),e.getSort(),e.getIsDel(),
+				e.getChannel()
+		)).collect(Collectors.toList());
+		PageInfo pageInfo=new PageInfo(list);
+		out.setList(listvo);
+		out.setPageInfo(pageInfo);
+        return out;
+    }
+
+    @Override
+    public String addEntity(FunctionAddDTO dto) {
+
+        AdminFunction entity=new AdminFunction();
+        BeanUtils.copyProperties(dto,entity);
+
+        AdminFunction funcInfo = this.adminFunctionDao.selectSameEntity(entity);
+ 			if (funcInfo != null) {
+ 				return FunctionEnum.FunctionAdd.FUNCTION.getValue();
+ 			}
+ 			AdminFunction parentEntity = null;
+ 			if (entity.getParentId() != null && entity.getParentId() != 0l) {
+ 				parentEntity = this.adminFunctionDao.selectByPrimaryKey(entity.getParentId());
+ 				if (parentEntity == null) {
+ 					return FunctionEnum.FunctionAdd.PARENT_FUNCTION.getValue();
+ 				}
+ 			}
+ 			entity.setSortCode(this.getSortCode(parentEntity));
+ 			entity.setIsDel("0");
+ 			entity.setIsDisabled("0");
+ 			if (entity.getSort() == null) {
+ 				entity.setSort(999l);
+ 			}
+ 			entity.setCreateTime(System.currentTimeMillis());
+
+ 			this.adminFunctionDao.insertSelective(entity);
+        return FunctionEnum.FunctionAdd.SUCCESS.getValue();
+    }
+
+    @Override
+    public String updateEntity(FunctionUpdateDTO dto) {
+        AdminFunction entity=new AdminFunction();
+        BeanUtils.copyProperties(dto,entity);
+        AdminFunction funcInfo = this.adminFunctionDao.selectSameEntity(entity);
+        if (funcInfo != null) {
+            return FunctionEnum.FunctionAdd.FUNCTION.getValue();
+        }
+        this.adminFunctionDao.updateByPrimaryKeySelective(entity);
+        return FunctionEnum.FunctionAdd.SUCCESS.getValue();
+    }
+
+    @Override
+    public String deleteEntity(String functionIds) {
+
+       				if (StringUtils.isEmpty(functionIds)) {
+        				return FunctionEnum.FunctionDel.SELECT.getValue();
+        			}
+        			List<String> listIds = StringUtils.strToList(functionIds);
+        			if(listIds == null || listIds.size() == 0){
+        				return FunctionEnum.FunctionDel.SELECT.getValue();
+        			}
+        			for(String strId : listIds){
+        				AdminFunction funcInfo = adminFunctionDao.selectByPrimaryKey(Long.valueOf(strId));
+        				List<AdminFunction> childList = adminFunctionDao.selectByParentId(funcInfo.getFunModuleId());
+        				if (childList != null && childList.size() > 0) {
+        					return FunctionEnum.FunctionDel.FUNCTION_CHIRD.getValue();
+        				}
+        			}
+				for(String strId : listIds){
+						AdminFunction entity = new AdminFunction();
+						entity.setIsDel("1");
+						entity.setFunModuleId(Long.valueOf(strId));
+						this.adminFunctionDao.updateByPrimaryKeySelective(entity);
+						AdminFunction funcInfo = adminFunctionDao.selectByPrimaryKey(Long.valueOf(strId));
+						this.roleFunService.deleteRoleFunByFun(funcInfo.getSortCode());
+				}
+
+
+        return FunctionEnum.FunctionDel.SUCCESS.getValue();
+    }
+
+    @Override
+    public void updateDisabled(String ids, String isDisabled) {
+
+
+     			List<String> listIds = StringUtils.strToList(ids);
+     			if (listIds == null || listIds.size() == 0) {
+     				return ;
+     			}
+     			for (String strId : listIds) {
+                    AdminFunction funcInfo = this.adminFunctionDao.selectByPrimaryKey(Long.valueOf(strId));
+                    if (funcInfo == null) {
+                        continue;
+                    }
+                    AdminFunction entity = new AdminFunction();
+                    entity.setIsDisabled(isDisabled);
+                    if (StringUtils.isEmpty(funcInfo.getSortCode())) {
+                        entity.setFunModuleId(Long.valueOf(strId));
+                        this.adminFunctionDao.updateByPrimaryKey(entity);
+                    } else {
+                        entity.setSortCode(funcInfo.getSortCode());
+                        this.adminFunctionDao.updateBySort(entity);
+                    }
+                }
+    }
+
+	@Override
+    public List<AdminFunctionVO> findFuncListByRoleId(Long roleId) {
+    	List<AdminFunctionVO> listvo=new ArrayList<>();
+		List<AdminFunction> list=new ArrayList<>();
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("parentId", 0l);
+			params.put("roleId", roleId);
+			list = this.adminFunctionDao.selectAllListByRole(params);
+			listvo=list.stream().map(e->new AdminFunctionVO(
+					e.getFunModuleId(),e.getSortCode(),e.getName(),
+					e.getFuncUrl(),e.getFuncIcon(),e.getParentId(),
+					e.getCode(),e.getIsDisabled(),e.getCreatorId(),
+					e.getCreateTime() ,e.getSort(),e.getIsDel(),
+					e.getChannel()
+			)).collect(Collectors.toList());
+			if(list == null || list.size() == 0){
+				return listvo;
+			}
+		try {
+			this.readChildSelected(listvo, roleId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        return listvo;
+    }
+
+    @Override
+    public List<AdminFunction> findListByParentId(Long parentId) throws Exception {
+        return adminFunctionDao.selectByParentId(parentId);
+    }
+
+	@Override
+	public AdminFunction findEntity(Long funModuleId) {
+		return adminFunctionDao.selectByPrimaryKey(funModuleId);
+	}
+
+
+	/**
+    	 * 获得菜单编码
+    	 *
+    	 * @param parentEntity
+    	 * @return
+    	 */
+    	private String getSortCode(AdminFunction parentEntity) {
+    		String sortCode = "";
+    		String maxCode = "";
+    		Map<String, Object> params = new HashMap<String, Object>();
+    		if (parentEntity == null) {
+    			params.put("parentId", 0l);
+    			params.put("length", 4);
+    			maxCode = this.adminFunctionDao.selectNextCodeByParentId(params);
+    			if (maxCode == null) {
+    				sortCode = "0001";
+    			} else {
+    				sortCode = maxCode;
+    			}
+    		} else {
+    			params.put("parentId", parentEntity.getFunModuleId());
+    			params.put("length", parentEntity.getSortCode().length() + 4);
+    			maxCode = this.adminFunctionDao.selectNextCodeByParentId(params);
+    			if (maxCode == null) {
+    				sortCode = parentEntity.getSortCode() + "0001";
+    			} else {
+    				sortCode = maxCode;
+    			}
+    		}
+    		return sortCode;
+    	}
+
+	/**
+		 * 加载子集
+		 *
+		 * @param list
+		 * @throws Exception
+		 */
+		private void readChildSelected(List<AdminFunctionVO> list, Long roleId) throws Exception {
+			if (list == null || list.size() == 0) {
+				return;
+			}
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("roleId", roleId);
+			for (AdminFunctionVO entity : list) {
+				params.put("parentId", entity.getFunModuleId());
+				List<AdminFunction> listChild = this.adminFunctionDao.selectAllListByRole(params);
+				if (listChild == null || listChild.size() == 0) {
+					continue;
+				}
+				List<AdminFunctionVO> listChildVo=new ArrayList<>();
+				listChildVo=listChild.stream().map(e->new AdminFunctionVO(
+						e.getFunModuleId(),e.getSortCode(),e.getName(),
+						e.getFuncUrl(),e.getFuncIcon(),e.getParentId(),
+						e.getCode(),e.getIsDisabled(),e.getCreatorId(),
+						e.getCreateTime(),e.getSort(),e.getIsDel(),
+						e.getChannel()
+				)).collect(Collectors.toList());
+				entity.setChildFunction(listChildVo);
+				readChildSelected(listChildVo, roleId);
+			}
+		}
+
+	@Override
+		public List<AdminFunction> findRoleFuncList(Long roleId) throws Exception {
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("parentId", 0l);
+			params.put("roleId", roleId);
+			List<AdminFunction> list = this.adminFunctionDao.selectRoleFuncList(params);
+			if (list == null || list.size() == 0) {
+				return new ArrayList<AdminFunction>();
+			}
+			this.readChildByRole(list, roleId);
+			return list;
+		}
+
+	@Override
+	public List<String> findLevel(Long roleId,int sortLen) throws Exception {
+			Map<String,Object> param=new HashMap<>();
+			param.put("roleId",roleId);
+			param.put("sortLen",sortLen);
+		return this.adminFunctionDao.findLevel(param);
+		}
+
+	@Override
+	public List<AdminFunctionVO> findAllList() throws Exception {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("parentId", "0");
+		params.put("isDel", "0");
+		params.put("isDisabled", "0");
+		List<AdminFunction> list = this.adminFunctionDao.selectList(params);
+		if (list == null || list.size() == 0) {
+			return new ArrayList<AdminFunctionVO>();
+		}
+		List<AdminFunctionVO> listvo=new ArrayList<>();
+		listvo=list.stream().map(e->new AdminFunctionVO(
+				e.getFunModuleId(),e.getSortCode(),e.getName(),
+				e.getFuncUrl(),e.getFuncIcon(),e.getParentId(),
+				e.getCode(),e.getIsDisabled(),e.getCreatorId(),
+				e.getCreateTime(),e.getSort(),e.getIsDel(),
+				e.getChannel()
+		)).collect(Collectors.toList());
+		this.readChild(listvo);
+		return listvo;
+	}
+
+	/**
+		 * 加载子集
+		 *
+		 * @param list
+		 * @throws Exception
+		 */
+		private void readChild(List<AdminFunctionVO> list) throws Exception {
+			if (list == null || list.size() == 0) {
+				return;
+			}
+			for (AdminFunctionVO entity : list) {
+				List<AdminFunction> listChild = this.adminFunctionDao.selectByParentId(entity.getFunModuleId());
+				List<AdminFunctionVO> listChildVo=new ArrayList<>();
+				listChildVo=listChild.stream().map(e->new AdminFunctionVO(
+						e.getFunModuleId(),e.getSortCode(),e.getName(),
+						e.getFuncUrl(),e.getFuncIcon(),e.getParentId(),
+						e.getCode(),e.getIsDisabled(),e.getCreatorId(),
+						e.getCreateTime(),e.getSort(),e.getIsDel(),
+						e.getChannel()
+				)).collect(Collectors.toList());
+				if (listChild == null || listChild.size() == 0) {
+					continue;
+				}
+				entity.setChildFunction(listChildVo);
+				readChild(listChildVo);
+			}
+		}
+
+	/**
+		 * 加载子集
+		 *
+		 * @param list
+		 * @throws Exception
+		 */
+		private void readChildByRole(List<AdminFunction> list, Long roleId) throws Exception {
+			if (list == null || list.size() == 0) {
+				return;
+			}
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("roleId", roleId);
+			for (AdminFunction entity : list) {
+				params.put("parentId", entity.getFunModuleId());
+				List<AdminFunction> listChild = this.adminFunctionDao.selectRoleFuncList(params);
+				if (listChild == null || listChild.size() == 0) {
+					continue;
+				}
+				entity.setChildFunction(listChild);
+				readChildByRole(listChild, roleId);
+			}
+		}
+
+}

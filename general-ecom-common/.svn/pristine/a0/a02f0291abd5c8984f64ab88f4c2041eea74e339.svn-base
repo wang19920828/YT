@@ -1,0 +1,30 @@
+package org.fh.general.ecom.common.vo.order.goldTicket;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class GoldTicketListVO {
+
+    private Long id;
+    private String ticketSn;
+    private BigDecimal amount;
+    private String userName;
+    private String userPhone;
+    private Integer delayNum;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    private Date addTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss"  ,timezone="GMT+8")
+    private Date offTime;
+    private String useState;
+
+
+}

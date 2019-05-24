@@ -1,0 +1,106 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.model.AdminRole;
+import org.fh.general.ecom.basics.dao.AdminRoleDao;
+import org.fh.general.ecom.basics.service.AdminRoleService;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.common.dto.basics.adminRole.*;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.adminRole.RoleListOutputPO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 角色表 服务实现类
+ * </p>
+ *
+ * @author wyk
+ * @since 2018-09-19
+ */
+@Service
+public class AdminRoleServiceImpl extends ServiceImpl<AdminRoleDao, AdminRole> implements AdminRoleService {
+
+    @Override
+    public RoleListOutputDTO findPage(RoleListInputDTO dto) throws Exception {
+        RoleListOutputDTO response = new RoleListOutputDTO();
+        EntityWrapper<AdminRole> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        /*if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }*/
+        System.out.println("================where条件:" + wrapper.getSqlSegment());
+        List<AdminRole> list = baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo = new PageInfo(list);
+        List<RoleListOutputPO> listpo = new ArrayList<RoleListOutputPO>();
+        list.forEach((AdminRole temp) -> {
+            RoleListOutputPO po = new RoleListOutputPO();
+            BeanUtils.copyProperties(temp, po);
+            listpo.add(po);
+        });
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+    @Override
+    public String addEntity(RoleAddInputDTO dto) throws Exception {
+        String code = "";
+        try {
+
+            AdminRole entity = new AdminRole();
+            entity.setIsDel(ComEnum.IsDelete.NORMAL.getValue());
+            entity.setIsDisabled(ComEnum.IsDelete.NORMAL.getValue());
+            BeanUtils.copyProperties(dto, entity);
+            baseMapper.insert(entity);
+            code = OutEnum.SUCCESS.getCode();
+        } catch (Exception e) {
+            e.printStackTrace();
+            code = OutEnum.FAIL.getCode();
+        }
+        return code;
+    }
+
+    @Override
+    public String deleteEntityById(Long id) throws Exception {
+        AdminRole entity = new AdminRole();
+        entity.setId(id);
+        entity.setIsDel(ComEnum.IsDelete.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateEntity(RoleUpdateInputDTO dto) throws Exception {
+        AdminRole entity = new AdminRole();
+        BeanUtils.copyProperties(dto, entity);
+        AdminRole param = new AdminRole();
+        param.setId(dto.getId());
+        AdminRole findOne = baseMapper.selectOne(param);
+        if (findOne == null) {
+            return OutEnum.WARN.getCode();
+        }
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public RoleDetailOutputDTO findEntityById(Long id) throws Exception {
+        RoleDetailOutputDTO response = new RoleDetailOutputDTO();
+        AdminRole entity = baseMapper.selectById(id);
+        if (entity != null) {
+            BeanUtils.copyProperties(entity, response);
+            return response;
+        }
+        return null;
+    }
+
+}

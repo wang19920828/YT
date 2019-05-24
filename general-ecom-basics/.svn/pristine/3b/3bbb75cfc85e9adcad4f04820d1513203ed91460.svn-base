@@ -1,0 +1,245 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.PhoneVacodeDao;
+import org.fh.general.ecom.basics.model.PhoneVacode;
+import org.fh.general.ecom.basics.model.VacodeLog;
+import org.fh.general.ecom.basics.service.CmssmsTemplateService;
+import org.fh.general.ecom.basics.service.PhoneSmsService;
+import org.fh.general.ecom.basics.service.PhoneVacodeService;
+import org.fh.general.ecom.basics.service.VacodeLogService;
+import org.fh.general.ecom.common.comm.OutCodeEntity;
+import org.fh.general.ecom.common.dto.basics.sms.phoneVacode.PhoneVacodeListInputDTO;
+import org.fh.general.ecom.common.dto.basics.sms.phoneVacode.PhoneVacodeListOutputDTO;
+import org.fh.general.ecom.common.dto.basics.sms.phoneVacode.PhoneVacodeOutputDTO;
+import org.fh.general.ecom.common.dto.basics.sms.phoneVacode.PhoneVacodeSaveInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.utils.VerifyUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-20
+ */
+@Service
+public class PhoneVacodeServiceImpl extends ServiceImpl<PhoneVacodeDao, PhoneVacode> implements PhoneVacodeService {
+    @Autowired
+    private CmssmsTemplateService cmssmsTemplateService;
+    @Autowired
+    private PhoneSmsService phoneSmsService;
+    @Autowired
+    private VacodeLogService vacodeLogService;
+//
+    @Value("${sms.openApi.url}")
+    private String sOpenUrl;
+    @Value("${sms.openApi.sAccount}")
+    private String account ;// 接口帐号
+    @Value("${sms.openApi.sAuthKey}")
+    private String authkey;// 接口密钥
+    @Value("${sms.openApi.nCgid}")
+    private int nCgid;// 通道组编号
+
+    private String nCsid ;// 默认使用的签名编号
+    @Value("${sms.openApi.expiry.date}")
+    private String expirDate;// 发送短信验证码的
+    @Value("${sms.encode}")
+    private String smsEcode;
+
+    @Value("${extra_code_validity}")
+    private String validityDate;// 发送短信验证码的 有效时间 以秒为单位
+    @Value("${environment_name}")//环境名称
+    private String environmentName;
+
+    private int maxLength=2;
+    private final static String STATUS_0 ="0";//验证码 未验证
+    private final static String STATUS_1 ="1";//验证码 已经验证
+    private static final String MESSAGE_SWITCH = "MESSAGE_SWITCH"; //短信开关
+    private static final String MESSAGE_SWITCH_ON = "0";
+
+    @Value("${sms.mxintong.send.url}")
+    private String mxsedUrl;
+
+    private String VERIFY_PHONE_ERROR_001 = "验证码已经超时";
+    private String VACODE_ERR0R = "验证码输入错误";
+    //	private String SMSCONTNET = "您的验证码:code,请您在5分钟内填写，如非本人操作，请忽略本条短信。";
+    private String NOT_ALLOW_SEND = "必须在expirDate秒后重新发送";
+    private String SMS_SEND_FAILED = "短信验证码发送失败！";
+    private String SMS_SEND_SUCCESS="1"; //短信接口返回成功 标志
+    @Value("${sms.mxintong.username}")
+    private String mxUsername ;// 接口帐号
+    @Value("${sms.mxintong.pwd}")
+    private String mxPwd;// 接口密钥
+
+    private String title;//签名
+
+    @Override
+    public String savePhoneVacode (PhoneVacodeSaveInputDTO dto){
+        try {
+            String phone = dto.getPhone();
+            if(!Pattern.compile(VerifyUtils.REGEX_MOBILE).matcher(phone).matches()){
+                return "手机号不正确！";
+            }
+            String branch = dto.getBranch();
+            Map<String,Object> phoneParams = new ConcurrentHashMap<String,Object>();
+            phoneParams.put("phone", phone);
+            phoneParams.put("branch", branch);
+            PhoneVacode vacode = baseMapper.selectByParamOne(phoneParams);
+            if(vacode!=null){
+                Long diffTime = (System.currentTimeMillis() -  vacode.getCreateTime().getTime()) / (1000);
+                if(Long.valueOf(expirDate).longValue() > diffTime.longValue()){
+                    String mistake = NOT_ALLOW_SEND.replaceAll("expirDate", expirDate);
+                    return mistake;
+                }
+            }
+            String code=createaccount();
+            //String smsType=params.get("smsType");
+            // if(StringUtils.isBlank(smsType)){
+                 String smsType="1";
+            //  }
+            String content =cmssmsTemplateService.selectByChannelType(branch, smsType);
+            content = content.replaceAll("code",code);
+            String resultCode = mxintongSendMsg(branch,phone, content);
+            Long sendTime = System.currentTimeMillis();
+
+            VacodeLog log = new VacodeLog();
+            log.setCode(code);
+            log.setCreateTime(System.currentTimeMillis());
+            log.setSendTime(sendTime);
+            log.setContent(content);
+            log.setPhone(phone);
+            log.setCodeType("0");
+            if("1".equals(resultCode.substring(0, 1))){
+                PhoneVacode phoneVacode = new PhoneVacode();
+                phoneVacode.setCreateTime(new Date());
+                phoneVacode.setPhone(phone);
+                phoneVacode.setPhoneCode(code);
+               // phoneVacode.setBusinessCode(params.get("businessCode"));
+                phoneVacode.setSmsContent(content);
+                phoneVacode.setStatus(STATUS_0);
+                phoneVacode.setBranch(branch);
+                this.baseMapper.insert(phoneVacode);
+                log.setStatus("1");
+//                Map<String,Object> reMap = new ConcurrentHashMap<String,Object>();
+//                reMap.put("phoneVacodeId", phoneVacode.getId());
+//                result.setResult(reMap);
+//                result.setSuccess();
+            }else{
+                return ""; //   log.setStatus("2");//失败
+            }
+           this.vacodeLogService.insert(log);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    public String mxintongSendMsg(String channel,String mobile,String content) throws Exception {
+        int result=phoneSmsService.sendmsg(channel, mobile, content);
+        return result+"";
+       // return "";
+    }
+
+
+    /**
+     * 验证码生成
+     */
+    public String createaccount(){
+        Random rand= new Random();
+        int i = rand.nextInt(999999);
+        if (i< 100000) {
+            i += 100000;
+        }
+        return Integer.toString(i);
+    }
+
+    /**
+     * 校验验证码
+     */
+    @Override
+    public OutCodeEntity verifyPhoneVacode(String phone, String vaCode, Long phoneVacodeId, String branch) {
+      /*  if(!MESSAGE_SWITCH_ON.equals(otherParameterService.getVal(MESSAGE_SWITCH, branch))) {
+            result.setSuccess();
+            return result;
+        }*/
+        try{
+            Map<String,Object> map = new ConcurrentHashMap<String,Object>();
+            map.put("phone", phone);
+            map.put("branch", branch);
+            map.put("status", STATUS_0);
+            PhoneVacode vacode = baseMapper.selectByParam(map);
+            Map<String,Object> mapRes= new ConcurrentHashMap<String,Object>();
+            if(vacode!=null){
+                Long createTime = vacode.getCreateTime().getTime();
+                String vaCodeNum = vacode.getPhoneCode();
+                Long diffTime = (System.currentTimeMillis() -  createTime) / (1000);
+                if(vaCode!=null && vaCode.equals(vaCodeNum)){
+                    if(Long.valueOf(validityDate).longValue() > diffTime.longValue()){
+                        return new OutCodeEntity("000000","验证成功");
+                    }else{
+                        return new OutCodeEntity("10003",VERIFY_PHONE_ERROR_001);
+                    }
+                }else{
+                    return new OutCodeEntity("10002","验证码错误");
+                }
+            }else{
+                return new OutCodeEntity("10001","验证信息不对");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return new OutCodeEntity("10001","验证信息不对");
+    }
+
+    @Override
+    public PhoneVacodeListOutputDTO findPage(PhoneVacodeListInputDTO dto)throws Exception {
+        PhoneVacodeListOutputDTO response=new PhoneVacodeListOutputDTO();
+        EntityWrapper<PhoneVacode> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getStatus())){
+            wrapper.eq("status",dto.getStatus());
+        }
+        if(StringUtils.isNotEmpty(dto.getPhone())){
+            wrapper.eq("phone",dto.getPhone());
+        }
+        if(StringUtils.isNotEmpty(dto.getPhoneCode())){
+            wrapper.eq("phone_code",dto.getPhoneCode());
+        }
+
+        if(StringUtils.isNotEmpty(dto.getTimeStart())&&StringUtils.isNotEmpty(dto.getTimeEnd())){
+            wrapper.between("create_time",dto.getTimeStart(),dto.getTimeEnd());
+        }
+        wrapper.eq("branch",dto.getBranch());//平台
+        System.out.println("================where条件:"+wrapper.getSqlSegment());
+        List<PhoneVacode> list=baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo=new PageInfo(list);
+        List<PhoneVacodeOutputDTO>  listpo=new ArrayList<PhoneVacodeOutputDTO>();
+        list.forEach((PhoneVacode temp) -> {
+            PhoneVacodeOutputDTO po=new PhoneVacodeOutputDTO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+
+
+}

@@ -1,0 +1,112 @@
+package org.fh.general.ecom.product.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.common.dto.product.project.FinancingListInputDTO;
+import org.fh.general.ecom.common.dto.product.project.FinancingListOutputDTO;
+import org.fh.general.ecom.common.dto.product.project.InputProjectAddFinancingDTO;
+import org.fh.general.ecom.common.dto.product.project.OutputProjectFinancingDTO;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.po.product.project.FinancingListInputPO;
+import org.fh.general.ecom.common.po.product.project.ProjectFinancingOutputPO;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.product.dao.ProjectFinancingDao;
+import org.fh.general.ecom.product.model.ProjectFinancing;
+import org.fh.general.ecom.product.service.ProjectFinancingService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ * 项目筹资信息 服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+@Service
+public class ProjectFinancingServiceImpl extends ServiceImpl<ProjectFinancingDao, ProjectFinancing> implements ProjectFinancingService {
+    @Autowired
+    private ProjectFinancingDao projectFinancingDao;
+
+    @Override
+    public boolean insertFinancing(InputProjectAddFinancingDTO dto) {
+
+        ProjectFinancing projectFinancing = new  ProjectFinancing();
+        projectFinancing.setProjectId(dto.getProjectId());
+        projectFinancing=   baseMapper.selectOne(projectFinancing);
+        if(projectFinancing==null){
+            projectFinancing = new ProjectFinancing();
+            projectFinancing.setCreateDate(new Date());
+            projectFinancing.setCreateBy(dto.getCreateBy());
+        }
+        BeanUtils.copyProperties(dto,projectFinancing);
+        projectFinancing.setProjectId(dto.getProjectId());
+        projectFinancing.setUpdateDate(new Date());
+        projectFinancing.setUpdateBy(dto.getUpdateBy());
+        projectFinancing.setStartTime(DateUtils.getDate(dto.getStartTime(),DateUtils.DATE_FROMAT1));
+        projectFinancing.setEndTime(DateUtils.getDate(dto.getEndTime(),DateUtils.DATE_FROMAT1));
+        projectFinancing.setPurchaseStartTime(projectFinancing.getEndTime());
+        projectFinancing.setPurchaseEndTime(DateUtils.getDate(dto.getPurchaseEndTime(),DateUtils.DATE_FROMAT1));
+        projectFinancing.setIsDelay(ComEnum.IsDelete.NORMAL.getValue());
+        if(projectFinancing.getId()!=null){
+           return this.baseMapper.updateById(projectFinancing)>0?true:false;
+        }else{
+            return this.baseMapper.insert(projectFinancing)>0?true:false;
+        }
+    }
+
+    @Override
+    public OutputProjectFinancingDTO findDetailByProjectId(Long projectId) {
+
+        OutputProjectFinancingDTO response= new OutputProjectFinancingDTO();
+        ProjectFinancing projectFinancing = new ProjectFinancing();
+        projectFinancing.setProjectId(projectId);
+        projectFinancing = this.baseMapper.selectOne(projectFinancing);
+        if(projectFinancing!=null){
+            BeanUtils.copyProperties(projectFinancing,response);
+            return response;
+        }
+        return null;
+    }
+
+    @Override
+    public List<ProjectFinancingOutputPO> selectByParams(Map<String, Object> delayMap) {
+       List<ProjectFinancingOutputPO> list =  projectFinancingDao.selectByParams(delayMap);
+       return list;
+    }
+
+
+    @Override
+    public FinancingListOutputDTO findFinancingList(FinancingListInputDTO dto){
+        FinancingListOutputDTO response=new FinancingListOutputDTO();
+        FinancingListInputPO paramPO=new FinancingListInputPO();
+        BeanUtils.copyProperties(dto,paramPO);
+        List<ProjectFinancing> enList=this.baseMapper.findFinancingList(paramPO);
+        List<ProjectFinancingOutputPO> poList=new ArrayList<ProjectFinancingOutputPO>();
+        if(enList!=null && enList.size()>0){
+            enList.forEach((ProjectFinancing temp)->{
+                ProjectFinancingOutputPO poEn=new ProjectFinancingOutputPO();
+                BeanUtils.copyProperties(temp,poEn);
+                poList.add(poEn);
+            });
+            response.setFinancingList(poList);
+        }
+        return response;
+    }
+
+
+    @Override
+    public void updateList(Map<String, Object> delayMap){
+
+        projectFinancingDao.updateByList(delayMap);
+
+    }
+
+
+}

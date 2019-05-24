@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.EmailDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.Email">
+		<id column="email_id" property="emailId" />
+		<result column="email_channel" property="emailChannel" />
+		<result column="smtp" property="smtp" />
+		<result column="port" property="port" />
+		<result column="email_adr" property="emailAdr" />
+		<result column="eamil_pwd" property="eamilPwd" />
+		<result column="from_user" property="fromUser" />
+		<result column="email_from" property="emailFrom" />
+		<result column="send_to" property="sendTo" />
+		<result column="copy_to" property="copyTo" />
+	</resultMap>
+	<select id="findAllEmail" parameterType="org.fh.general.ecom.basics.model.Email" resultMap="BaseResultMap">
+		SELECT * FROM tb_email
+		<where>
+			<if test="emailId != null and emailId != '' "> AND email_id = #{emailId}</if>
+			<if test="smtp != null and smtp != '' "> AND smtp = #{smtp}</if>
+			<if test="port != null and port != '' "> AND port = #{port}</if>
+			<if test="eamilPwd != null and eamilPwd != '' "> AND eamil_pwd = #{eamilPwd}</if>
+			<if test="fromUser != null and fromUser != '' "> AND from_user = #{fromUser}</if>
+			<if test="emailFrom != null and emailFrom != '' "> AND email_from = #{emailFrom}</if>
+			<if test="emailChannel != null and emailChannel != '' "> AND email_channel = #{emailChannel}</if>
+			<if test="sendTo != null and sendTo != '' "> AND send_to = #{sendTo}</if>
+			<if test="copyTo != null and copyTo != '' "> AND copy_to = #{copyTo}</if>
+		</where>
+		ORDER BY
+		email_id DESC
+	</select>
+	<select id="selectByEmailChannel" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select * from tb_email
+		where email_channel = #{emailChannel}
+
+	</select>
+</mapper>

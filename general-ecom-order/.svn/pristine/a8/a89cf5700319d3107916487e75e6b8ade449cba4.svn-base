@@ -1,0 +1,151 @@
+package org.fh.general.ecom.order.controller;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsAddInputDTO;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsListInputDTO;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsListOutputDTO;
+import org.fh.general.ecom.common.dto.order.coupons.CouponsUpdateInputDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.order.coupons.CouponsListOutPO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.vo.order.coupons.CouponsDetailVO;
+import org.fh.general.ecom.common.vo.order.coupons.CouponsListVO;
+import org.fh.general.ecom.order.service.CouponsService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * <p>
+ * 优惠券表 前端控制器
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-12
+ */
+@RestController
+public class CouponsController {
+    @Autowired
+    private CouponsService couponsService;
+
+
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("COU8005")
+    public PagingVO findPage(CouponsListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            CouponsListOutputDTO dtoEntity= this.couponsService.findPage(dto);
+            List<CouponsListOutPO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            List<CouponsListVO> listvo=new ArrayList<CouponsListVO>();
+            list.forEach((CouponsListOutPO temp) -> {
+                CouponsListVO voEn=new CouponsListVO();
+                BeanUtils.copyProperties(temp,voEn);
+                listvo.add(voEn);
+            });
+
+            pagingVO.success(listvo,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+
+
+    /**
+     * 添加优惠券
+     * */
+    @RequestMapping("COU8001")
+    public BaseVO addEntity(CouponsAddInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.couponsService.addEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     * 删除
+     * */
+    @RequestMapping("COU8002")
+    public BaseVO deleteEntityById(Long id){
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.couponsService.deleteEntityById(id);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     * 修改
+     * */
+    @RequestMapping("COU8003")
+    public BaseVO updateEntity(CouponsUpdateInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            if(StringUtils.isEmpty(dto.getId())){
+                baseVO.mustParam();
+                return baseVO;
+            }
+            String code=this.couponsService.updateEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     * 优惠券详情
+     * */
+    @RequestMapping("COU8004")
+    public BaseVO findEntityById(Long id){
+        BaseVO baseVO=new BaseVO();
+        try {
+            CouponsDetailOutputDTO response= this.couponsService.findEntityById(id);
+            if(response==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            CouponsDetailVO vo=new CouponsDetailVO();
+            BeanUtils.copyProperties(response,vo );
+            baseVO.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+}

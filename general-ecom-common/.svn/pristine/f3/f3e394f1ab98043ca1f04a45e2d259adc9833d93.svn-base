@@ -1,0 +1,9 @@
+package org.fh.general.ecom.common.dto.order.orderFront;
+
+import lombok.Data;
+
+@Data
+public class RenGouAddOrderInputDTO {
+
+
+}

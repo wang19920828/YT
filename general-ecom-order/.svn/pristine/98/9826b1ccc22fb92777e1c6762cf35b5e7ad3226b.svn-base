@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.CouponsCodeDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.CouponsCode">
+		<id column="id" property="id" />
+		<result column="yhm" property="yhm" />
+		<result column="amount" property="amount" />
+		<result column="coupon_name" property="couponName" />
+		<result column="coupons_id" property="couponsId" />
+		<result column="send_type" property="sendType" />
+		<result column="situation" property="situation" />
+
+		<result column="off_time" property="offTime" />
+		<result column="status" property="status" />
+		<result column="record_no" property="recordNo" />
+		<result column="user_id" property="userId" />
+		<result column="user_name" property="userName" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+
+</mapper>

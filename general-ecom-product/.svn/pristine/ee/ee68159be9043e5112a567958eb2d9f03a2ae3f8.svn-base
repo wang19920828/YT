@@ -1,0 +1,92 @@
+package org.fh.general.ecom.product.model;
+
+import com.baomidou.mybatisplus.enums.IdType;
+import java.math.BigDecimal;
+import java.util.Date;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableName;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * <p>
+ * 项目权益方案
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-18
+ */
+@Data
+@TableName("tb_project_programme")
+public class ProjectProgramme implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+    /**
+     * 项目id
+     */
+	@TableField("project_id")
+	private Long projectId;
+    /**
+     * 方案名称
+     */
+	@TableField("programme_name")
+	private String programmeName;
+    /**
+     * 投资单价
+     */
+	@TableField("unit_price")
+	private BigDecimal unitPrice;
+    /**
+     * 可预约份数(总)
+     */
+	private Long number;
+    /**
+     * 预约限购数（每人）
+     */
+	@TableField("limit_number")
+	private Long limitNumber;
+    /**
+     * 最低分红收益率
+     */
+	@TableField("min_red_rate")
+	private BigDecimal minRedRate;
+    /**
+     * 方案描述
+     */
+	private String describe;
+    /**
+     * 赠送优惠券id，多个之间逗号隔开
+     */
+	@TableField("coupon_id")
+	private String couponId;
+    /**
+     * 创建人
+     */
+	@TableField("create_by")
+	private String createBy;
+    /**
+     * 创建时间
+     */
+	@TableField("create_date")
+	private Date createDate;
+    /**
+     * 修改人
+     */
+	@TableField("update_by")
+	private String updateBy;
+    /**
+     * 修改时间
+     */
+	@TableField("update_date")
+	private Date updateDate;
+
+
+
+
+
+}

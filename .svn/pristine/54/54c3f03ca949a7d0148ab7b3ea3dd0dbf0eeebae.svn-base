@@ -1,0 +1,31 @@
+package org.fh.general.ecom.basics.service.impl;
+
+
+import org.fh.general.ecom.basics.dao.AdminRoleRelateDao;
+import org.fh.general.ecom.basics.model.AdminRoleRelate;
+import org.fh.general.ecom.basics.service.AdminRoleRelateService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+@Service("adminRoleRelateService")
+public class AdminRoleRelateServiceImpl implements AdminRoleRelateService {
+
+    @Autowired
+    private AdminRoleRelateDao adminRoleRelateDao;
+
+
+    @Override
+    public List<AdminRoleRelate> findListByRoleId(Long roleId) {
+        return adminRoleRelateDao.findListByRoleId(roleId);
+    }
+
+    @Override
+    public List<Long> findDistinctRoleList() {
+        return adminRoleRelateDao.findDistinctRoleList();
+    }
+
+
+}

@@ -1,0 +1,38 @@
+server:
+  port: 8702
+spring:
+  application:
+    name: product
+  datasource:
+    url:  jdbc:mysql://127.0.0.1:8306/db_product_info?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 'xinxi@2018.com'
+   data:
+     mongodb:
+        uri: mongodb://127.0.0.1:27017/invest_mongo
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka/
+mybatis-plus:
+  # 配置扫描xml
+  mapper-locations:
+    - classpath:mapper/*.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  type-aliases-package: org.fh.general.ecom.product.model
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: false
+
+zuul:
+  host:
+    socket-timeout-millis: 50000
+    connect-timeout-millis: 50000
+
+ribbon:
+    ConnectTimeout: 50000
+    ReadTimeout: 50000

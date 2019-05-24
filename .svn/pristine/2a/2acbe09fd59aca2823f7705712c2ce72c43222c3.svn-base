@@ -1,0 +1,55 @@
+package org.fh.general.ecom.basics.service.impl;
+
+
+
+import org.fh.general.ecom.basics.dao.AdminRoleFuncDao;
+import org.fh.general.ecom.basics.model.AdminRoleFunc;
+import org.fh.general.ecom.basics.service.RoleFunService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+
+@Service("roleFunService")
+public class RoleFunServiceImpl implements RoleFunService {
+
+    @Autowired
+    private AdminRoleFuncDao adminRoleFuncDao;
+
+    @Override
+    public void addRoleFun(AdminRoleFunc entity) {
+        adminRoleFuncDao.insertSelective(entity);
+    }
+
+    @Override
+    public List<AdminRoleFunc> findAllFunByRoleId(Long roleId) {
+        Map<String, Object> searchP = new ConcurrentHashMap<String, Object>();
+      		searchP.put("roleId", roleId);
+      		try {
+      			return this.adminRoleFuncDao.findAllRoleFun(searchP);
+      		} catch (Exception e) {
+      			e.printStackTrace();
+      		}
+      		return null;    }
+
+    @Override
+    public void updateRoleFunByRoleId(Map<String, Object> roleFunUpdate) {
+        this.adminRoleFuncDao.updateRoleFunByRoleId(roleFunUpdate);
+
+    }
+
+    @Override
+    public void delSign(Map<String, Object> roleFunUpdate) {
+        this.adminRoleFuncDao.delSign(roleFunUpdate);
+
+    }
+
+    @Override
+    public void deleteRoleFunByFun(String sortCode) {
+        this.adminRoleFuncDao.deleteRoleFunByFun(sortCode);
+
+    }
+}

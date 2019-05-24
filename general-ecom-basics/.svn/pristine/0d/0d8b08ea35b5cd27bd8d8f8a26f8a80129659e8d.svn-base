@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.fh.general.ecom.basics.dao.sms.VacodeLogDao" >
+  <resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    <id column="log_id" property="logId" jdbcType="BIGINT" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="sendTime" property="sendtime" jdbcType="BIGINT" />
+    <result column="code" property="code" jdbcType="VARCHAR" />
+    <result column="code_type" property="codeType" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="BIGINT" />
+    <result column="creator" property="creator" jdbcType="BIGINT" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="phone" property="phone" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    log_id, ip, sendTime, code, code_type, status, create_time, creator,content, phone
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from tb_basic_vacode_log
+    where log_id = #{logId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_basic_vacode_log
+    where log_id = #{logId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    insert into tb_basic_vacode_log (log_id, ip, sendTime, 
+      code, code_type, status, 
+      create_time, creator, content, 
+      phone)
+    values (#{logId,jdbcType=BIGINT}, #{ip,jdbcType=VARCHAR}, #{sendtime,jdbcType=BIGINT}, 
+      #{code,jdbcType=VARCHAR}, #{codeType,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{creator,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}, 
+      #{phone,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    insert into tb_basic_vacode_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="logId != null" >
+        log_id,
+      </if>
+      <if test="ip != null" >
+        ip,
+      </if>
+      <if test="sendtime != null" >
+        sendTime,
+      </if>
+      <if test="code != null" >
+        code,
+      </if>
+      <if test="codeType != null" >
+        code_type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="creator != null" >
+        creator,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="logId != null" >
+        #{logId,jdbcType=BIGINT},
+      </if>
+      <if test="ip != null" >
+        #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="sendtime != null" >
+        #{sendtime,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="codeType != null" >
+        #{codeType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    update tb_basic_vacode_log
+    <set >
+      <if test="ip != null" >
+        ip = #{ip,jdbcType=VARCHAR},
+      </if>
+      <if test="sendtime != null" >
+        sendTime = #{sendtime,jdbcType=BIGINT},
+      </if>
+      <if test="code != null" >
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="codeType != null" >
+        code_type = #{codeType,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="creator != null" >
+        creator = #{creator,jdbcType=BIGINT},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where log_id = #{logId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    update tb_basic_vacode_log
+    set ip = #{ip,jdbcType=VARCHAR},
+      sendTime = #{sendtime,jdbcType=BIGINT},
+      code = #{code,jdbcType=VARCHAR},
+      code_type = #{codeType,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      creator = #{creator,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARCHAR},
+      phone = #{phone,jdbcType=LONGVARCHAR}
+    where log_id = #{logId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.sms.VacodeLog" >
+    update tb_basic_vacode_log
+    set ip = #{ip,jdbcType=VARCHAR},
+      sendTime = #{sendtime,jdbcType=BIGINT},
+      code = #{code,jdbcType=VARCHAR},
+      code_type = #{codeType,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      creator = #{creator,jdbcType=BIGINT}
+    where log_id = #{logId,jdbcType=BIGINT}
+  </update>
+  
+    <select id="findList" parameterType="java.util.Map" resultMap="BaseResultMap">
+	SELECT 
+	<include refid="Base_Column_List" />
+	from tb_basic_vacode_log
+	<where>
+		<if test="code != null and code!=''">  
+		 	 code = #{code,jdbcType=BIGINT}
+		</if>
+		<if test="status != null and status!=''">  
+		 	 and status = #{status,jdbcType=BIGINT}
+		</if>
+	</where>
+	<if test="start != null and  end !=null ">  
+		 LIMIT #{start}, #{end}
+	</if>
+  </select>
+	
+	<select id="findCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(1) FROM tb_basic_vacode_log
+		<where>
+		<if test="code != null and code!=''">  
+		 	 code = #{code,jdbcType=BIGINT}
+		</if>
+		<if test="status != null and status!=''">  
+		 	 and status = #{status,jdbcType=BIGINT}
+		</if>
+	</where>
+	</select>
+	
+</mapper>

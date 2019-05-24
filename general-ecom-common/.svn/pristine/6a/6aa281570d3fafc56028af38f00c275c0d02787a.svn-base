@@ -1,0 +1,23 @@
+package org.fh.general.ecom.common.dto.basics.user.fundJournal;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import lombok.Data;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/27 16:50
+ * @Description:
+ */
+@Data
+public class FundJournalfindInputDTO {
+    /**
+     * 交易流水号
+     */
+    @TableField("trans_journal_no")
+    private String transJournalNo;
+    /**
+     * 收支类型(1-充值，2-消费，3-提现，4-退款,5:赠送)
+     */
+    @TableField("sz_type")
+    private String szType;
+}

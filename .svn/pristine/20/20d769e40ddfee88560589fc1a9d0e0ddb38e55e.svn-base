@@ -1,0 +1,181 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.CustomerService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.basics.user.*;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+/**
+ * <p>
+ *  前端控制器
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-09-17
+ */
+@RestController
+public class CustomerController {
+    @Autowired
+    private CustomerService customerService;
+    /**
+     * 分页列表
+     * */
+    @RequestMapping("CUST1005")
+    public PagingVO findPage(CustomerListInputDTO dto){
+        PagingVO pagingVO=new PagingVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCurrentPageNum()) ||StringUtils.isEmpty(dto.getPageCount()) ){
+                pagingVO.mustParam();
+                return pagingVO;
+            }
+            CustomerListOutputDTO dtoEntity= this.customerService.findPage(dto);
+            List<CustomerOutputDTO> list= dtoEntity.getList();
+            if(list==null || list.size()==0){
+                pagingVO.noData();
+                return pagingVO;
+            }
+            List<CustomerListVO> listvo=new ArrayList<>();
+            list.forEach((CustomerOutputDTO temp) -> {
+                CustomerListVO voEn=new CustomerListVO();
+                BeanUtils.copyProperties(temp,voEn);
+                listvo.add(voEn);
+            });
+
+            pagingVO.success(listvo,dtoEntity.getPageInfo() );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  pagingVO;
+    }
+
+
+
+    /**
+     * 添加
+     * */
+    @RequestMapping("CUST1001")
+    public BaseVO addEntity(CustomerAddInputDTO dto) {
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.customerService.addEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     * 删除
+     * */
+    @RequestMapping("CUST1002")
+    public BaseVO deleteEntityById(Long custId){
+        BaseVO baseVO=new BaseVO();
+        try {
+            String code=this.customerService.deleteEntityById(custId);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     * 修改
+     * */
+    @RequestMapping("CUST1003")
+    public BaseVO updateEntity(CustomerUpdateInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            if(StringUtils.isEmpty(dto.getCustId())){
+                baseVO.mustParam();
+                return baseVO;
+            }
+            String code=this.customerService.updateEntity(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.error(OutEnum.FAIL.getMessage());
+                return  baseVO;
+            }
+            baseVO.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     * 详情
+     * */
+    @RequestMapping("CUST1004")
+    public BaseVO findEntityById(Long custId){
+        BaseVO baseVO=new BaseVO();
+        try {
+            CustomerOutputDTO response= this.customerService.findEntityById(custId);
+            if(response==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            CustomerListVO vo=new CustomerListVO();
+            BeanUtils.copyProperties(response,vo );
+            baseVO.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+    /**
+     *根据userId查询Customer信息
+     */
+    @RequestMapping("CUST1006")
+    public BaseVO findEntityByUserId(Long userId){
+        BaseVO baseVO=new BaseVO();
+        try {
+            CustomerOutputDTO response= this.customerService.findEntityByUserId(userId);
+            if(response==null){
+                baseVO.noData();
+                return baseVO;
+            }
+            CustomerListVO vo=new CustomerListVO();
+            BeanUtils.copyProperties(response,vo );
+            baseVO.success(vo);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  baseVO;
+    }
+
+    /**
+     *根据userId查询Customer信息
+     */
+    @RequestMapping("CUST1007")
+    public CustomerListVO findCustomerByUserId( @RequestBody Long userId){
+        try {
+            CustomerOutputDTO response= this.customerService.findEntityByUserId(userId);
+            if(response !=null){
+                CustomerListVO vo=new CustomerListVO();
+                BeanUtils.copyProperties(response,vo );
+                return  vo;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+}

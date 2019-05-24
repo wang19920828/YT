@@ -1,0 +1,39 @@
+package org.fh.general.ecom.basics.service;
+
+import org.fh.general.ecom.basics.model.AdminRoleFunc;
+
+import java.util.List;
+import java.util.Map;
+
+public interface RoleFunService {
+
+    public void addRoleFun(AdminRoleFunc entity);
+
+    	/**
+    	 * 查询角色功能<不分页>
+    	 *
+    	 * param roleFunId
+    	 */
+    	public List<AdminRoleFunc> findAllFunByRoleId(Long roleId);
+
+    	/**
+    	 * 删除角色功能之前标记
+    	 *
+    	 * param roleFunId
+    	 */
+    	public void updateRoleFunByRoleId(Map<String, Object> roleFunUpdate);
+
+    	/**
+    	 * 删除角色功能之前标记
+    	 *
+    	 * param roleFunId
+    	 */
+    	public void delSign(Map<String, Object> roleFunUpdate);
+
+    	/**
+    	 * 删除角色功能
+    	 *
+    	 * param roleFunId
+    	 */
+    	public void deleteRoleFunByFun(String sortCode);
+}

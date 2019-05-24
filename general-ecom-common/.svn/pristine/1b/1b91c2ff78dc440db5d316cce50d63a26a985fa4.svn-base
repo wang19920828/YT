@@ -1,0 +1,17 @@
+package org.fh.general.ecom.common.dto.order.redProject;
+
+import com.github.pagehelper.PageInfo;
+import lombok.Data;
+import org.fh.general.ecom.common.vo.order.projectFormula.ProjectFormulaListVO;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+public class RedApplyTryOutputDTO {
+
+    private BigDecimal preShareRedTotal=new BigDecimal(0.00);
+    private BigDecimal realShareRedTotal=new BigDecimal(0.00);
+    private List<ProjectFormulaListVO> formulaList;
+    PageInfo pageInfo;
+}

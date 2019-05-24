@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.FileNormsDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.FileNorms">
+		<id column="id" property="id" />
+		<result column="file_flag" property="fileFlag" />
+		<result column="file_size" property="fileSize" />
+		<result column="file_width" property="fileWidth" />
+		<result column="file_height" property="fileHeight" />
+		<result column="file_depict" property="fileDepict" />
+		<result column="branch" property="branch" />
+		<result column="channel" property="channel" />
+		<result column="branch_name" property="branchName" />
+	</resultMap>
+
+
+	<update id ="delBatch" parameterType="java.util.HashMap">
+		delete from  tb_file_norms
+		<where>
+			<if test="list!=null">
+				id in
+				<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+
+	</update>
+
+</mapper>

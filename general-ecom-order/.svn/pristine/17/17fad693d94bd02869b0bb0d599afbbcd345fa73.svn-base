@@ -1,0 +1,22 @@
+package org.fh.general.ecom.order.dao;
+
+import org.fh.general.ecom.common.po.order.withdrawal.WithdrawalListOutPO;
+import org.fh.general.ecom.common.po.order.withdrawal.WithdrawalListParamPO;
+import org.fh.general.ecom.order.model.Withdrawal;
+import com.baomidou.mybatisplus.mapper.BaseMapper;
+
+import java.util.List;
+
+/**
+ * <p>
+  * 提现申请表 Mapper 接口
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-09-14
+ */
+public interface WithdrawalDao extends BaseMapper<Withdrawal> {
+
+
+    List<WithdrawalListOutPO> findWithdrawalList (WithdrawalListParamPO paramPO);
+}

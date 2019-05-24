@@ -1,0 +1,44 @@
+package org.fh.general.ecom.common.dto.product.project;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/18
+ **/
+@Data
+public class InputProjectADDManageDTO {
+
+    private Long id ;
+
+    @Check(empty = true,description = "项目")
+    private String projectId;
+    /**
+     * 姓名
+     */
+    @Check(empty = true,description = "姓名")
+    private String name;
+    /**
+     * 年龄
+     */
+    @Check(empty = true,description = "年龄")
+    private Long age;
+    /**
+     * 职位
+     */
+    @Check(empty = true,description = "职位")
+    private String position;
+    /**
+     * 从业经验
+     */
+    @Check(empty = true,description = "从业经验")
+    private String practiceExperience;
+    /**
+     * 创建人
+     */
+    @Check(empty = true,description = "创建人")
+    private String createBy;
+
+}

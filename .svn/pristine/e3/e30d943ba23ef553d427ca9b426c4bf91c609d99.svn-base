@@ -1,0 +1,20 @@
+package org.fh.general.ecom.basics.model;
+
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class AdminRoleRelate  implements Serializable {
+    private Long id;
+    /**
+     *  管理员id
+     */
+    private Long adminId;
+    /**
+    *  角色id
+    */
+    private Long roleId;
+
+}

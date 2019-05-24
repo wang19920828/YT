@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProjectOperLogDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.ProjectOperLog">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="project_status" property="projectStatus" />
+		<result column="oper_id" property="operId" />
+		<result column="oper_time" property="operTime" />
+		<result column="remarks" property="remarks" />
+		<result column="appointment_amount" property="appointmentAmount" />
+		<result column="appointment_schedule" property="appointmentSchedule" />
+		<result column="appointment_end_time" property="appointmentEndTime" />
+		<result column="appointment_status" property="appointmentStatus" />
+		<result column="subscribe_for_end_time" property="subscribeForEndTime" />
+		<result column="subscribe_for_amount" property="subscribeForAmount" />
+		<result column="subscribe_for_schedule" property="subscribeForSchedule" />
+		<result column="subscribe_for_status" property="subscribeForStatus" />
+		<result column="subscribe_for_success" property="subscribeForSuccess" />
+		<result column="delay_before_time" property="delayBeforeTime" />
+		<result column="delay_after_time" property="delayAfterTime" />
+		<result column="calmness_period" property="calmnessPeriod" />
+		<result column="quit_user_num" property="quitUserNum" />
+		<result column="quit_total_amount" property="quitTotalAmount" />
+		<result column="actual_schedule" property="actualSchedule" />
+		<result column="actual_amount" property="actualAmount" />
+		<result column="refund_status" property="refundStatus" />
+		<result column="total_amount" property="totalAmount" />
+		<result column="red_num" property="redNum" />
+		<result column="red_total_amount" property="redTotalAmount" />
+		<result column="red_this_amount" property="redThisAmount" />
+		<result column="red_actual_amount" property="redActualAmount" />
+		<result column="red_status" property="redStatus" />
+		<result column="red_be_overdue" property="redBeOverdue" />
+		<result column="red_total_num" property="redTotalNum" />
+		<result column="red_be_overdue_num" property="redBeOverdueNum" />
+	</resultMap>
+
+</mapper>

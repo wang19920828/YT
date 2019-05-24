@@ -1,0 +1,86 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.util.Date;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/17 11:19
+ * @Description:
+ */
+@Data
+public class UserListVO {
+    /**
+     * 用户ID
+     */
+    @TableId(value="user_id", type= IdType.AUTO)
+    private Long userId;
+
+    /**
+     * 用户昵称
+     */
+    @TableField("nick_name")
+    private String nickName;
+    /**
+     * 个人头像
+     */
+    @TableField("user_img")
+    private String userImg;
+    /**
+     * 登录名
+     */
+    @TableField("login_name")
+    private String loginName;
+    /**
+     * 登陆次数
+     */
+    @TableField("login_num")
+    private Long loginNum;
+    /**
+     * 注册时间
+     */
+    @TableField("register_time")
+    private Date registerTime;
+
+    /**
+     * 上次登陆时间
+     */
+    @TableField("login_time")
+    private Date loginTime;
+
+    /**
+     * 状态：1-正常 2-注销 3-删除
+     */
+    private String status;
+
+    /**
+     * 认证状态0未认证，1，认证中 ，2已认证
+     */
+    @TableField("is_through")
+    private String isThrough;
+    @TableField("invite_code")
+    private String inviteCode;
+
+    /**
+     * 账户
+     */
+    private String account;
+    /**
+     * 手机号
+     */
+    private String phone;
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 修改时间
+     */
+    @TableField("update_time")
+    private Date updateTime;
+}

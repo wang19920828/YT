@@ -1,0 +1,29 @@
+package org.fh.general.ecom.common.po.basics.dictionary;
+
+import lombok.Data;
+
+@Data
+public class DicListOutPO {
+
+
+    /**
+     *   值
+     */
+    private String value;
+
+    /**
+     *   标签
+     */
+    private String label;
+    /**
+     *   大类型
+     */
+    private String type;
+
+
+    private String remarks;
+
+
+    private String icon;
+
+}

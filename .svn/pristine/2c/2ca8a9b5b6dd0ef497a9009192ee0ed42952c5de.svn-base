@@ -1,0 +1,131 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.model.Admin;
+import org.fh.general.ecom.basics.dao.AdminDao;
+import org.fh.general.ecom.basics.service.AdminService;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.common.dto.basics.admin.*;
+import org.fh.general.ecom.common.enumeration.basics.AdminEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.admin.AdminListOutPO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ * 管理员 服务实现类
+ * </p>
+ *
+ * @author wyk
+ * @since 2018-09-19
+ */
+@Service
+public class AdminServiceImpl extends ServiceImpl<AdminDao, Admin> implements AdminService {
+
+    @Autowired
+    private AdminDao adminDao;
+
+    /*@Override
+    public AdminLoginOutPutDTO loginAdmin(AdminLoginDTO dto) {
+        return null;
+    }*/
+
+
+    @Override
+    public AdminListOutPutDTO findPage(AdminListInputDTO dto) throws Exception {
+        AdminListOutPutDTO response = new AdminListOutPutDTO();
+        EntityWrapper<Admin> wrapper = new EntityWrapper<>();
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        /*if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }*/
+        System.out.println("================where条件:" + wrapper.getSqlSegment());
+        List<Admin> list = baseMapper.selectList(wrapper);
+
+        PageInfo pageInfo = new PageInfo(list);
+        List<AdminListOutPO> listpo = new ArrayList<AdminListOutPO>();
+        list.forEach((Admin temp) -> {
+            AdminListOutPO po = new AdminListOutPO();
+            BeanUtils.copyProperties(temp, po);
+            listpo.add(po);
+        });
+        response.setList(listpo);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+
+    @Override
+    public String addEntity(AdminAddInputDTO dto) throws Exception {
+        String code = "";
+        /*//检验用户名是否存在
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("name", dto.getName());
+        map.put("status", AdminEnum.AdminStatus.NORMAL);
+        List<Admin> list = baseMapper.selectByMap(map);
+        if (list != null && list.size() > 0) {
+            return AdminEnum.AdminAdd.LOGIN_ACCOUNT.getValue();
+        }
+        map.remove("name");
+        map.put("adminPhone", dto.getAdminPhone());
+        list = baseMapper.selectByMap(map);
+        if (list != null && list.size() > 0) {
+            return AdminEnum.AdminAdd.PHONE.getValue();
+        }
+        map.remove("adminPhone");
+        map.put("adminEmail", dto.getAdminEmail());
+        list = baseMapper.selectByMap(map);
+        if (list != null && list.size() > 0) {
+            return AdminEnum.AdminAdd.EMAIL.getValue();
+        }*/
+        Admin entity = new Admin();
+        BeanUtils.copyProperties(dto, entity);
+        baseMapper.insert(entity);
+        code = OutEnum.SUCCESS.getCode();
+        return code;
+    }
+
+    @Override
+    public String deleteEntityById(Long id) throws Exception {
+        Admin entity = new Admin();
+        entity.setAdminId(id);
+        entity.setStatus(AdminEnum.AdminStatus.DEL.getValue());
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public String updateEntity(AdminUpdateInputDTO dto) throws Exception {
+        Admin entity = new Admin();
+        BeanUtils.copyProperties(dto, entity);
+        Admin param = new Admin();
+        param.setAdminId(dto.getAdminId());
+        Admin findOne = baseMapper.selectOne(param);
+        if (findOne == null) {
+            return OutEnum.WARN.getCode();
+        }
+        baseMapper.updateById(entity);
+        return OutEnum.SUCCESS.getCode();
+    }
+
+    @Override
+    public AdminDetailOutputDTO findEntityById(Long id) throws Exception {
+        AdminDetailOutputDTO response = new AdminDetailOutputDTO();
+        Admin entity = baseMapper.selectById(id);
+        if (entity != null) {
+            BeanUtils.copyProperties(entity, response);
+            return response;
+        }
+        return null;
+    }
+
+
+}

@@ -1,0 +1,57 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import org.fh.general.ecom.basics.dao.PayRefundDao;
+import org.fh.general.ecom.basics.model.PayRefund;
+import org.fh.general.ecom.basics.service.PayRefundService;
+import org.fh.general.ecom.basics.service.UserService;
+import org.fh.general.ecom.common.dto.basics.user.UserPhoneOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.payRefund.PayRefundInsertInputDTO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author wzy
+ * @since 2018-10-15
+ */
+@Service
+public class PayRefundServiceImpl extends ServiceImpl<PayRefundDao, PayRefund> implements PayRefundService {
+   @Autowired
+   private UserService userService;
+    /**
+     * 添加提现申请记录
+     * @param dto
+     */
+    // @Override
+    public String insertTxPayRefund(PayRefundInsertInputDTO dto) throws Exception {
+        PayRefund pr=new PayRefund();
+        //根据userId获取用户信息
+        UserPhoneOutputDTO One = userService.findPhoneOne(dto.getUserId());
+        //判断提交金额
+        int i = dto.getAmount().compareTo(One.getCashAmount());
+        if(i>0){
+            return  "提现金额大于账户金额！";
+        }
+        pr.setUserId(dto.getUserId());//用户
+        pr.setAmount(dto.getAmount());//金额
+        pr.setNickName(One.getNickName());//
+        pr.setRealName(One.getRealName());
+        pr.setPhone(One.getPhone());
+        pr.setApplyTime(new Date());
+
+
+        //获取账户信信息
+        //获取银行卡信息
+        //类型
+
+
+
+        return "";
+    }
+}

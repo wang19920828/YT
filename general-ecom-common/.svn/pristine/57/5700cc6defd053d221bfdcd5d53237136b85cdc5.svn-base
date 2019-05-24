@@ -1,0 +1,25 @@
+package org.fh.general.ecom.common.dto.basics.user;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+
+/**
+ * @Auther: wangzhanying
+ * @Date: 2018/9/17 11:06
+ * @Description:
+ */
+@Data
+public class UserListInputDTO {
+    @Check(empty = false, description = "当前页")
+    private Integer currentPageNum;
+    @Check(empty = false, description = "分页大小")
+    private Integer pageCount;
+    /**
+     * 平台：1001-D5厨房 1002-美食工场 1003-爱炉火锅 1004-真真小吃
+     */
+    private String branch;
+    /**
+     * 渠道:1-线下,2-微信(公众号),3-Android（app）,4-IOS（app）,5-小程序,6-Web,7-Wap
+     */
+    private String channel;
+}

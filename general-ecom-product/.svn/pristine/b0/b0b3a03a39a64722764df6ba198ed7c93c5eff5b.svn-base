@@ -1,0 +1,31 @@
+package org.fh.general.ecom.product.service;
+
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.common.dto.product.organization.*;
+import org.fh.general.ecom.product.model.OrganizationInfo;
+
+/**
+ * <p>
+ * 机构信息表 服务类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-13
+ */
+public interface OrganizationInfoService extends IService<OrganizationInfo> {
+
+    public OutputOrganizationListDTO findPage(InputOrganizationListDTO dto);
+
+    String addOrganization(InputOrganizationAddDTO dto);
+
+    OutputOrganizationDetailDTO findEntity(String id);
+
+    OutputOrganizationDetailDTO findDetailByCompanyNo(String companyNo);
+
+    String updateOrganization(InputOrganizationUpdateDTO dto);
+
+    String delOrganization(InputOrganizationDelDTO dto);
+
+    OutputOrganizationListDTO findList(InputOrganizationListDTO dto);
+}

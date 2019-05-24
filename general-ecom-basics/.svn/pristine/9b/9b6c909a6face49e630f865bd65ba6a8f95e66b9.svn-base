@@ -1,0 +1,131 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.FileNormsDao;
+import org.fh.general.ecom.basics.model.FileNorms;
+import org.fh.general.ecom.basics.service.FileNormsService;
+import org.fh.general.ecom.common.dto.basics.files.*;
+import org.fh.general.ecom.common.enums.ComEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.basics.files.OutputFileNormsPO;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * <p>
+ *  服务实现类
+ * </p>
+ *
+ * @author hlp
+ * @since 2018-09-28
+ */
+@Service
+public class FileNormsServiceImpl extends ServiceImpl<FileNormsDao, FileNorms> implements FileNormsService {
+
+    @Override
+    public OutputFileNormsDTO checkFileFlag(InputFileNormsDTO dto) {
+        OutputFileNormsDTO response = new OutputFileNormsDTO();
+        FileNorms fileNorms=new FileNorms();
+        fileNorms.setBranch(dto.getBranch());
+        fileNorms.setFileFlag(dto.getFileFlag());
+        FileNorms  fileNorms1=   this.baseMapper.selectOne(fileNorms);
+        if(fileNorms1!=null){
+            BeanUtils.copyProperties(fileNorms1,response);
+            return response;
+        }
+        return null;
+    }
+
+    @Override
+    public OutputFileNormsListDTO findPage(InputFileNormsListDTO dto) {
+        OutputFileNormsListDTO outputFileNormsListDTO = new OutputFileNormsListDTO();
+        EntityWrapper wrapper=new EntityWrapper();
+        PageHelper.startPage(dto.getCurrentPageNum(),dto.getPageCount() );
+        if(StringUtils.isNotEmpty(dto.getBranch())){
+            wrapper.eq("branch",dto.getBranch());
+        }
+        List<FileNorms> list=baseMapper.selectList(wrapper);
+        PageInfo pageInfo=new PageInfo(list);
+        List<OutputFileNormsPO> listpo=new ArrayList<OutputFileNormsPO>();
+        list.forEach((FileNorms temp) -> {
+            OutputFileNormsPO po=new OutputFileNormsPO();
+            BeanUtils.copyProperties(temp,po);
+            listpo.add(po);
+        });
+        outputFileNormsListDTO.setList(listpo);
+        outputFileNormsListDTO.setPageInfo(pageInfo);
+        return outputFileNormsListDTO;
+    }
+
+    @Override
+    public String addEntity(InputFileNormsAddDTO dto){
+        FileNorms fileNorms = new FileNorms();
+        BeanUtils.copyProperties(dto,fileNorms);
+        FileNorms entity = new FileNorms();
+        entity.setBranch(dto.getBranch());
+        entity.setFileFlag(dto.getFileFlag());
+        entity = this.baseMapper.selectOne(entity);
+        if(entity!=null){
+            return "已经存在";
+        }
+        fileNorms.setBranchName(dto.getBranchName()==null? ComEnum.Branch.YUN_TOU.getName():dto.getBranchName());
+        fileNorms.setBranch(dto.getBranch()==null?ComEnum.Branch.YUN_TOU.getValue():dto.getBranch());
+        int success = this.baseMapper.insert(fileNorms);
+        if(success>0){
+            return "";
+        }else{
+            return OutEnum.FAIL.getMessage();
+        }
+    }
+    @Override
+    public  OutputFileNormsDetailDTO findEntity(InputFileNormsDetaiDTO dto){
+        OutputFileNormsDetailDTO response=new OutputFileNormsDetailDTO();
+        FileNorms entity = new FileNorms();
+        entity.setBranch(dto.getBranch());
+        entity.setFileFlag(dto.getFileFlag());
+        entity = this.baseMapper.selectOne(entity);
+        if(entity!=null){
+            BeanUtils.copyProperties(entity,response);
+            return response;
+        }
+        return null;
+    }
+
+    @Override
+    public String updateDetail(InputFileNormsUpdateDTO dto) {
+        FileNorms entity = this.baseMapper.selectById(dto.getId());
+        if(entity==null){
+            return "查无数据";
+        }
+
+        entity.setFileWidth(dto.getFileWidth());
+        entity.setFileHeight(dto.getFileHeight());
+        entity.setFileSize(dto.getFileSize());
+        int success = this.baseMapper.updateById(entity);
+        if(success>0){
+            return "";
+        }else{
+            return OutEnum.FAIL.getMessage();
+        }
+    }
+
+    @Override
+    public String delFileNorms(InputFilesNormsDelDTO dto){
+        if(StringUtils.isEmpty(dto.getIds())){
+            return OutEnum.MUSTPARAMS.getMessage();
+        }
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("list",StringUtils.strToList(dto.getIds()));
+        this.baseMapper.delBatch(map);
+        return"";
+    }
+}

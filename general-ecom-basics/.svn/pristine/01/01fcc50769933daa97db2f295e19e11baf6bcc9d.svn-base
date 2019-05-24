@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.UserDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.User">
+		<id column="user_id" property="userId" />
+		<result column="nick_name" property="nickName" />
+		<result column="user_img" property="userImg" />
+		<result column="login_name" property="loginName" />
+		<result column="login_pwd" property="loginPwd" />
+		<result column="unionid" property="unionid" />
+		<result column="real_unionid" property="realUnionid" />
+		<result column="weibouid" property="weibouid" />
+		<result column="login_num" property="loginNum" />
+		<result column="register_time" property="registerTime" />
+		<result column="credits" property="credits" />
+		<result column="pcqquid" property="pcqquid" />
+		<result column="qquid" property="qquid" />
+		<result column="login_time" property="loginTime" />
+		<result column="login_ip" property="loginIp" />
+		<result column="phone" property="phone" />
+		<result column="email" property="email" />
+		<result column="status" property="status" />
+		<result column="uuid" property="uuid" />
+		<result column="channel" property="channel" />
+		<result column="grade_id" property="gradeId" />
+		<result column="is_through" property="isThrough" />
+		<result column="invite_code" property="inviteCode" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="account" property="account" />
+		<result column="voiceprint_status" property="voiceprintStatus" />
+		<result column="fingerprint_status" property="fingerprintStatus" />
+		<result column="faceprint_status" property="faceprintStatus" />
+		<result column="privilege_member" property="privilegeMember" />
+		<result column="update_time" property="updateTime" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+	user_id,nick_name,user_img,login_name,login_pwd,unionid,real_unionid,weibouid,login_num,register_time,
+	credits,pcqquid,qquid,login_time,login_ip,phone,email,status,uuid,channel,grade_id,is_through,invite_code,
+	branch,branch_name,account,voiceprint_status,fingerprint_status,faceprint_status,privilege_member,update_time
+	</sql>
+	<select id="findByLoginName" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from tb_user
+		where login_name = #{loginName,jdbcType=VARCHAR} and status='1' and branch=#{branch}
+	</select>
+<select id="findUserAllInfo" parameterType="java.lang.Long" resultType="org.fh.general.ecom.common.dto.basics.user.UserFindAllOutputDTO">
+SELECT
+	A.user_id AS userId,
+	A.nick_name AS nickName,
+	A.user_img AS userImg,
+	A.email AS email,
+	A.phone AS phone,
+	A.login_name AS loginName,
+	A.login_num AS loginNum,
+	A.register_time AS registerTime,
+	A.credits AS credits,
+	A.login_time AS loginTime,
+	A.login_ip AS loginIp,
+	A.`status` AS status,
+	A.uuid AS uuid,
+	A.channel AS channel,
+	A.grade_id AS gradeId,
+	A.is_through AS isThrough,
+	A.invite_code AS inviteCode,
+	A.branch AS branch,
+	A.branch_name AS branchName,
+	A.account AS account,
+	A.voiceprint_status AS voiceprintStatus,
+	A.fingerprint_status AS fingerprintStatus,
+	A.faceprint_status AS faceprintStatus,
+	A.privilege_member AS privilegeMember,
+	A.update_time AS updateTime,
+	B.cust_id AS custId,
+	B.real_name AS realName,
+	B.sex AS sex,
+	B.birthday AS birthday,
+	B.marry_status AS marryStatus,
+	B.sp_name AS spName,
+	B.sp_phone AS spPhone,
+	B.has_child AS hasChild,
+	B.has_house AS hasHouse,
+	B.has_car AS hasCar,
+	B.salary AS salary,
+	B.has_social AS hasSocial,
+	B.social_security AS socialSecurity,
+	B.res_areaId AS resAreaId,
+	B.res_address AS resAddress,
+	B.cert_type AS certType,
+	B.cert_id AS certId,
+	B.cert_img1 AS certImg1,
+	B.cert_img2 AS certImg2,
+	B.cert_img3 AS certImg3,
+	B.job AS job,
+	B.cust_status AS custStatus,
+	B.is_name AS isName,
+	B.reason AS reason
+	FROM tb_user AS A
+	LEFT JOIN tb_customer AS B ON B.user_id = A.user_id
+	WHERE
+	A.user_id = #{userId}
+</select>
+
+</mapper>

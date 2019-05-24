@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.CmsSmsDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.CmsSms">
+		<id column="id" property="id" />
+		<result column="channel" property="channel" />
+		<result column="url" property="url" />
+		<result column="param" property="param" />
+		<result column="title" property="title" />
+		<result column="is_TimeStamp" property="isTimeStamp" />
+		<result column="timeStamp_name" property="timeStampName" />
+		<result column="is_sign" property="isSign" />
+		<result column="sign_name" property="signName" />
+		<result column="success_type" property="successType" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    id, channel, url, param, title, is_TimeStamp, timeStamp_name, is_sign, sign_name, 
+    success_type, create_time
+  </sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		from tb_cms_sms
+		where id = #{id}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from tb_cms_sms
+    where id = #{id}
+  </delete>
+	<insert id="insertSelective" parameterType="org.fh.general.ecom.basics.model.CmsSms" >
+		insert into tb_cms_sms
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="channel != null" >
+				channel,
+			</if>
+			<if test="url != null" >
+				url,
+			</if>
+			<if test="param != null" >
+				param,
+			</if>
+			<if test="title != null" >
+				title,
+			</if>
+			<if test="isTimestamp != null" >
+				is_TimeStamp,
+			</if>
+			<if test="timestampName != null" >
+				timeStamp_name,
+			</if>
+			<if test="isSign != null" >
+				is_sign,
+			</if>
+			<if test="signName != null" >
+				sign_name,
+			</if>
+			<if test="successType != null" >
+				success_type,
+			</if>
+			<if test="createTime != null" >
+				create_time,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+			<if test="id != null" >
+				#{id},
+			</if>
+			<if test="channel != null" >
+				#{channel},
+			</if>
+			<if test="url != null" >
+				#{url},
+			</if>
+			<if test="param != null" >
+				#{param},
+			</if>
+			<if test="title != null" >
+				#{title},
+			</if>
+			<if test="isTimestamp != null" >
+				#{isTimestamp},
+			</if>
+			<if test="timestampName != null" >
+				#{timestampName},
+			</if>
+			<if test="isSign != null" >
+				#{isSign},
+			</if>
+			<if test="signName != null" >
+				#{signName},
+			</if>
+			<if test="successType != null" >
+				#{successType},
+			</if>
+			<if test="createTime != null" >
+				#{createTime},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="org.fh.general.ecom.basics.model.CmsSms" >
+		update tb_cms_sms
+		<set >
+			<if test="channel != null" >
+				channel = #{channel},
+			</if>
+			<if test="url != null" >
+				url = #{url},
+			</if>
+			<if test="param != null" >
+				param = #{param},
+			</if>
+			<if test="title != null" >
+				title = #{title},
+			</if>
+			<if test="isTimestamp != null" >
+				is_TimeStamp = #{isTimestamp},
+			</if>
+			<if test="timestampName != null" >
+				timeStamp_name = #{timestampName},
+			</if>
+			<if test="isSign != null" >
+				is_sign = #{isSign},
+			</if>
+			<if test="signName != null" >
+				sign_name = #{signName},
+			</if>
+			<if test="successType != null" >
+				success_type = #{successType},
+			</if>
+			<if test="createTime != null" >
+				create_time = #{createTime},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="org.fh.general.ecom.basics.model.CmsSms" >
+    update tb_cms_sms
+    set channel = #{channel},
+      url = #{url},
+      param = #{param},
+      title = #{title},
+      is_TimeStamp = #{isTimestamp},
+      timeStamp_name = #{timestampName},
+      is_sign = #{isSign},
+      sign_name = #{signName},
+      success_type = #{successType},
+      create_time = #{createTime}
+    where id = #{id}
+  </update>
+
+	<select id="selectByChannel" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tb_cms_sms
+		where channel = #{channel} order by create_time desc limit 0,1
+	</select>
+
+
+</mapper>

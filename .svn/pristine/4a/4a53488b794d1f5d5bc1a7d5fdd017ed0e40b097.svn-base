@@ -1,0 +1,50 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import org.fh.general.ecom.basics.dao.CmsEmailDao;
+import org.fh.general.ecom.basics.model.CmsEmail;
+import org.fh.general.ecom.basics.service.CmsEmailService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service("cmsEmailService")
+public class CmsEmailServiceImpl implements CmsEmailService {
+	
+	@Autowired
+	private CmsEmailDao cmsEmailDao;
+
+	@Override
+	public int deleteByPrimaryKey(Long id) {
+		return cmsEmailDao.deleteByPrimaryKey(id);
+	}
+
+	@Override
+	public int insert(CmsEmail record) {
+		return cmsEmailDao.insert(record);
+	}
+
+	@Override
+	public int insertSelective(CmsEmail record) {
+		return cmsEmailDao.insertSelective(record);
+	}
+
+	@Override
+	public CmsEmail selectByPrimaryKey(Long id) {
+		return cmsEmailDao.selectByPrimaryKey(id);
+	}
+
+	@Override
+	public int updateByPrimaryKeySelective(CmsEmail record) {
+		return cmsEmailDao.updateByPrimaryKeySelective(record);
+	}
+
+	@Override
+	public int updateByPrimaryKey(CmsEmail record) {
+		return cmsEmailDao.updateByPrimaryKey(record);
+	}
+
+	@Override
+	public CmsEmail selectByChannel(String channel) {
+		return cmsEmailDao.selectByChannel(channel);
+	}
+
+}

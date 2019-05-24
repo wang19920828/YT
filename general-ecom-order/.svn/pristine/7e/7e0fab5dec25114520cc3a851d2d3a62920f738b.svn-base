@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.WithdrawalDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.Withdrawal">
+		<id column="id" property="id" />
+		<result column="apply_id" property="applyId" />
+		<result column="apply_name" property="applyName" />
+		<result column="apply_phone" property="applyPhone" />
+		<result column="apply_time" property="applyTime" />
+		<result column="apply_amount" property="applyAmount" />
+		<result column="apply_account" property="applyAccount" />
+		<result column="bank_name" property="bankName" />
+		<result column="bank_no" property="bankNo" />
+		<result column="open_user" property="openUser" />
+		<result column="remark" property="remark" />
+		<result column="status" property="status" />
+		<result column="audit" property="audit" />
+		<result column="branch" property="branch" />
+	</resultMap>
+
+
+
+
+	<resultMap id="DTOResultMap" type="org.fh.general.ecom.common.po.order.withdrawal.WithdrawalListOutPO">
+		<id column="id" property="id" />
+		<result column="apply_id" property="applyId" />
+		<result column="apply_name" property="applyName" />
+		<result column="apply_phone" property="applyPhone" />
+		<result column="apply_time" property="applyTime" />
+		<result column="apply_amount" property="applyAmount" />
+		<result column="apply_account" property="applyAccount" />
+		<result column="bank_name" property="bankName" />
+		<result column="bank_no" property="bankNo" />
+		<result column="open_user" property="openUser" />
+		<result column="remark" property="remark" />
+		<result column="status" property="status" />
+		<result column="audit" property="audit" />
+		<result column="branch" property="branch" />
+	</resultMap>
+
+	<select id="findWithdrawalList" parameterType="org.fh.general.ecom.common.po.order.withdrawal.WithdrawalListOutPO" resultMap="DTOResultMap">
+		select
+		*
+		from tb_withdrawal
+		<where>
+			<if test="applyNameOrAccount!=null and applyNameOrAccount!=''">
+				AND (apply_name = #{applyNameOrAccount} OR apply_account=#{applyNameOrAccount})
+			</if>
+			<if test="status!=null and status!=''">
+				AND status = #{status}
+			</if>
+			<if test="addTimeStart!=null and addTimeStart!=''">
+				AND apply_time <![CDATA[>= #{addTimeStart} ]]>
+			</if>
+			<if test="addTimeEnd!=null and addTimeEnd!=''">
+				AND apply_time <![CDATA[<= #{addTimeEnd} ]]>
+			</if>
+		</where>
+		order by id desc
+	</select>
+
+
+</mapper>

@@ -1,0 +1,83 @@
+package org.fh.general.ecom.basics.model;
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * <p>
+ * 操作员日志
+ * </p>
+ *
+ * @author admin
+ * @since 2018-06-27
+ */
+@TableName("tb_admin_operation_log")
+@Data
+public class AdminOperationLog implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键id
+     */
+	@TableId(value="id", type= IdType.AUTO)
+	private Long id;
+    /**
+     * 操作员编号
+     */
+	@TableField("admin_no")
+	private String adminNo;
+    /**
+     * 登录名
+     */
+	@TableField("login_name")
+	private String loginName;
+    /**
+     * 执行时间
+     */
+	@TableField("execute_time")
+	private Date executeTime;
+    /**
+     * 操作员名称
+     */
+	@TableField("admin_real_name")
+	private String adminRealName;
+    /**
+     * 所属部门
+     */
+	@TableField("depart_name")
+	private String departName;
+    /**
+     * 角色类型
+     */
+	@TableField("role_type")
+	private String roleType;
+    /**
+     * 操作描述
+     */
+	@TableField("operation_desc")
+	private String operationDesc;
+    /**
+     * 操作结果
+     */
+	@TableField("operation_result")
+	private String operationResult;
+    /**
+     * 交易信息
+     */
+	@TableField("trans_info")
+	private String transInfo;
+    /**
+     * IP地址
+     */
+	@TableField("ip_addr")
+	private String ipAddr;
+
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.basics.dao.UserDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.basics.model.User">
+		<id column="user_id" property="userId" />
+		<result column="nick_name" property="nickName" />
+		<result column="real_name" property="realName" />
+		<result column="birthday" property="birthday" />
+		<result column="sex" property="sex" />
+		<result column="user_img" property="userImg" />
+		<result column="login_name" property="loginName" />
+		<result column="login_pwd" property="loginPwd" />
+		<result column="email" property="email" />
+		<result column="weixin" property="weixin" />
+		<result column="phone" property="phone" />
+		<result column="unionid" property="unionid" />
+		<result column="real_unionid" property="realUnionid" />
+		<result column="weibouid" property="weibouid" />
+		<result column="qquid" property="qquid" />
+		<result column="pcqquid" property="pcqquid" />
+		<result column="uuid" property="uuid" />
+		<result column="login_num" property="loginNum" />
+		<result column="update_time" property="updateTime" />
+		<result column="register_time" property="registerTime" />
+		<result column="credits" property="credits" />
+		<result column="login_time" property="loginTime" />
+		<result column="login_ip" property="loginIp" />
+		<result column="grade_id" property="gradeId" />
+		<result column="invite_code" property="inviteCode" />
+		<result column="res_areaId" property="resAreaId" />
+		<result column="res_address" property="resAddress" />
+		<result column="cert_type" property="certType" />
+		<result column="cert_no" property="certNo" />
+		<result column="cert_img1" property="certImg1" />
+		<result column="cert_img2" property="certImg2" />
+		<result column="cert_img3" property="certImg3" />
+		<result column="is_name" property="isName" />
+		<result column="status" property="status" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="channel" property="channel" />
+		<result column="account" property="account" />
+		<result column="is_payPwd" property="isPayPwd" />
+		<result column="remark" property="remark" />
+	</resultMap>
+
+</mapper>

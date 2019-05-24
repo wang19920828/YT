@@ -1,0 +1,21 @@
+package org.fh.general.ecom.basics.service;
+
+import org.fh.general.ecom.basics.model.AdminRoleRelate;
+
+import java.util.List;
+
+public interface AdminRoleRelateService {
+
+
+
+   /**
+    * 根据角色id 查询用户角色关系
+    * */
+    List<AdminRoleRelate> findListByRoleId(Long roleId);
+
+    /**
+     *   查询所有角色进行初始化
+     * */
+    List<Long> findDistinctRoleList();
+
+}

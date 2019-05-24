@@ -1,0 +1,13 @@
+package org.fh.general.ecom.common.dto.product.web;
+
+import lombok.Data;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/25
+ **/
+@Data
+public class InputWebProjectDetailDTO {
+
+    private Long  id ;
+}

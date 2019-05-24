@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.RedProjectDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.RedProject">
+		<id column="id" property="id" />
+		<result column="project_name" property="projectName" />
+		<result column="project_id" property="projectId" />
+		<result column="company_name" property="companyName" />
+		<result column="amount_real" property="amountReal" />
+		<result column="amount_leiji" property="amountLeiji" />
+		<result column="amount_expected" property="amountExpected" />
+		<result column="current_time" property="currentTime" />
+		<result column="over_status" property="overStatus" />
+		<result column="share_status" property="shareStatus" />
+		<result column="add_time" property="addTime" />
+		<result column="branch" property="branch" />
+		<result column="exp1" property="exp1" />
+		<result column="exp2" property="exp2" />
+	</resultMap>
+
+	<select id="getAmountLeiji" parameterType="org.fh.general.ecom.common.po.order.redProject.GetAmountLeijiInputPO" resultType="java.math.BigDecimal">
+		SELECT
+			IFNULL(SUM(benqi_real_red_amount),0) as amountLeiji
+		FROM
+		tb_red_project_formula
+		<where>
+			<if test="planId!=null and planId!=''">
+				AND plan_id = #{planId}
+			</if>
+			<if test="exp1!=null and exp1!=''">
+				AND exp1 = #{exp1}
+			</if>
+		</where>
+
+	</select>
+
+
+
+
+
+</mapper>

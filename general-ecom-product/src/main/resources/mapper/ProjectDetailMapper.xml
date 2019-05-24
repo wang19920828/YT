@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProjectDetailDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.ProjectDetail">
+		<result column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="pc_header_images" property="pcHeaderImages" />
+		<result column="app_header_images" property="appHeaderImages" />
+		<result column="project_detail" property="projectDetail" />
+		<result column="programme_detail" property="programmeDetail" />
+		<result column="extra_benefits" property="extraBenefits" />
+		<result column="exit_mechanism" property="exitMechanism" />
+		<result column="wind_control_measures" property="windControlMeasures" />
+		<result column="create_by" property="createBy" />
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+		<result column="status" property="status" />
+
+	</resultMap>
+
+</mapper>

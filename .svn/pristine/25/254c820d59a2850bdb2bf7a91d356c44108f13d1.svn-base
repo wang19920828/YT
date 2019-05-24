@@ -1,0 +1,45 @@
+package org.fh.general.ecom.basics.service.impl;
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.fh.general.ecom.basics.dao.AdminOperationLogDao;
+import org.fh.general.ecom.basics.model.AdminOperationLog;
+import org.fh.general.ecom.basics.service.AdminOperationLogService;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogInputDTO;
+import org.fh.general.ecom.common.po.basics.adminOperationLog.AdminOperationLogOutPO;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogOutputDTO;
+import org.fh.general.ecom.common.po.basics.adminOperationLog.AdminOperationLogPO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * <p>
+ * 操作员日志 服务实现类
+ * </p>
+ *
+ * @author admin
+ * @since 2018-06-27
+ */
+@Service("adminOperationLogService")
+public class AdminOperationLogServiceImpl extends ServiceImpl<AdminOperationLogDao, AdminOperationLog> implements AdminOperationLogService {
+
+    @Override
+    public AdminOperationLogOutputDTO findPage(AdminOperationLogInputDTO dto) {
+        AdminOperationLogOutputDTO response = new AdminOperationLogOutputDTO();
+        AdminOperationLogPO po = new AdminOperationLogPO();
+        BeanUtils.copyProperties(dto, po);
+        PageHelper.startPage(dto.getCurrentPageNum(), dto.getPageCount());
+        List<AdminOperationLog> list = baseMapper.findPage(po);
+        PageInfo pageInfo = new PageInfo(list);
+        List<AdminOperationLogOutPO> listAdminMessage = new ArrayList<>();
+        listAdminMessage = list.stream().map(e -> new AdminOperationLogOutPO()).collect(Collectors.toList());
+        response.setList(listAdminMessage);
+        response.setPageInfo(pageInfo);
+        return response;
+    }
+}

@@ -1,0 +1,16 @@
+package org.fh.general.ecom.common.dto.order.withdrawal;
+
+import lombok.Data;
+import org.fh.general.ecom.common.valid.Check;
+
+@Data
+public class AuditSureInputDTO {
+
+    @Check(empty = false, description = "主键ID")
+    private Long id;
+    @Check(empty = false, description = "审核状态：1-待审核 2-通过 3-驳回")
+    private String status;
+    private String auditReamrk;
+    @Check(empty = false, description = "审核人姓名")
+    private String auditName;
+}

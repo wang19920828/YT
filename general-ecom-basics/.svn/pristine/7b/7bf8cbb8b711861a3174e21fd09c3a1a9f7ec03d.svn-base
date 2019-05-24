@@ -1,0 +1,83 @@
+package org.fh.general.ecom.basics.controller;
+
+import org.fh.general.ecom.basics.service.DistrictService;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.basics.district.DistrictDTO;
+import org.fh.general.ecom.common.dto.basics.district.DistrictPageDTO;
+import org.fh.general.ecom.common.vo.basics.district.DistrictListVO;
+import org.fh.general.ecom.common.vo.basics.district.DistrictVO;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 基础信息类型(行政区域)管理
+ *
+ */
+@RestController
+public class DistrictController {
+
+	@Autowired
+	private DistrictService districtService;
+
+	@RequestMapping("DIST80001")
+	public BaseVO findTreeList(){
+		BaseVO baseVo=new BaseVO();
+		DistrictPageDTO response = this.districtService.findTreeAllList();
+		if(response==null || response.getList()==null || response.getList().size()==0){
+			baseVo.noData();
+			return baseVo;
+		}
+
+		DistrictListVO vo = new DistrictListVO();
+
+		List<DistrictDTO> oneList= response.getList();
+		List<DistrictVO> oneListVo = new ArrayList<DistrictVO>();
+		if(oneList!=null && oneList.size()>0) {
+			oneList.forEach((DistrictDTO temp) -> {
+				DistrictVO oneVo = new DistrictVO();
+				BeanUtils.copyProperties(temp, oneVo);
+
+				List<DistrictDTO> twoDto = temp.getChildList();
+				if (twoDto != null && twoDto.size() > 0) {
+					List<DistrictVO> twoListVo = new ArrayList<DistrictVO>();
+					twoDto.forEach((DistrictDTO two) -> {
+						DistrictVO twoVo = new DistrictVO();
+						List<DistrictDTO> threeDto = two.getChildList();
+						BeanUtils.copyProperties(two, twoVo);
+						if (threeDto != null && threeDto.size() > 0) {
+							List<DistrictVO> threeListVo = new ArrayList<DistrictVO>();
+							twoDto.forEach((DistrictDTO three) -> {
+								DistrictVO threeVo = new DistrictVO();
+								BeanUtils.copyProperties(three, threeVo);
+
+								List<DistrictDTO> fourDtoList = three.getChildList();
+								List<DistrictVO> fourListVo = new ArrayList<DistrictVO>();
+								fourDtoList.forEach((DistrictDTO four)->{
+									DistrictVO fourVo = new DistrictVO();
+									BeanUtils.copyProperties(four, fourVo);
+									fourListVo.add(fourVo);
+								});
+								threeVo.setChildList(fourListVo);
+								threeListVo.add(threeVo);
+							});
+							twoVo.setChildList(threeListVo);
+						}
+						twoListVo.add(twoVo);
+					});
+					oneVo.setChildList(twoListVo);
+				}
+				oneListVo.add(oneVo);
+			});
+		}
+		baseVo.setData(oneListVo);
+		baseVo.success();
+		return baseVo;
+
+
+	}
+}

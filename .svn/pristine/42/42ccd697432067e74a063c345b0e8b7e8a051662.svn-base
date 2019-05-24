@@ -1,0 +1,19 @@
+package org.fh.general.ecom.basics.service;
+
+import com.baomidou.mybatisplus.service.IService;
+import org.fh.general.ecom.basics.model.AdminOperationLog;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogInputDTO;
+import org.fh.general.ecom.common.dto.basics.adminOperationLog.AdminOperationLogOutputDTO;
+
+/**
+ * <p>
+ * 操作员日志 服务类
+ * </p>
+ *
+ * @author admin
+ * @since 2018-06-27
+ */
+public interface AdminOperationLogService extends IService<AdminOperationLog> {
+
+    AdminOperationLogOutputDTO findPage(AdminOperationLogInputDTO dto);
+}

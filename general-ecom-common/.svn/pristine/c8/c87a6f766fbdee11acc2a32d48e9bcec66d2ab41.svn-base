@@ -1,0 +1,30 @@
+package org.fh.general.ecom.common.dto.order.orderFront;
+
+
+import com.baomidou.mybatisplus.annotations.TableField;
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.enums.IdType;
+import lombok.Data;
+
+import java.math.BigDecimal;
+import java.util.Date;
+
+@Data
+public class AppointmentAddOrderInputDTO {
+    private String productId;
+    private Long planId;
+    private BigDecimal orgPrice;
+    private BigDecimal allPrice;
+    private Long userId;
+    private String postscript;
+    /**
+     * 订单类型: 0-预约 1-预约认购 2-公开认购
+     */
+    private String orderType;
+    /**
+     * 订单来源:1-线下,2-微信(公众号),3-Android（app）,4-IOS（app）,5-小程序,6-Web,7-Wap
+     */
+    private String channel;
+
+
+}

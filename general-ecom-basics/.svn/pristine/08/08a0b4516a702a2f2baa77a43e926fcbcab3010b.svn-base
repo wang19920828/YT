@@ -1,0 +1,18 @@
+package org.fh.general.ecom.basics.service;
+
+import org.fh.general.ecom.basics.model.JournalSn;
+import com.baomidou.mybatisplus.service.IService;
+
+/**
+ * <p>
+ *  服务类
+ * </p>
+ *
+ * @author pjj
+ * @since 2018-10-08
+ */
+public interface JournalSnService extends IService<JournalSn> {
+
+    public String orderJournalSn();
+	
+}

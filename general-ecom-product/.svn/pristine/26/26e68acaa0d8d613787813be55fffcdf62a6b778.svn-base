@@ -1,0 +1,159 @@
+package org.fh.general.ecom.product.controller;
+
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.base.PagingVO;
+import org.fh.general.ecom.common.dto.product.consulting.InputConsultingProjectAddDTO;
+import org.fh.general.ecom.common.dto.product.mongo.InputMongoDBProjectDTO;
+import org.fh.general.ecom.common.dto.product.mongo.OutputMongoProjectDTO;
+import org.fh.general.ecom.common.dto.product.web.InputWebProjectDetailDTO;
+import org.fh.general.ecom.common.dto.product.web.InputWebProjectListDTO;
+import org.fh.general.ecom.common.dto.product.web.OutputWebProjectDetailAllDTO;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.enums.ProjectEnum;
+import org.fh.general.ecom.common.po.product.project.ProjectFilesListOutputPO;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.common.vo.product.project.ProjectFilesVO;
+import org.fh.general.ecom.common.vo.product.web.ProjectWebDetailVO;
+import org.fh.general.ecom.common.vo.product.web.ProjectWebListVO;
+import org.fh.general.ecom.product.service.ConsultingProjectService;
+import org.fh.general.ecom.product.service.ProjectMongoDBService;
+import org.fh.general.ecom.product.service.ProjectProgrammeService;
+import org.fh.general.ecom.product.service.ProjectService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @Author huliping
+ * @DATE 2018/9/25
+ **/
+@RestController
+public class ProjectWebController {
+
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private ConsultingProjectService consultingProjectService;
+    @Autowired
+    private ProjectMongoDBService projectMongoDBService;
+    @Autowired
+    private ProjectProgrammeService projectProgrammeService;
+
+    @RequestMapping("WEBP0001")
+    public BaseVO addConsultingProject(InputConsultingProjectAddDTO dto){
+        BaseVO baseVo = new BaseVO();
+        String  code= consultingProjectService.addConsulting(dto);
+        if(!OutEnum.SUCCESS.getCode().equals(code)){
+            getTipMsg(baseVo,code);
+        }else{
+            baseVo.success();
+        }
+        return baseVo;
+    }
+
+    @RequestMapping("WEBP0002")
+    public PagingVO findWebPage(InputWebProjectListDTO dto){
+        InputMongoDBProjectDTO request = new InputMongoDBProjectDTO();
+        BeanUtils.copyProperties(dto,request);
+        PagingVO response =projectMongoDBService.findListFromMongoDB(request);
+        List<OutputMongoProjectDTO> list = ( List<OutputMongoProjectDTO>)response.getData();
+       if(list!=null && list.size()>0) {
+           response.setData(findRemainingTimeAndSchedule(list));
+           response.success();
+       }else{
+           response.noData();
+       }
+        return response;
+    }
+
+
+
+    @RequestMapping("WEBP0003")
+    public BaseVO findWebDetail(InputWebProjectDetailDTO dto ){
+        BaseVO baseVo= new BaseVO();
+        OutputWebProjectDetailAllDTO response = projectService.findWebDetail(dto);
+        if(response==null){
+            baseVo.noData();
+        }
+        ProjectWebDetailVO vo = new ProjectWebDetailVO();
+        BeanUtils.copyProperties(response,vo);
+
+        List<ProjectFilesListOutputPO> list =  response.getOpenList();
+        List<ProjectFilesVO>  listVo = new ArrayList<ProjectFilesVO>();
+        list.forEach((ProjectFilesListOutputPO temp)->{
+            ProjectFilesVO dto1 = new ProjectFilesVO();
+            BeanUtils.copyProperties(temp,dto1);
+            listVo.add(dto1);
+        });
+        vo.setOpenList(listVo);
+        list =  response.getPrivateList();
+        List<ProjectFilesVO>  listVo1 = new ArrayList<ProjectFilesVO>();
+        list.forEach((ProjectFilesListOutputPO temp)->{
+            ProjectFilesVO dto1 = new ProjectFilesVO();
+            BeanUtils.copyProperties(temp,dto1);
+            listVo1.add(dto1);
+        });
+        vo.setPrivateList(listVo1);
+        baseVo.setData(vo);
+        baseVo.success();
+        return baseVo;
+    }
+
+
+    @RequestMapping("WEBP0004")
+    public PagingVO findWebHotProjectPage(InputWebProjectDetailDTO dto ){
+        PagingVO response =projectMongoDBService.findWebHotProjectPage(dto);
+        List<OutputMongoProjectDTO> list = ( List<OutputMongoProjectDTO>)response.getData();
+        if(list!=null && list.size()>0) {
+            response.setData( findRemainingTimeAndSchedule(list));
+            response.success();
+        }else{
+            response.noData();
+        }
+           return response;
+    }
+
+    private List<ProjectWebListVO>  findRemainingTimeAndSchedule(List<OutputMongoProjectDTO> list) {
+        List<ProjectWebListVO> listVo = new ArrayList<ProjectWebListVO>();
+        list.forEach((OutputMongoProjectDTO temp) -> {
+            ProjectWebListVO vo = new ProjectWebListVO();
+            BeanUtils.copyProperties(temp, vo);
+            vo.setId(Long.valueOf(temp.getId()));
+            BigDecimal total = this.projectProgrammeService.findTotalAmount(temp.getId());
+            BigDecimal amount = this.projectService.findFinishedAmount(temp.getProjectStatus(), temp.getId() + "");
+
+            if(total.compareTo(BigDecimal.ZERO)!=0){
+                vo.setSchedule(amount.divide(total).setScale(2, BigDecimal.ROUND_UP) + "");
+            }else{
+                vo.setSchedule("0.00");
+            }
+
+            if (ProjectEnum.ProjectStatus.APPOINTMENT.getValue().equals(temp.getProjectStatus())) {
+                vo.setRemainingTime(DateUtils.getBetweenTime(new Date(), temp.getEndTime()));
+            } else if (ProjectEnum.ProjectStatus.SUBSCRIBE.getValue().equals(temp.getProjectStatus())) {
+                vo.setRemainingTime(DateUtils.getBetweenTime(new Date(), temp.getPurchaseEndTime()));
+            }
+            listVo.add(vo);
+        });
+        return listVo;
+    }
+
+
+    private void  getTipMsg(BaseVO baseVo, String code) {
+        if(OutEnum.TIPS.getCode().equals(code)){
+            baseVo.setBusAlert("项目名称不得重复");
+        }else if(OutEnum.WARN.getCode().equals(code)) {
+            baseVo.error(OutEnum.WARN.getMessage());
+        }else{
+            baseVo.error(OutEnum.FAIL.getMessage());
+        }
+    }
+
+
+}

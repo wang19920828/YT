@@ -1,0 +1,450 @@
+package org.fh.general.ecom.order.service.impl;
+
+
+import com.baomidou.mybatisplus.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.fh.general.ecom.common.base.BaseVO;
+import org.fh.general.ecom.common.dto.basics.user.UserOutputDTO;
+import org.fh.general.ecom.common.dto.basics.user.MyUserAddressPO;
+import org.fh.general.ecom.common.dto.basics.user.UserAddressOutPutDTO;
+import org.fh.general.ecom.common.dto.basics.user.electronicsAccount.ElectronicsAccountOutputDTO;
+import org.fh.general.ecom.common.dto.order.goldTicket.MyGoldTicketInputDTO;
+import org.fh.general.ecom.common.dto.order.order.FindListInputDTO;
+import org.fh.general.ecom.common.dto.order.order.OrderBgDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.order.OrderEntityOutDTO;
+import org.fh.general.ecom.common.dto.order.order.OrderUpdateInputDTO;
+import org.fh.general.ecom.common.dto.basics.user.UserOutputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.AppointmentAddOrderInputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.AppointmentDetailInputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.AppointmentDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.OrderSnOutDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.RenGouAddOrderInputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.RenGouDetailInputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.RenGouDetailOutputDTO;
+import org.fh.general.ecom.common.dto.order.orderFront.YuyuePriceOutDTO;
+import org.fh.general.ecom.common.dto.product.order.OutputProgrammeCountDTO;
+import org.fh.general.ecom.common.enumeration.order.GoldTicketEnum;
+import org.fh.general.ecom.common.enumeration.order.OrderEnum;
+import org.fh.general.ecom.common.enums.OutEnum;
+import org.fh.general.ecom.common.po.order.goldTicket.GoldTicketListOutPO;
+import org.fh.general.ecom.common.po.order.goldTicket.MyGoldOutPO;
+import org.fh.general.ecom.common.po.order.order.OrderPO;
+import org.fh.general.ecom.common.po.product.order.InputProgrammePO;
+import org.fh.general.ecom.common.utils.DateUtils;
+import org.fh.general.ecom.common.utils.StringUtils;
+import org.fh.general.ecom.common.vo.product.project.PlanEntityVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectOneDetailVO;
+import org.fh.general.ecom.common.vo.product.project.ProjectProgrammeVO;
+import org.fh.general.ecom.order.client.BasicsClient;
+import org.fh.general.ecom.order.client.ProductClient;
+import org.fh.general.ecom.order.dao.OrderDao;
+import org.fh.general.ecom.order.model.GoldTicket;
+import org.fh.general.ecom.order.model.Order;
+import org.fh.general.ecom.order.model.OrderProduct;
+import org.fh.general.ecom.order.service.GoldTicketService;
+import org.fh.general.ecom.order.service.OrderFrontService;
+import org.fh.general.ecom.order.service.OrderProductService;
+import org.fh.general.ecom.order.service.OrderService;
+import org.fh.general.ecom.order.service.ValidateService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
+
+@Slf4j
+@Service
+public class OrderFrontServiceImpl extends ServiceImpl<OrderDao, Order> implements OrderFrontService {
+
+    @Autowired
+    private ProductClient productClient;
+    @Autowired
+    private BasicsClient basicsClient;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private OrderProductService orderProductService;
+    @Autowired
+    private GoldTicketService goldTicketService;
+    @Autowired
+    private ValidateService validateService;
+
+    //预约结算页
+    @Override
+    public BaseVO appointmentPayInfo(AppointmentDetailInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        AppointmentDetailOutputDTO resDto=new AppointmentDetailOutputDTO();
+        try {
+            //项目
+            ProjectOneDetailVO project=this.productClient.findDetailByProjectId(dto.getProjectId());
+            if(project==null){
+                String msg="projectId["+dto.getProjectId()+"]有误，项目基础信息表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            resDto.setProjectName(project.getProjectName());
+            //方案
+            PlanEntityVO planEn=this.productClient.findProgrammeEntityById(Long.valueOf(dto.getPlanId()));
+            if(planEn==null){
+                String msg="planId["+dto.getPlanId()+"]有误，方案基础信息表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            //用户
+            UserOutputDTO user = this.basicsClient.findCustomerByUserId(dto.getUserId());
+            if(user==null){
+                String msg="userId["+dto.getUserId()+"]有误，用户基础信息表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+
+            resDto.setPlanName(planEn.getProgrammeName());
+            resDto.setLimitNumber(planEn.getLimitNumber());
+            resDto.setTotalNum(planEn.getNumber());
+
+            InputProgrammePO leaveDto=new InputProgrammePO();
+            leaveDto.setOrderTypes("1,2");
+            leaveDto.setPlanId(dto.getPlanId());
+            OutputProgrammeCountDTO leaveOut= this.orderProductService.findProgrammeCountById(leaveDto);
+            Long leaveNum=planEn.getNumber()-Long.valueOf(leaveOut.getTotal());
+            resDto.setLeaveNum(leaveNum); //剩余份数=总份数-已经购买份数
+            resDto.setLessMoney(planEn.getUnitPrice());
+
+            //总金额=单价*数量
+            BigDecimal totalAmount=planEn.getUnitPrice().multiply(new BigDecimal(dto.getBuyNum()));
+            resDto.setInvestMoney(totalAmount);
+            //预约款=总金额*1%
+            String value=this.orderService.getDictionaryOneValue("appointment_rate",dto.getBranch());
+            resDto.setRate(new BigDecimal(value));
+            resDto.setPreAllPrice(totalAmount.multiply(new BigDecimal(value)));
+            String appointment_note=this.orderService.getDictionaryOneValue("appointment_note",dto.getBranch());
+            resDto.setAppointmentNote(appointment_note);
+            resDto.setIdCard(user.getCertNo());
+            resDto.setUserName(user.getRealName());
+            baseVO.success(resDto);
+            return baseVO;
+        } catch (NumberFormatException e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+
+    //预约结算下单
+    //Long TIME_DIFFERENCE = 1 * 1 * 30 * 60 * 1000L;//天*小时*分*秒*毫秒
+    @Override
+    @Transactional
+    public BaseVO appointmentAddOrder(AppointmentAddOrderInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            ProjectOneDetailVO project=this.productClient.findDetailByProjectId(dto.getProjectId());
+            if(project==null){
+                String msg="入参projectId["+dto.getProjectId()+"]有误，项目基础信息表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            UserOutputDTO user = this.basicsClient.findCustomerByUserId(dto.getUserId());
+            if(user ==null || StringUtils.isEmpty(user.getRealName())){
+                String msg="userId["+dto.getUserId()+"]有误，用户基础信息表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            String orderSn=this.basicsClient.getOrderJournalSn();
+
+            //生成订单
+            Order mainOrder=new Order();
+            BeanUtils.copyProperties(dto,mainOrder);
+            mainOrder.setOrderSn(orderSn);
+            mainOrder.setAddTime(new Date());
+            mainOrder.setProductId(dto.getProjectId());
+            mainOrder.setProjectName(project.getProjectName());
+            mainOrder.setUserName(user.getRealName());
+            mainOrder.setUserPhone(user.getPhone());
+            mainOrder.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_NORMAL.getValue());
+            mainOrder.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_NO.getValue());
+
+            this.baseMapper.insert(mainOrder);
+
+            OrderSnOutDTO responDto=new OrderSnOutDTO();
+            responDto.setOrderSn(mainOrder.getOrderSn());
+            responDto.setAllPrice(mainOrder.getAllPrice());
+            baseVO.success(responDto);
+        } catch (BeansException e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+
+
+
+    //=======================================================认购=======================================
+    //认购-显示
+    @Override
+    public BaseVO  renGouPayInfo(RenGouDetailInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            RenGouDetailOutputDTO resDto=new RenGouDetailOutputDTO();
+            //项目信息
+            ProjectOneDetailVO project=this.productClient.findDetailByProjectId(dto.getProjectId()+"");
+            PlanEntityVO planEn=this.productClient.findProgrammeEntityById(dto.getPlanId());
+            if(project==null || planEn==null){
+                String msg="projectId["+dto.getProjectId()+"]或planId["+dto.getPlanId()+"]有误";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            resDto.setProductId(dto.getProjectId());
+            resDto.setProjectName(project.getProjectName());
+            resDto.setPlanId(dto.getPlanId());
+            resDto.setPlanName(planEn.getProgrammeName());
+            resDto.setLimitNumber(planEn.getLimitNumber());
+            resDto.setTotalNum(planEn.getNumber());
+
+            InputProgrammePO leaveDto=new InputProgrammePO();
+            leaveDto.setOrderTypes("1,2");
+            leaveDto.setPlanId(dto.getPlanId()+"");
+            OutputProgrammeCountDTO leaveOut= this.orderProductService.findProgrammeCountById(leaveDto);
+            Long leaveNum=planEn.getNumber()-Long.valueOf(leaveOut.getTotal());
+            resDto.setLeaveNum(leaveNum); //剩余份数=总份数-已经购买份数
+            resDto.setLessMoney(planEn.getUnitPrice());
+
+            //用户身份证等信息
+            UserOutputDTO customerVo=this.basicsClient.findCustomerByUserId(dto.getUserId());
+            if(customerVo ==null || StringUtils.isEmpty(customerVo.getRealName())){
+                baseVO.error("userId["+dto.getUserId()+"]有误，用户基础信息表查无数据");
+                return baseVO;
+            }
+            resDto.setUserName(customerVo.getRealName());
+            resDto.setIdCard(customerVo.getCertNo());
+            resDto.setEmail(customerVo.getEmail());
+
+            String preValue= this.orderService.getDictionaryOneValue("appointment_note",dto.getBranch());
+            String coolValue= this.orderService.getDictionaryOneValue("cool_note",dto.getBranch());
+            resDto.setCoolNote(coolValue);
+            resDto.setPreNote(preValue);
+
+
+            //我的默认收货地址信息
+            MyUserAddressPO addressPO=this.basicsClient.findUserDefaultAddress(dto.getUserId());
+            if(addressPO !=null){
+                resDto.setAddressEn(addressPO);
+            }
+
+            //我的代金券列表
+            /*MyGoldTicketInputDTO goldParam=new MyGoldTicketInputDTO();
+            goldParam.setUserId(dto.getUserId());
+            goldParam.setPlanId(dto.getPlanId());
+            List<MyGoldOutPO>  goldList=this.goldTicketService.findMyGoldList(goldParam);
+            if(goldList!=null && goldList.size()>0){
+                resDto.setGoldList(goldList);
+            }*/
+
+            //金额信息
+            BigDecimal totalAmount=planEn.getUnitPrice().multiply(new BigDecimal(dto.getBuyNum()));
+            resDto.setOrgPrice(totalAmount);
+            YuyuePriceOutDTO yuyueDto=this.findYuyuePrice(dto.getPlanId(),dto.getUserId());
+            resDto.setYuyuePrice(yuyueDto==null?new BigDecimal(0.00):yuyueDto.getYuyePrice());
+            resDto.setAllPrice(this.sumAllPrice(resDto.getOrgPrice(),resDto.getYuyuePrice(),new BigDecimal(0.00)));
+
+            baseVO.success(resDto);
+        } catch (Exception e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+
+
+    //认购-下单
+    @Override
+    @Transactional
+    public BaseVO  renGouAddOrder(RenGouAddOrderInputDTO dto){
+        BaseVO baseVO=new BaseVO();
+        try {
+            //下单前校验
+            String code=this.validateAddOrder(dto);
+            if(!OutEnum.SUCCESS.getCode().equals(code)){
+                baseVO.setBusAlert(code);
+                return baseVO;
+            }
+
+            //下单准备数据
+            ProjectOneDetailVO project=this.productClient.findDetailByProjectId(dto.getProjectId()+"");
+            PlanEntityVO planEn=this.productClient.findProgrammeEntityById(dto.getPlanId());
+            UserOutputDTO customerVo=this.basicsClient.findCustomerByUserId(dto.getUserId());
+            if(project==null || customerVo==null || planEn==null){
+                String msg="projectId["+dto.getProjectId()+"]或planId["+dto.getPlanId()+"]或userId["+dto.getUserId()+"]有误";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            //收货地址：
+            UserAddressOutPutDTO address=this.basicsClient.findAddressById(dto.getAddressId());
+            if(address==null){
+                String msg="addressId["+dto.getAddressId()+"]有误,基础表查无数据";
+                log.info(msg);
+                baseVO.error(msg);
+                return baseVO;
+            }
+            String orderSn=this.basicsClient.getOrderJournalSn();
+
+            //生成订单
+            Order mainOrder=new Order();
+            BeanUtils.copyProperties(dto,mainOrder);
+            mainOrder.setOrderSn(orderSn);
+            mainOrder.setAddTime(new Date());
+            mainOrder.setProductId(dto.getProjectId()+"");
+            mainOrder.setProjectName(project.getProjectName());
+            mainOrder.setUserName(customerVo.getRealName());
+            mainOrder.setUserPhone(customerVo.getPhone());
+            mainOrder.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_NORMAL.getValue());
+            mainOrder.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_NO.getValue());
+
+            //收货地址
+            mainOrder.setAcceptName(address.getName());
+            mainOrder.setAcceptPhone(address.getMobile());
+            mainOrder.setAddress(address.getAddress());
+            mainOrder.setShareAll(new BigDecimal(0.00));
+            //代金券金额：
+            if(StringUtils.isNotEmpty(dto.getTicketSn())){
+                GoldTicketListOutPO gold=this.goldTicketService.findEntityByTicketSn(dto.getTicketSn());
+                if(!GoldTicketEnum.UseState.USE_STATE_WAIT.getValue().equals(gold.getUseState())){
+                    baseVO.error("代金券["+dto.getTicketSn()+"]已过期");
+                    return baseVO;
+                }
+                mainOrder.setShareAll(gold.getAmount());
+            }
+            //预约款
+            BigDecimal totalAmount=planEn.getUnitPrice().multiply(new BigDecimal(dto.getBuyNum()));
+            mainOrder.setOrgPrice(totalAmount);
+            mainOrder.setInvestMoney(totalAmount);
+            mainOrder.setYuyuePrice(new BigDecimal(0.00));
+            YuyuePriceOutDTO yuyueDto=this.findYuyuePrice(dto.getPlanId(),dto.getUserId());
+            if(dto.getOrderType().equals(OrderEnum.OrderType.APPOINTMENTAMOUNT_BUY.getValue()) && yuyueDto !=null){
+                mainOrder.setYuyuePrice(yuyueDto.getYuyePrice());
+                mainOrder.setOldcode(yuyueDto.getOrderSn());
+            }
+            BigDecimal allPrice=this.sumAllPrice(mainOrder.getOrgPrice(),mainOrder.getYuyuePrice(),mainOrder.getShareAll());
+            mainOrder.setAllPrice(allPrice);
+            if(allPrice.compareTo(dto.getAllPrice()) !=0){
+                log.info("页面传入实付金额（"+dto.getAllPrice()+"）与后台计算实付（"+allPrice+"）金额不一致请!");
+                baseVO.setBusAlert("页面传入实付金额（"+dto.getAllPrice()+"）与后台计算实付（"+allPrice+"）金额不一致!");
+                return baseVO;
+            }
+
+            this.baseMapper.insert(mainOrder);
+
+            //TODO 订单产品关系表
+
+
+            //代金券状态更新为“已使用”
+            GoldTicketListOutPO  gold= this.goldTicketService.findEntityByTicketSn(dto.getTicketSn());
+            GoldTicket  gtt=new GoldTicket();
+            gtt.setUseState(GoldTicketEnum.UseState.USE_STATE_USED.getValue());
+            this.goldTicketService.updateAllColumnById(gtt);
+            //如果是预约认购尾款订单，把预约单号更新上去、把预约单完成时间更新
+            if(dto.getOrderType().equals(OrderEnum.OrderType.APPOINTMENTAMOUNT_BUY.getValue()) && yuyueDto !=null){
+                OrderEntityOutDTO yuyueOrder=this.orderService.findEntityByOrderSn(yuyueDto.getOrderSn());
+                Order t=new Order();
+                BeanUtils.copyProperties(yuyueOrder,t);
+                t.setCompleteTime(new Date());
+                this.baseMapper.updateById(t);
+            }
+
+            OrderSnOutDTO responDto=new OrderSnOutDTO();
+            responDto.setOrderSn(mainOrder.getOrderSn());
+            responDto.setAllPrice(mainOrder.getAllPrice());
+            baseVO.success(responDto);
+        } catch (Exception e) {
+            baseVO.exception();
+            e.printStackTrace();
+        }
+        return baseVO;
+    }
+
+
+    public String insertInvestProduct(Order mainOrder){
+        String code="";
+        OrderProduct opEntity=new OrderProduct();
+
+
+
+        //this.orderProductService.insert();
+        return code;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //获取预约款
+    public YuyuePriceOutDTO findYuyuePrice(Long planId, Long userId){
+        FindListInputDTO  listDto=new FindListInputDTO();
+        listDto.setPlanId(planId+"");
+        listDto.setUserId(userId+"");
+        listDto.setOrderType(OrderEnum.OrderType.APPOINTMENTAMOUNT.getValue());
+        listDto.setPayStatus(OrderEnum.PayStatus.PAY_STATUS_OK.getValue());
+        listDto.setOrderStatus(OrderEnum.OrderStataus.ORDER_STATUS_NORMAL.getValue());
+        listDto.setNoCompleteTime("noCompleteTime");
+        List<OrderPO>  list=this.orderService.findList(listDto);
+        if(list!=null && list.size()>0){
+            OrderPO entity=list.get(0);
+            YuyuePriceOutDTO res=new YuyuePriceOutDTO();
+            res.setOrderSn(entity.getOrderSn());
+            res.setYuyePrice(entity.getAllPrice());
+            return res;
+        }
+        return null;
+    }
+
+
+    //计算实付金额
+    public BigDecimal sumAllPrice(BigDecimal orgPrice,BigDecimal yuyuePrice,BigDecimal shareAll){
+        //实付金额=订单总金额-预约款-代金券(?)
+        BigDecimal allPrice=orgPrice.subtract(yuyuePrice).subtract(shareAll).setScale(2,BigDecimal.ROUND_HALF_UP);
+        return allPrice;
+    }
+
+
+
+    public String validateAddOrder(RenGouAddOrderInputDTO dto){
+        String code="";
+        ElectronicsAccountOutputDTO account=this.basicsClient.findAccountByUserId(dto.getUserId());
+        if(account==null || StringUtils.isEmpty(account.getAccountNo())){
+            String msg="用户["+dto.getUserId()+"]，请先去开通电子账号！";
+            return "请先去开通电子账号";
+        }
+        Boolean  realNameFlag=this.basicsClient.findIsNameByUserId(dto.getUserId());
+        if(!realNameFlag){
+            return "请先进行实名认证";
+        }
+        code=OutEnum.SUCCESS.getCode();
+        return code;
+    }
+
+
+
+
+}

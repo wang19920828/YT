@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.product.dao.ProjectDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.product.model.Project">
+		<id column="id" property="id" />
+		<result column="project_no" property="projectNo" />
+		<result column="project_name" property="projectName" />
+		<result column="company_id" property="companyId" />
+		<result column="project_type" property="projectType" />
+		<result column="rights_type" property="rightsType" />
+		<result column="project_schedule" property="projectSchedule" />
+		<result column="property_weight" property="propertyWeight" />
+		<result column="detail_address" property="detailAddress" />
+		<result column="contacts" property="contacts" />
+		<result column="contacts_tel" property="contactsTel" />
+		<result column="build_area" property="buildArea" />
+		<result column="rooms_shop_number" property="roomsShopNumber" />
+		<result column="unit_price" property="unitPrice" />
+		<result column="project_status" property="projectStatus" />
+		<result column="area_address" property="areaAddress" />
+		<result column="pc_image_url" property="pcImageUrl" />
+		<result column="app_image_url" property="appImageUrl" />
+		<result column="project_summary" property="projectSummary" />
+		<result column="project_source" property="projectSource" />
+		<result column="consulting_id" property="consultingId" />
+		<result column="create_by" property="createBy" />
+		<result column="create_date" property="createDate" />
+		<result column="update_by" property="updateBy" />
+		<result column="update_date" property="updateDate" />
+		<result column="publish_date" property="publishDate" />
+		<result column="success_date" property="successDate" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName" />
+		<result column="channel" property="channel" />
+	</resultMap>
+
+
+
+	<resultMap id="OutPOMap" type="org.fh.general.ecom.common.po.product.project.ProjectListOutputPO">
+		<id column="id" property="id" />
+		<result column="project_no" property="projectNo" />
+		<result column="project_name" property="projectName" />
+		<result column="company_id" property="companyId" />
+		<result column="project_type" property="projectType" />
+		<result column="rights_type" property="rightsType" />
+		<result column="project_schedule" property="projectSchedule" />
+		<result column="property_weight" property="propertyWeight" />
+		<result column="detail_address" property="detailAddress" />
+		<result column="contacts" property="contacts" />
+		<result column="contacts_tel" property="contactsTel" />
+		<result column="build_area" property="buildArea" />
+		<result column="rooms_shop_number" property="roomsShopNumber" />
+		<result column="unit_price" property="unitPrice" />
+		<result column="project_status" property="projectStatus" />
+		<result column="area_address" property="areaAddress" />
+		<result column="pc_image_url" property="pcImageUrl" />
+		<result column="app_image_url" property="appImageUrl" />
+		<result column="project_summary" property="projectSummary" />
+		<result column="project_source" property="projectSource" />
+		<result column="consulting_id" property="consultingId" />
+		<result column="create_by" property="createBy" />
+		<result column="update_by" property="updateBy" />
+		<result column="branch" property="branch" />
+		<result column="branch_name" property="branchName"/>
+		<result column="channel" property="channel"/>
+		<result column="company_name" property="companyName"/>
+		<result column="logo" property="logo"/>
+	</resultMap>
+
+
+
+
+	<select id ="selectByStatus"  parameterType="java.util.HashMap"  resultMap="OutPOMap">
+		select
+		a.id,a.project_no,a.company_id,a.project_name,a.project_type,a.rights_type,a.project_schedule,a.property_weight,a.detail_address,a.
+		contacts,a.contacts_tel,a.build_area,a.rooms_shop_number,a.unit_price,a.project_status,a.area_address,a.pc_image_url,a.app_image_url,a.
+		project_summary,a.project_source,a.consulting_id,a.create_by,a.create_date,a.update_by,a.update_date,a.branch,a.branch_name,a.branch,a.
+		branch_name,a.channel,b.company_name,b.logo
+		from tb_project a
+		left join  tb_organization_info b on a.company_id = b.id
+		<where>
+			<if test="projectStatus!=null  and  projectStatus!=''">
+				and a.project_status = #{projectStatus}
+			</if>
+			<if test="list!=null ">
+				and  a.id in
+				<foreach collection="list"   index="index"  item="item" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
+	<update id ="updateBatchStatus"  parameterType="java.util.HashMap"  >
+		UPDATE   tb_project
+		set project_status = #{projectStatus},update_by= #{updateBy},update_date=#{updateDate}
+		<if test="publishDate!=null  "> ,publish_date=#{publishDate} </if>
+
+		<where>
+			<if test="list!=null  ">
+				and  id in
+				<foreach collection="list"   index="index"  item="item" separator="," open="(" close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</update>
+
+	<select id="findListByParams" parameterType="java.util.HashMap"  resultType="java.lang.String" >
+		select a.id  from  tb_project a
+		left join  tb_project_financing b on a.id = b.project_id
+		<where>
+			<if test="projectStatus!=null  and  projectStatus!=''">
+				and a.project_status = #{projectStatus}
+			</if>
+
+			<if test="yuyueStartTime!=null ">
+				and b.start_time  <![CDATA[ <=  #{yuyueStartTime} ]]>
+			</if>
+			<if test="rengouStartTime!=null ">
+				and DATE_SUB(b.purchase_start_time,INTERVAL - 2 DAY)  <![CDATA[ <=  #{rengouStartTime} ]]>
+			</if>
+			<if test="rengouEndTime!=null ">
+				and b.purchase_end_time  <![CDATA[ <=  #{rengouEndTime} ]]>
+			</if>
+			<if test="rengouEndTime!=null ">
+				and b.delay_date  <![CDATA[ <=  #{yanqiEndTime} ]]>
+			</if>
+
+			<if test="yuyueRenGouTime!=null ">
+				now()  BETWEEN  b.end_time  and   DATE_SUB(b.end_time,INTERVAL -2 DAY)
+			</if>
+
+		</where>
+	</select>
+
+
+
+
+	<select id="findData" parameterType="org.fh.general.ecom.common.po.product.project.ProjectListOutputPO"  resultMap="OutPOMap">
+		select
+		a.id,a.project_no,a.company_id,a.project_name,a.project_type,a.rights_type,a.project_schedule,a.property_weight,a.detail_address,a.
+		contacts,a.contacts_tel,a.build_area,a.rooms_shop_number,a.unit_price,a.project_status,a.area_address,a.pc_image_url,a.app_image_url,a.
+		project_summary,a.project_source,a.consulting_id,a.create_by,a.create_date,a.update_by,a.update_date,a.branch,a.branch_name,a.branch,a.
+		branch_name,a.channel,b.company_name
+		from tb_project a
+		left join  tb_organization_info b on a.company_id = b.id
+		<where>
+			<if test="projectStatus!=null  and  projectStatus!=''">
+				and a.project_status = #{projectStatus}
+			</if>
+
+			<if test="projectName!=null and projectName!='' ">
+				and a.project_name  like  CONCAT('%',#{projectName},'%')
+			</if>
+			<if test="branch!=null and branch!='' ">
+				and a.branch = #{branch}
+			</if>
+			<if test="channel!=null and channel!='' ">
+				and a.channel = #{channel}
+			</if>
+			<if test="projectType!=null and projectType!='' ">
+				and a.project_type = #{projectType}
+			</if>
+			<if test="rightsType!=null and rightsType!='' ">
+				and a.rights_type = #{rightsType}
+			</if>
+
+		</where>
+	</select>
+</mapper>

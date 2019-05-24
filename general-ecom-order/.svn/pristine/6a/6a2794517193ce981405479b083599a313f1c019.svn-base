@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.fh.general.ecom.order.dao.CalendarDao">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="org.fh.general.ecom.order.model.Calendar">
+		<id column="id" property="id" />
+		<result column="project_id" property="projectId" />
+		<result column="red_project_id" property="redProjectId" />
+		<result column="plan_id" property="planId" />
+		<result column="plan_name" property="planName" />
+		<result column="current_red_year_rate" property="currentRedYearRate" />
+		<result column="share_amount" property="shareAmount" />
+		<result column="share_time" property="shareTime" />
+		<result column="share_day" property="shareDay" />
+		<result column="exp1" property="exp1" />
+		<result column="exp2" property="exp2" />
+	</resultMap>
+
+
+	<!-- 分红明细（实际分红金额）-->
+	<select id="sumBenqiRealRedAmount" parameterType="java.util.HashMap" resultType="java.math.BigDecimal">
+		SELECT
+		IFNULL(sum(benqi_real_red_amount),0)
+		FROM
+		tb_red_project_formula
+		<where>
+			<if test="redProjectId!=null and redProjectId!=''">
+				AND red_project_id = #{redProjectId}
+			</if>
+		</where>
+	</select>
+
+
+
+	<select id="findMyCalendarList" parameterType="org.fh.general.ecom.common.po.order.calendar.MyCalListParamPO" resultType="org.fh.general.ecom.common.po.order.calendar.MyCalendarPO">
+		SELECT
+			A.project_id as projectId,
+			B.project_name as projectName ,
+			B.project_status as projectStatus
+		FROM
+		tb_calendar A JOIN db_product_info.tb_project B on A.project_id=B.id
+		<where>
+			<if test="shareDay!=null and shareDay!=''">
+				AND A.share_day = #{shareDay}
+			</if>
+		</where>
+		GROUP BY A.share_day
+	</select>
+
+    <select id="findInDays" parameterType="org.fh.general.ecom.common.po.order.calendar.InDaysParamPO" resultType="org.fh.general.ecom.common.po.order.calendar.InDaysPO">
+        SELECT
+          share_day as shareDay
+        FROM
+        tb_calendar
+        <where>
+            <!--<if test="shareDay!=null and shareDay!=''">
+                AND A.share_day = #{shareDay}
+            </if>-->
+        </where>
+        GROUP BY  share_day
+    </select>
+
+</mapper>
